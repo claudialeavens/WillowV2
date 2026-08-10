@@ -49,9 +49,9 @@ const WelcomePage = ({ onNext }) => (
     <section className="welcome-content">
       <div className="welcome-card">
         <p>
-          <strong>Welcome to Willow!</strong> This is your personal sanctuary - backed by science,
-          this journey offers a reset for the mind and body-helping restore calm, clarity, and
-          long-term wellbeing, one small shift at a time.
+          <strong>Welcome to Willow!</strong> This is your personal sanctuary - this journey offers a
+          reset for the mind and body-helping restore calm, clarity, and long-term wellbeing, one
+          small shift at a time.
         </p>
       </div>
       <GradientButton onClick={onNext} ariaLabel="Next">
