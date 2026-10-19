@@ -1,7 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ArrowUp, Mic, MicOff, Volume2, VolumeX } from 'lucide-react';
+import { ArrowUp, Mic, MicOff, Volume2, VolumeX, Leaf, Users, Sprout, Sparkles, Heart, X } from 'lucide-react';
 import { streamWillowMessage } from './openAIService';
 import { createAudioBlob, generateSpeech } from './textToSpeech';
+import { useVoiceOwnership } from './useVoiceOwnership';
+import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
+import {
+  buildConversationSummary,
+  createConversationId,
+  deleteConversation,
+  saveConversation,
+} from './conversationStore';
+import {
+  CORE_CONVERSATION_PROMPT,
+  GUIDED_CONVERSATION_INSTRUCTIONS,
+  PHASE_ASSESSMENT_INSTRUCTIONS,
+  PROACTIVE_GUIDANCE_INSTRUCTIONS,
+} from './willowDirectives';
 
 const BREAK_INTRO_MESSAGE =
   'I’m really glad you reached out for a break. That signal matters.\n\n' +
@@ -16,14 +30,31 @@ Conversation approach:
 - First acknowledge the emotional tone and validate overwhelm, exhaustion, uncertainty, or pressure without judgment.
 - Gently explore what feels heaviest or depleted. Ask one meaningful question at a time.
 - Reflect values, hopes, strengths, care for others, and effort when they appear.
-- Do not rush to solutions. When helpful, offer one small manageable step or exactly three concise numbered options.
+- Do not rush to solutions. Offer 2–3 personalized discovery possibilities after one or two focused questions; offer a small manageable step once a direction resonates.
 - Present suggestions as choices, not instructions, and preserve the user’s autonomy.
-- If the user selects a numbered option, acknowledge that exact choice and explain the next practical step without replacing it with a new list.
+- If the user selects an option, follow that choice. Help explore what resonates before offering a practical step when they are ready.
 - If options do not resonate, validate that and ask one gentle clarifying question before suggesting more.
 - Keep responses short, human, and readable. Avoid repeating the same opener or emotional summary each turn.
 - Guide toward either greater clarity, a small restorative action, or one focused reflection question.`;
 
+const WILLOW_VOICE_INSTRUCTIONS =
+  'Speak in a savvy, relaxed, warm, and grounded style. Sound naturally conversational and quietly confident. ' +
+  'Use an unhurried pace, gentle energy, and subtle expressiveness. Avoid sounding clinical, overly cheerful, theatrical, or scripted.';
+
 const OPTION_PATTERN = /^\s*(?:\d+[.)]|[-*•–—])\s+(.+?)\s*$/;
+const PHASE_PATTERN = /^WILLOW_STATE:\s*(SETTLE|STABILIZE|RECONNECT|ORIENT|ACT)\s*\|\s*([^\n]+)\n?/i;
+
+const parsePhaseAssessment = (content) => {
+  const match = content.match(PHASE_PATTERN);
+  const firstLinePending = !content.includes('\n') &&
+    ('WILLOW_STATE:'.startsWith(content) || content.startsWith('WILLOW_STATE:'));
+  return {
+    phase: match?.[1]?.toUpperCase() ?? '',
+    strategy: match?.[2]?.trim() ?? '',
+    response: match ? content.slice(match[0].length) : content,
+    isMetadataPending: firstLinePending,
+  };
+};
 
 const cleanOption = (text) =>
   text
@@ -46,7 +77,7 @@ const parseOptions = (content) => {
     .split('\n')
     .forEach((line) => {
       const match = line.match(OPTION_PATTERN);
-      if (match && options.length < 3) {
+      if (match && options.length < 4) {
         foundOption = true;
         options.push(cleanOption(match[1]));
         return;
@@ -80,8 +111,31 @@ const AssistantMessage = ({ content, onOption, optionsEnabled }) => {
   );
 };
 
-export const BreakSupport = () => {
-  const [messages, setMessages] = useState([{ role: 'assistant', content: BREAK_INTRO_MESSAGE }]);
+export const BreakSupport = ({
+  initialMessage = '',
+  entryContext = null,
+  mode = 'break',
+  savedConversation = null,
+  userId = null,
+  onConversationChanged,
+  onHome,
+}) => {
+  const [landed, setLanded] = useState(false);
+  const [takeaway, setTakeaway] = useState(savedConversation?.summary?.takeaway ?? '');
+  const [preparingTakeaway, setPreparingTakeaway] = useState(false);
+  const takeawayRequestRef = useRef(null);
+  useEffect(() => {
+    if (landed) document.getElementById('landed-heading')?.focus();
+  }, [landed]);
+  const isCoreConversation = mode === 'core' || mode === 'guided';
+  const isGuidedConversation = mode === 'guided';
+  const [messages, setMessages] = useState(() =>
+    savedConversation?.messages?.length
+      ? savedConversation.messages
+      : isCoreConversation
+        ? []
+        : [{ role: 'assistant', content: BREAK_INTRO_MESSAGE }],
+  );
   const [input, setInput] = useState('');
   const [isResponding, setIsResponding] = useState(false);
   const [error, setError] = useState('');
@@ -89,12 +143,32 @@ export const BreakSupport = () => {
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [phaseAssessment, setPhaseAssessment] = useState(
+    savedConversation?.phase_assessment ?? null,
+  );
+  const [showResumeSummary, setShowResumeSummary] = useState(
+    Boolean(savedConversation?.messages?.length),
+  );
   const scrollRef = useRef(null);
   const recognitionRef = useRef(null);
+  const startingVoiceRef = useRef(false);
+  const voiceOwnership = useVoiceOwnership(() => {
+    setVoiceMode(false);
+    if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
+    recognitionRef.current?.abort();
+    setIsListening(false);
+  });
   const silenceTimerRef = useRef(null);
   const submitRef = useRef(null);
   const audioRef = useRef(null);
   const audioUrlRef = useRef('');
+  const initialMessageRef = useRef(initialMessage.trim());
+  const initialMessageSentRef = useRef(false);
+  const resumeSentRef = useRef(false);
+  const conversationIdRef = useRef(savedConversation?.id ?? createConversationId());
+  const conversationCreatedAtRef = useRef(savedConversation?.created_at ?? new Date().toISOString());
+  const isResumedConversation = Boolean(savedConversation?.messages?.length);
+  const researchMessage = getResearchMessage(entryContext ?? savedConversation?.summary, messages, preparingTakeaway ? '' : takeaway);
 
   let latestAssistantIndex = -1;
   for (let index = messages.length - 1; index >= 0; index -= 1) {
@@ -123,7 +197,10 @@ export const BreakSupport = () => {
         ? {
             role: 'user',
             content:
-              `${BREAK_SUPPORT_PROMPT}\n\n` +
+              `${isCoreConversation ? CORE_CONVERSATION_PROMPT : BREAK_SUPPORT_PROMPT}\n\n` +
+              (isGuidedConversation ? `${GUIDED_CONVERSATION_INSTRUCTIONS}\n\n` : '') +
+              `${PROACTIVE_GUIDANCE_INSTRUCTIONS}\n\n` +
+              (isCoreConversation ? `${PHASE_ASSESSMENT_INSTRUCTIONS}\n\n` : '') +
               (previousReply ? `Avoid reusing wording from your previous reply: "${previousReply}".\n\n` : '') +
               `User input: ${trimmed}`,
           }
@@ -136,25 +213,56 @@ export const BreakSupport = () => {
         requestMessages,
         (token) => {
           streamedReply += token;
+          const parsedReply = isCoreConversation
+            ? parsePhaseAssessment(streamedReply)
+            : { response: streamedReply, isMetadataPending: false };
           setMessages((current) =>
             current.map((message, index) =>
-              index === assistantIndex ? { ...message, content: streamedReply } : message,
+              index === assistantIndex
+                ? {
+                    ...message,
+                    content: parsedReply.isMetadataPending ? '' : parsedReply.response,
+                  }
+                : message,
             ),
           );
         },
-        { maxTokens: 220, temperature: 0.7 },
+        { maxTokens: isCoreConversation ? 260 : 220, temperature: 0.7 },
       );
+      if (isCoreConversation) {
+        const parsedReply = parsePhaseAssessment(streamedReply);
+        if (parsedReply.phase && parsedReply.strategy) {
+          setPhaseAssessment({ phase: parsedReply.phase, strategy: parsedReply.strategy });
+        }
+        setMessages((current) =>
+          current.map((message, index) =>
+            index === assistantIndex ? { ...message, content: parsedReply.response.trim() } : message,
+          ),
+        );
+      }
       window.localStorage.setItem('willow-general-activity-at', String(Date.now()));
     } catch (requestError) {
-      console.error('Failed to get break-support response:', requestError);
+      console.error('Willow response request failed', {
+        name: requestError.name,
+        message: requestError.message,
+        status: requestError.status ?? null,
+        statusText: requestError.statusText ?? null,
+        responseBody: requestError.responseBody ?? null,
+        endpoint: requestError.endpoint ?? null,
+        cause: requestError.cause ?? null,
+        error: requestError,
+      });
+      const userFacingError = import.meta.env.DEV
+        ? `Development error: ${requestError.message}`
+        : 'I could not respond just now. Please try again.';
       setMessages((current) =>
         current.map((message, index) =>
           index === assistantIndex && !message.content.trim()
-            ? { ...message, content: 'I could not respond just now. Please try again.' }
+            ? { ...message, content: userFacingError }
             : message,
         ),
       );
-      setError('I could not respond just now. Please try again.');
+      setError(userFacingError);
     } finally {
       setIsResponding(false);
     }
@@ -162,24 +270,106 @@ export const BreakSupport = () => {
 
   submitRef.current = submitMessage;
 
+  useEffect(() => {
+    if (!initialMessageRef.current || initialMessageSentRef.current) return;
+    initialMessageSentRef.current = true;
+    void submitRef.current?.(initialMessageRef.current);
+  }, []);
+
+  useEffect(() => {
+    if (!isResumedConversation || resumeSentRef.current || initialMessageRef.current) return;
+    resumeSentRef.current = true;
+    void submitRef.current?.(
+      'Continue this conversation from where it left off. Use what is already known, do not repeat prior questions, and offer the next natural response.',
+      'Pick up where we left off.',
+    );
+  }, [isResumedConversation]);
+
+  useEffect(() => {
+    if (isResponding || !messages.some((message) => message.role === 'user')) return undefined;
+    const timeout = window.setTimeout(() => {
+      const summary = {
+        ...buildConversationSummary(messages, phaseAssessment),
+        ...(savedConversation?.summary?.activity ? {
+          activity: savedConversation.summary.activity, selection: savedConversation.summary.selection,
+        } : entryContext ?? {}),
+        ...(takeaway ? { takeaway } : {}),
+      };
+      const firstUserMessage = messages.find((message) => message.role === 'user')?.content ?? '';
+      const now = new Date().toISOString();
+      const conversation = {
+        id: conversationIdRef.current,
+        mode,
+        title: summary.activity ? `${summary.activity} · ${summary.selection}` : firstUserMessage.slice(0, 80) || 'Willow conversation',
+        messages,
+        phase_assessment: phaseAssessment,
+        summary,
+        created_at: conversationCreatedAtRef.current,
+        updated_at: now,
+      };
+      void saveConversation(conversation, userId).then((savedConversation) =>
+        onConversationChanged?.(savedConversation),
+      ).catch((error) => console.error('Unable to save conversation:', error));
+    }, 100);
+    return () => window.clearTimeout(timeout);
+  }, [isResponding, messages, mode, onConversationChanged, phaseAssessment, userId, entryContext, savedConversation, takeaway]);
+
+  const startNewConversation = () => {
+    takeawayRequestRef.current?.abort();
+    setTakeaway('');
+    setLanded(false);
+    stopListening();
+    stopAudio();
+    conversationIdRef.current = createConversationId();
+    conversationCreatedAtRef.current = new Date().toISOString();
+    initialMessageRef.current = '';
+    initialMessageSentRef.current = true;
+    resumeSentRef.current = true;
+    setMessages(isCoreConversation ? [] : [{ role: 'assistant', content: BREAK_INTRO_MESSAGE }]);
+    setPhaseAssessment(null);
+    setShowResumeSummary(false);
+    setInput('');
+    setError('');
+  };
+
+  const removeCurrentConversation = async () => {
+    await deleteConversation(conversationIdRef.current, userId);
+    onConversationChanged?.(null);
+    startNewConversation();
+  };
+
   const selectOption = (option) => {
+    if (isGuidedConversation) {
+      void submitMessage(option, option);
+      return;
+    }
     const prompt =
       `The user selected this option: "${option}". Respond in no more than 85 words total. ` +
-      'Explain only what they are to do next in concise practical prose. Do not present new options, ' +
-      'numbered lists, bullet lists, or a closing question. Use one short practical paragraph, then one ' +
-      'brief invitation to share how it feels or what is on their mind.';
+      'Follow their chosen direction rather than replacing it with a new list. If this is a discovery ' +
+      'choice, help them recognize the underlying feeling or need without rushing into solutions. ' +
+      'If they are ready for action, suggest one small meaningful step and connect it to their original ' +
+      'intention. Keep the response short, personalized, and gently forward-moving.';
     void submitMessage(prompt, option);
   };
 
   const stopListening = () => {
+    voiceOwnership.release();
     if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
     recognitionRef.current?.stop();
     setIsListening(false);
   };
 
-  const startListening = () => {
+  const startListening = async () => {
+    if (document.hidden || startingVoiceRef.current) return;
     if (!speechConstructor || isResponding || isSpeaking) {
       if (!speechConstructor) setError('Voice input is not supported in this browser.');
+      return;
+    }
+
+    startingVoiceRef.current = true;
+    if (!(await voiceOwnership.acquire())) {
+      startingVoiceRef.current = false;
+      setVoiceMode(false);
       return;
     }
 
@@ -208,6 +398,8 @@ export const BreakSupport = () => {
         }, /[.!?…]$/.test(preview) ? 850 : 1850);
       };
       recognition.onerror = () => {
+        voiceOwnership.release();
+        setVoiceMode(false);
         setIsListening(false);
         setError('I could not capture your voice. Please try again.');
       };
@@ -217,7 +409,16 @@ export const BreakSupport = () => {
 
     setError('');
     setIsListening(true);
-    recognitionRef.current.start();
+    try {
+      recognitionRef.current.start();
+    } catch {
+      voiceOwnership.release();
+      setVoiceMode(false);
+      setIsListening(false);
+      setError('I could not capture your voice. Please try again.');
+    } finally {
+      startingVoiceRef.current = false;
+    }
   };
 
   const toggleMicrophone = () => {
@@ -249,9 +450,9 @@ export const BreakSupport = () => {
       setIsGeneratingAudio(true);
       let audioContent;
       try {
-        audioContent = await generateSpeech(text, 'coral');
+        audioContent = await generateSpeech(text, 'sage', WILLOW_VOICE_INSTRUCTIONS);
       } catch {
-        audioContent = await generateSpeech(text, 'shimmer');
+        audioContent = await generateSpeech(text, 'marin', WILLOW_VOICE_INSTRUCTIONS);
       }
       const audioUrl = URL.createObjectURL(createAudioBlob(audioContent));
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
@@ -275,27 +476,112 @@ export const BreakSupport = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (!voiceMode || isResponding || isSpeaking || isListening) return;
+    if (document.hidden || !voiceMode || isResponding || isSpeaking || isListening) return;
     startListening();
   }, [voiceMode, isResponding, isSpeaking, isListening]);
+
+  useEffect(() => {
+    const pauseListening = () => {
+      if (!document.hidden) return;
+      voiceOwnership.release();
+      setVoiceMode(false);
+      if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
+      recognitionRef.current?.abort();
+      setIsListening(false);
+    };
+    document.addEventListener('visibilitychange', pauseListening);
+    return () => document.removeEventListener('visibilitychange', pauseListening);
+  }, []);
 
   useEffect(
     () => () => {
       stopListening();
       stopAudio();
+      takeawayRequestRef.current?.abort();
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
     },
     [],
   );
 
+  const continueExploring = () => {
+    takeawayRequestRef.current?.abort();
+    setPreparingTakeaway(false);
+    setLanded(false);
+  };
+
+  const finishConversation = async () => {
+    setVoiceMode(false);
+    stopListening();
+    stopAudio();
+    setLanded(true);
+    setPreparingTakeaway(true);
+    const controller = new AbortController();
+    takeawayRequestRef.current?.abort();
+    takeawayRequestRef.current = controller;
+    try {
+      const text = await streamWillowMessage([
+        ...messages.filter((m) => m.content?.trim()).slice(-12),
+        { role: 'user', content: 'The user clicked "Happy where we landed". Write a brief takeaway for their closing page, in 1–2 warm, specific sentences (maximum 55 words). Summarize only what this conversation actually established. If they chose an action, remind them of that action and connect it to their original intention or need. Otherwise capture the insight or direction that resonated; do not invent an action or imply they committed to one. No questions, new suggestions, lists, metadata, or introductory labels. Return only the takeaway.' },
+      ], () => {}, { maxTokens: 110, signal: controller.signal });
+      if (!controller.signal.aborted) setTakeaway(text.trim());
+    } catch {
+      if (!controller.signal.aborted) setTakeaway('Carry forward what felt useful here, at your own pace. You can return to this conversation in your archive.');
+    } finally {
+      if (!controller.signal.aborted) setPreparingTakeaway(false);
+    }
+  };
+
+  if (landed) return (
+    <section className="landed-content" aria-labelledby="landed-heading">
+      <button className="landed-close" type="button" onClick={continueExploring} aria-label="Return to conversation"><X aria-hidden="true" /></button>
+      <p className="matters-eyebrow">WILLOW</p>
+      <h1 id="landed-heading" tabIndex={-1}>You’re on your way.</h1>
+      <p className="landed-intro">You’ve made space for what matters to you — and that matters.</p>
+      <article className="landed-note" aria-live="polite">
+        <Leaf className="landed-leaf" aria-hidden="true" />
+        <h2>A takeaway to remember</h2>
+        <p>{preparingTakeaway ? 'Gathering what we discovered together…' : takeaway}</p>
+        <Heart className="landed-heart" aria-hidden="true" />
+      </article>
+      <div className="landed-reassurance">
+        <div><span className="connection"><Users aria-hidden="true" /></span><p>{researchMessage.text}</p>
+          <details className="landed-research"><summary>Research</summary>
+            <a href={researchMessage.source} target="_blank" rel="noreferrer">Wellbeing research</a>
+            <a href={TURNER_THEMES_SOURCE} target="_blank" rel="noreferrer">Kelly Turner element: {researchMessage.theme}</a>
+          </details>
+        </div>
+        <div><span className="growth"><Sprout aria-hidden="true" /></span><p>{researchMessage.tip ?? `Explore ${researchMessage.theme.toLowerCase()} through a small step that feels right for you.`}</p></div>
+        <div><span className="support"><Sparkles aria-hidden="true" /></span><p>Return to Willow any time. We’ll be here whenever you need us.</p></div>
+      </div>
+      <button className="landed-continue" type="button" onClick={continueExploring}><Leaf aria-hidden="true" />Continue exploring</button>
+      <button className="landed-home" type="button" onClick={onHome}>Back to home</button>
+      <p className="landed-footer">We’ll be here whenever you need us.</p>
+    </section>
+  );
+
   return (
     <section className="break-support-content" aria-labelledby="break-heading">
       <header className="break-support-heading">
-        <p>TAKE A BREAK</p>
-        <h1 id="break-heading">Let’s take a moment…</h1>
+        <p>{isCoreConversation ? 'WILLOW' : 'TAKE A BREAK'}</p>
+        <h1 id="break-heading">
+          {isCoreConversation ? 'Let’s begin where you are.' : 'Let’s take a moment…'}
+        </h1>
       </header>
 
       <div className="break-chat-panel">
+        {showResumeSummary && (
+          <aside className="conversation-resume-summary">
+            <div>
+              <p>WHERE WE LEFT OFF · {savedConversation.summary?.phase ?? 'Conversation'}</p>
+              <strong>{savedConversation.summary?.focus}</strong>
+              <span>{savedConversation.summary?.whereLeftOff}</span>
+            </div>
+            <div className="conversation-history-actions">
+              <button type="button" onClick={startNewConversation}>New conversation</button>
+              <button type="button" onClick={() => void removeCurrentConversation()}>Delete</button>
+            </div>
+          </aside>
+        )}
         <div className="break-tools" aria-label="Conversation tools">
           <button
             type="button"
@@ -357,7 +643,28 @@ export const BreakSupport = () => {
             <ArrowUp aria-hidden="true" />
           </button>
         </form>
+        <button className="happy-landed" type="button" onClick={() => void finishConversation()}
+          disabled={isResponding || isGeneratingAudio || !messages.some((message) => message.role === 'user')}>
+          <img src="/images/willow-leaf-sprig.png" alt="" aria-hidden="true" width="64" height="64" />
+          <span><strong>~ Happy where we landed ~</strong><small>Let’s wrap up →</small></span>
+        </button>
       </div>
+
+      {isCoreConversation && (
+        <aside className="phase-insight" aria-live="polite" aria-label="Willow phase assessment">
+          <p className="phase-insight-label">Prompt guidance preview</p>
+          {phaseAssessment ? (
+            <div className="phase-insight-content">
+              <span>{phaseAssessment.phase}</span>
+              <p>{phaseAssessment.strategy}</p>
+            </div>
+          ) : (
+            <p className="phase-insight-empty">
+              Willow’s phase and current strategy will appear here after the first response.
+            </p>
+          )}
+        </aside>
+      )}
     </section>
   );
 };

@@ -1,8 +1,8 @@
 import { supabase } from './supabase';
 
-export const generateSpeech = async (text, voice = 'coral') => {
+export const generateSpeech = async (text, voice = 'sage', instructions) => {
   const { data, error } = await supabase.functions.invoke('text-to-speech', {
-    body: { text, voice },
+    body: { text, voice, instructions },
   });
 
   if (error) throw new Error(`Failed to generate audio: ${error.message}`);

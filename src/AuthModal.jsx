@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Eye, EyeOff, Lock, Mail, ShieldCheck, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Eye, EyeOff, Lock, Mail, ShieldCheck, X, Laptop, Tablet, Smartphone, Leaf } from 'lucide-react';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -46,13 +47,39 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState(null);
-  const [canResend, setCanResend] = useState(false);
+  const [showSignInInfo, setShowSignInInfo] = useState(true);
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const privacyVisibleRef = useRef(false);
+  const privacyCloseRef = useRef(null);
+  privacyVisibleRef.current = showPrivacy;
+  const infoVisibleRef = useRef(showSignInInfo);
+  const infoOkRef = useRef(null);
+  const emailRef = useRef(null);
+  infoVisibleRef.current = showSignInInfo;
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (showPrivacy) privacyCloseRef.current?.focus();
+    else if (showSignInInfo) infoOkRef.current?.focus();
+    else emailRef.current?.focus();
+  }, [isOpen, showSignInInfo, showPrivacy]);
 
   useEffect(() => {
     if (!isOpen) return undefined;
 
+    setTab('signin');
+    setPassword('');
+    setPasswordVisible(false);
+    setMessage(null);
+    setShowSignInInfo(true);
+    setShowPrivacy(false);
+
     const handleKeyDown = (event) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key === 'Escape') {
+        if (privacyVisibleRef.current) { setShowPrivacy(false); return; }
+        if (infoVisibleRef.current) setShowSignInInfo(false);
+        else onClose();
+      }
     };
 
     document.body.classList.add('modal-open');
@@ -67,7 +94,6 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
 
   const resetFeedback = () => {
     setMessage(null);
-    setCanResend(false);
   };
 
   const selectTab = (nextTab) => {
@@ -101,34 +127,13 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
         onClose();
       } else {
         await auth.signUp(email, password);
-        setMessage({
-          type: 'success',
-          text: 'Check your email for a confirmation link, then return to sign in.',
-        });
-        setPassword('');
+        onClose();
       }
     } catch (error) {
-      const emailNotConfirmed = error.message?.toLowerCase().includes('email not confirmed');
-      setCanResend(emailNotConfirmed);
       setMessage({
         type: 'error',
-        text: emailNotConfirmed
-          ? 'Please confirm your email before signing in.'
-          : error.message || 'Something went wrong. Please try again.',
+        text: error.message || 'Something went wrong. Please try again.',
       });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const resend = async () => {
-    setSubmitting(true);
-    try {
-      await auth.resendConfirmation(email);
-      setCanResend(false);
-      setMessage({ type: 'success', text: 'Confirmation email sent.' });
-    } catch (error) {
-      setMessage({ type: 'error', text: error.message || 'Unable to resend the email.' });
     } finally {
       setSubmitting(false);
     }
@@ -139,14 +144,16 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
     onClose();
   };
 
-  return (
-    <div className="auth-overlay" role="presentation" onMouseDown={onClose}>
+  return createPortal(
+    <div className="auth-overlay" role="presentation" onClick={() => { if (!showSignInInfo) onClose(); }}>
       <section
         className="auth-modal"
         role="dialog"
-        aria-modal="true"
+        aria-modal={!showSignInInfo && !showPrivacy}
+        aria-hidden={(showSignInInfo || showPrivacy) || undefined}
+        inert={showSignInInfo || showPrivacy ? '' : undefined}
         aria-labelledby="auth-title"
-        onMouseDown={(event) => event.stopPropagation()}
+        onClick={(event) => event.stopPropagation()}
       >
         <button className="auth-close" type="button" onClick={onClose} aria-label="Close sign in">
           <X aria-hidden="true" />
@@ -159,7 +166,6 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
           <div>
             <p className="auth-kicker">Secure access</p>
             <h2 id="auth-title">Welcome to Willow</h2>
-            <p>Sign in to personalize your wellness journey and manage your reminders.</p>
           </div>
         </header>
 
@@ -189,8 +195,8 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
             <h3>{tab === 'signin' ? 'Sign in to Willow' : 'Create your account'}</h3>
             <p>
               {tab === 'signin'
-                ? 'Enter your credentials to access your account.'
-                : 'Join Willow to save your progress and preferences.'}
+                ? 'Enter your credentials to continue your saved conversations.'
+                : 'Create an account to continue conversations across devices.'}
             </p>
           </div>
 
@@ -200,6 +206,7 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
               Email
             </span>
             <input
+              ref={emailRef}
               id={`${tab}-email`}
               type="email"
               value={email}
@@ -239,19 +246,40 @@ export const AuthModal = ({ isOpen, onClose, auth }) => {
                 : 'Create Account'}
           </button>
 
-          {canResend && (
-            <button className="auth-secondary" type="button" onClick={resend} disabled={submitting}>
-              Resend confirmation email
-            </button>
-          )}
-
-          {tab === 'signin' && (
-            <button className="auth-guest" type="button" onClick={continueAsGuest}>
-              Continue without signing in
-            </button>
-          )}
+          <button className="auth-guest" type="button" onClick={continueAsGuest}>
+            {tab === 'signup' ? 'Continue without signing up' : 'Continue without signing in'}
+          </button>
+          <button className="auth-privacy-link" type="button" onClick={() => setShowPrivacy(true)}>Privacy Policy</button>
         </form>
       </section>
-    </div>
+      {showSignInInfo && <div className="signin-info-overlay" onClick={(event) => event.stopPropagation()}>
+        <section className="signin-info-dialog" role="dialog" aria-modal={!showPrivacy} aria-label="Sign-in information"
+          inert={showPrivacy ? '' : undefined} aria-hidden={showPrivacy || undefined}
+          aria-describedby="signin-info-text" onKeyDown={(event) => {
+            if (event.key !== 'Tab') return;
+            const buttons = event.currentTarget.querySelectorAll('button');
+            const first = buttons[0], last = buttons[buttons.length - 1];
+            if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+            else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+          }}>
+          <button className="signin-info-close" type="button" aria-label="Close account introduction" onClick={onClose}><X aria-hidden="true" /></button>
+          <div className="signin-devices" aria-hidden="true"><div className="signin-laptop"><Laptop /><Leaf /></div><Tablet /><Smartphone /></div>
+          <h2>Continuity between<br />visits and devices</h2>
+          <p id="signin-info-text">To enable continuity in your Willow experience, between visits and devices, <button ref={infoOkRef} className="signin-info-inline" type="button" onClick={() => { selectTab('signup'); setShowSignInInfo(false); }}>sign up here</button>.</p>
+          <button className="signin-info-signup" type="button" onClick={() => { selectTab('signup'); setShowSignInInfo(false); }}>Sign Up</button>
+          <p className="signin-info-existing">Already have an account? <button type="button" onClick={() => { selectTab('signin'); setShowSignInInfo(false); }}>Sign in</button></p>
+          <button className="signin-privacy-link" type="button" onClick={() => setShowPrivacy(true)}>Privacy Policy</button>
+        </section>
+      </div>}
+      {showPrivacy && <div className="signin-privacy-overlay" onClick={(event) => { event.stopPropagation(); setShowPrivacy(false); }}>
+          <section className="signin-privacy-dialog" role="dialog" aria-modal="true" aria-label="Privacy Policy" onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => { if (event.key === 'Tab') { event.preventDefault(); privacyCloseRef.current?.focus(); } }}>
+            <button ref={privacyCloseRef} className="signin-info-close" type="button" aria-label="Close Privacy Policy" onClick={() => setShowPrivacy(false)}><X aria-hidden="true" /></button>
+            <span className="privacy-shield" aria-hidden="true"><ShieldCheck /></span>
+            <p>Our commitment is to keep your data secure and protected to the highest standards. ...</p>
+          </section>
+        </div>}
+    </div>,
+    document.body,
   );
 };
