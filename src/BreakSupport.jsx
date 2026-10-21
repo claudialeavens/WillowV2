@@ -140,7 +140,12 @@ export const BreakSupport = ({
         ? []
         : [{ role: 'assistant', content: BREAK_INTRO_MESSAGE }],
   );
-  const [input, setInput] = useState('');
+  const [input, setInputState] = useState('');
+  const inputRef = useRef('');
+  const setInput = useCallback((value) => {
+    inputRef.current = value;
+    setInputState(value);
+  }, []);
   const [isResponding, setIsResponding] = useState(false);
   const [error, setError] = useState('');
   const { microphone: voiceMode, speaker: speakerMode } = useAudioModes();
@@ -178,6 +183,7 @@ export const BreakSupport = ({
     setError('Voice input is active in another Willow window. Turn the microphone off and on here to resume.');
   });
   const silenceTimerRef = useRef(null);
+  const speechActiveRef = useRef(false);
   const submitRef = useRef(null);
   const audioRef = useRef(null);
   const audioUrlRef = useRef('');
@@ -373,17 +379,43 @@ export const BreakSupport = ({
     void submitMessage(prompt, option);
   };
 
-  const stopListening = () => {
+  const stopListening = ({ preserveDraftTimer = false } = {}) => {
     recognitionGenerationRef.current += 1;
     startingVoiceRef.current = false;
     voiceOwnership.release();
-    if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
-    silenceTimerRef.current = null;
+    speechActiveRef.current = false;
+    if (!preserveDraftTimer) {
+      if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
     const recognition = recognitionRef.current;
     recognitionRef.current = null;
     // Abort discards buffered speech; stop() can deliver a final echo result.
     try { recognition?.abort(); } catch { /* The session may already have ended. */ }
     setIsListening(false);
+  };
+
+  const scheduleVoiceSend = () => {
+    if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
+    silenceTimerRef.current = null;
+    if (!inputRef.current.trim() || speechActiveRef.current) return;
+    silenceTimerRef.current = window.setTimeout(() => {
+      silenceTimerRef.current = null;
+      if (!voiceModeRef.current || microphoneBlockedRef.current || document.hidden || speechActiveRef.current) return;
+      const message = inputRef.current.trim();
+      stopListening();
+      if (message) void submitRef.current?.(message);
+    }, 5000);
+  };
+
+  const editInput = (value) => {
+    setInput(value);
+    if (voiceModeRef.current) {
+      // Restart dictation with the edited draft, so old results cannot replace it.
+      stopListening();
+      scheduleVoiceSend();
+      if (!microphoneUnavailable && !microphoneRetryDelay && !landed) void startListening();
+    }
   };
 
   const startListening = async () => {
@@ -414,48 +446,56 @@ export const BreakSupport = ({
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
-      let finalText = '';
-      let preview = '';
+      const draftBeforeSession = inputRef.current.trim();
       const isCurrent = () => recognitionRef.current === recognition
         && generation === recognitionGenerationRef.current && voiceModeRef.current
         && !microphoneBlockedRef.current && !document.hidden;
 
       recognition.onresult = (event) => {
         if (!isCurrent()) return;
-        let interimText = '';
-        for (let index = event.resultIndex ?? 0; index < event.results.length; index += 1) {
-          const transcript = event.results[index]?.[0]?.transcript?.trim() ?? '';
-          if (event.results[index]?.isFinal) finalText = `${finalText} ${transcript}`.trim();
-          else interimText = `${interimText} ${transcript}`.trim();
-        }
-
-        preview = `${finalText} ${interimText}`.trim();
-        setInput(preview);
-        if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = window.setTimeout(() => {
-          if (!isCurrent()) return;
-          const message = finalText.trim() || preview;
-          finalText = '';
-          preview = '';
+        const transcript = Array.from(event.results)
+          .map((result) => result[0]?.transcript?.trim() ?? '').filter(Boolean).join(' ');
+        const preview = [draftBeforeSession, transcript].filter(Boolean).join(' ');
+        const lastResult = event.results[event.results.length - 1];
+        // A final trailing word is a command; phrases like "send an email" are dictation.
+        if (lastResult?.isFinal && /(?:^|\s)send[\s.!?,;:]*$/i.test(transcript)) {
+          const message = preview.replace(/(?:^|\s)send[\s.!?,;:]*$/i, '').trim();
+          setInput(message);
           stopListening();
           if (message) void submitRef.current?.(message);
-        }, /[.!?…]$/.test(preview) ? 850 : 1850);
+          return;
+        }
+        const draftChanged = preview !== inputRef.current;
+        setInput(preview);
+        if (draftChanged || !silenceTimerRef.current) scheduleVoiceSend();
+      };
+      recognition.onspeechstart = () => {
+        if (!isCurrent()) return;
+        speechActiveRef.current = true;
+        if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
+        silenceTimerRef.current = null;
+      };
+      recognition.onspeechend = () => {
+        if (!isCurrent()) return;
+        speechActiveRef.current = false;
+        scheduleVoiceSend();
       };
       recognition.onerror = (event) => {
         if (!isCurrent()) return;
-        stopListening();
         if (['no-speech', 'aborted', 'network'].includes(event.error)) {
+          stopListening({ preserveDraftTimer: true });
+          if (!silenceTimerRef.current) scheduleVoiceSend();
           setMicrophoneRetryDelay(event.error === 'network' ? 2000 : 500);
         } else {
+          stopListening();
           setMicrophoneUnavailable(true);
           setError('Voice input is unavailable. Check microphone access, then turn voice input off and on to retry.');
         }
       };
       recognition.onend = () => {
         if (!isCurrent()) return;
-        const message = finalText.trim() || preview;
-        stopListening();
-        if (message) void submitRef.current?.(message);
+        stopListening({ preserveDraftTimer: true });
+        if (!silenceTimerRef.current) scheduleVoiceSend();
       };
     }
 
@@ -463,6 +503,7 @@ export const BreakSupport = ({
     setIsListening(true);
     try {
       recognitionRef.current.start();
+      if (!silenceTimerRef.current) scheduleVoiceSend();
     } catch {
       stopListening();
       setMicrophoneUnavailable(true);
@@ -716,6 +757,8 @@ export const BreakSupport = ({
           </button>
         </div>
 
+        {voiceMode && <p className="voice-input-hint">Say “send” or pause for 5 seconds to send your message.</p>}
+
         <div className="break-chat-messages" ref={scrollRef} aria-live="polite">
           {messages.map((message, index) => (
             <div className={`break-message ${message.role}`} key={`${message.role}-${index}`}>
@@ -743,7 +786,7 @@ export const BreakSupport = ({
         >
           <textarea
             value={input}
-            onChange={(event) => setInput(event.target.value)}
+            onChange={(event) => editInput(event.target.value)}
             onKeyDown={(event) => {
               if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
