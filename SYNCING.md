@@ -1,5 +1,29 @@
 # WillowV2 and WillowV2.0
 
+## Publish both local and public versions
+
+From either local project, use:
+
+```sh
+npm run publish:both -- "Describe the changes"
+```
+
+The command builds, commits, and pushes the WillowV2 source; starts and waits for
+the V2.0 sync; pulls the synced commit into the local WillowV2.0 folder; and checks
+that both Vercel production deployments are READY for their exact commits. Both
+local folders must be on `main` and linked to their respective Vercel projects.
+GitHub CLI and Vercel CLI authentication are required. Local V2.0 application edits
+must be preserved or integrated before publishing; conflicting local files are
+never overwritten. Unrelated editor and local deployment files remain local.
+
+The public sites are https://willow-v2.vercel.app and
+https://willow-v2-0.vercel.app. Both Vercel projects are connected to their GitHub
+repositories' `main` branches, including commits made by the sync workflow.
+This command verifies deployment completion instead of assuming that a push
+means a public release succeeded.
+
+## Background repository sync
+
 WillowV2 is the source for both repositories. The **Sync WillowV2.0** GitHub
 Actions workflow in WillowV2.0 checks WillowV2's `main` branch on a five-minute
 schedule. GitHub may delay scheduled runs, so syncing is not immediate.

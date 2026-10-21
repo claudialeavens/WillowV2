@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "publish:both": "python3 scripts/publish-both.py",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview"
