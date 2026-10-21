@@ -63,10 +63,27 @@ def wait_for_production(project, link, sha):
                        'Check the Vercel Git connection and build logs.')
 
 
+def pull_variant(variant):
+    git(variant, 'fetch', 'origin', 'main')
+    # Adopt identical untracked files that become tracked upstream. Differing
+    # local files remain untouched and Git will refuse to overwrite them.
+    untracked = git(variant, 'ls-files', '--others', '--exclude-standard', '-z',
+                    capture=True).split('\0')
+    for name in filter(None, untracked):
+        remote_file = subprocess.run(['git', 'show', f'origin/main:{name}'],
+                                     cwd=variant, stdout=subprocess.PIPE,
+                                     stderr=subprocess.DEVNULL)
+        local_file = variant / name
+        if (remote_file.returncode == 0 and local_file.is_file()
+                and local_file.read_bytes() == remote_file.stdout):
+            git(variant, 'add', '--', name)
+    git(variant, 'merge', '--ff-only', 'origin/main')
+
+
 def update_variant_workflows(source, variant):
     # GITHUB_TOKEN cannot update workflow definitions. Publish those files using
     # the local authenticated checkout, without staging unrelated variant edits.
-    git(variant, 'pull', '--ff-only', 'origin', 'main')
+    pull_variant(variant)
     paths = '.github/workflows'
     if git(variant, 'status', '--porcelain', '--', paths, capture=True):
         raise RuntimeError('Preserve local V2.0 workflow edits before publishing.')
@@ -128,7 +145,7 @@ def main():
          '--exit-status', '--interval', '5'], source)
 
     # Git refuses a pull that would overwrite local edits or diverging commits.
-    git(variant, 'pull', '--ff-only', 'origin', 'main')
+    pull_variant(variant)
     variant_sha = git(variant, 'rev-parse', 'HEAD', capture=True)
     settings = json.loads((variant / 'src' / 'willowVariant.json').read_text())
     if settings.get('showPromptGuidance') is not False:
