@@ -56,5 +56,10 @@ it after changed syncs and manual runs. The publishing command then waits for
 both exact commits to reach READY in Vercel. This secret is configured separately
 from committed files and must not be printed or committed.
 
+GitHub's built-in token cannot modify workflow definitions. The local publishing
+command therefore copies and pushes `.github/workflows/` using the existing local
+GitHub sign-in before starting the sync. Background sync preserves that directory.
+Use `publish:both` when changing workflow definitions as well as application code.
+
 This sync covers committed files. Local `.env` files, Vercel project settings,
 production secrets, databases, and hosting configuration are managed separately.

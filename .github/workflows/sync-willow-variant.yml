@@ -37,7 +37,7 @@ jobs:
 
       - name: Copy source and apply WillowV2.0 settings
         run: |
-          rsync -a --delete --exclude='/.git/' source/ variant/
+          rsync -a --delete --exclude='/.git/' --exclude='/.github/workflows/' source/ variant/
           python3 source/scripts/configure-willow-variant.py variant
 
       - name: Check for changes

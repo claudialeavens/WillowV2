@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -62,6 +63,31 @@ def wait_for_production(project, link, sha):
                        'Check the Vercel Git connection and build logs.')
 
 
+def update_variant_workflows(source, variant):
+    # GITHUB_TOKEN cannot update workflow definitions. Publish those files using
+    # the local authenticated checkout, without staging unrelated variant edits.
+    git(variant, 'pull', '--ff-only', 'origin', 'main')
+    paths = '.github/workflows'
+    if git(variant, 'status', '--porcelain', '--', paths, capture=True):
+        raise RuntimeError('Preserve local V2.0 workflow edits before publishing.')
+    source_files = set(git(source, 'ls-files', '--', paths, capture=True).splitlines())
+    variant_files = set(git(variant, 'ls-files', '--', paths, capture=True).splitlines())
+    for name in variant_files - source_files:
+        (variant / name).unlink()
+    for name in source_files:
+        destination = variant / name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(source / name, destination)
+    git(variant, 'add', '--', paths)
+    changed = subprocess.run(['git', 'diff', '--cached', '--quiet', '--', paths], cwd=variant)
+    if changed.returncode == 1:
+        git(variant, 'commit', '--only', '-m', 'Update publishing workflows from WillowV2',
+            '--', paths)
+        git(variant, 'push', 'origin', 'main')
+    elif changed.returncode != 0:
+        raise RuntimeError('Could not inspect the V2.0 workflow changes')
+
+
 def main():
     here = Path(__file__).resolve().parents[1]
     source = here if here.name == 'WillowV2' else here.with_name('WillowV2')
@@ -89,6 +115,7 @@ def main():
         raise RuntimeError('Could not inspect staged changes')
     source_sha = git(source, 'rev-parse', 'HEAD', capture=True)
     git(source, 'push', 'origin', 'main')
+    update_variant_workflows(source, variant)
 
     print('Running the WillowV2.0 sync...', flush=True)
     output = run(['gh', 'workflow', 'run', WORKFLOW, '--repo', f'{OWNER}/WillowV2.0',
