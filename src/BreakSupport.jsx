@@ -141,7 +141,15 @@ export const BreakSupport = ({
   const [input, setInput] = useState('');
   const [isResponding, setIsResponding] = useState(false);
   const [error, setError] = useState('');
-  const [voiceMode, setVoiceMode] = useState(false);
+  const [voiceMode, setVoiceModeState] = useState(false);
+  const voiceModeRef = useRef(false);
+  const setVoiceMode = useCallback((enabled) => {
+    voiceModeRef.current = enabled;
+    setVoiceModeState(enabled);
+  }, []);
+  const [microphonePaused, setMicrophonePaused] = useState(false);
+  const microphoneBlockedRef = useRef(false);
+  const recognitionGenerationRef = useRef(0);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
@@ -158,9 +166,7 @@ export const BreakSupport = ({
   const startingVoiceRef = useRef(false);
   const voiceOwnership = useVoiceOwnership(() => {
     setVoiceMode(false);
-    if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
-    recognitionRef.current?.abort();
-    setIsListening(false);
+    stopListening();
   });
   const silenceTimerRef = useRef(null);
   const submitRef = useRef(null);
@@ -187,6 +193,7 @@ export const BreakSupport = ({
   const submitMessage = async (messageText, displayText = messageText) => {
     const trimmed = messageText.trim();
     if (!trimmed || isResponding) return;
+    stopListening();
 
     const nextMessages = [...messages, { role: 'user', content: displayText.trim() }];
     const assistantIndex = nextMessages.length;
@@ -357,34 +364,53 @@ export const BreakSupport = ({
   };
 
   const stopListening = () => {
+    recognitionGenerationRef.current += 1;
+    startingVoiceRef.current = false;
     voiceOwnership.release();
     if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
-    recognitionRef.current?.stop();
+    silenceTimerRef.current = null;
+    const recognition = recognitionRef.current;
+    recognitionRef.current = null;
+    // Abort discards buffered speech; stop() can deliver a final echo result.
+    try { recognition?.abort(); } catch { /* The session may already have ended. */ }
     setIsListening(false);
   };
 
   const startListening = async () => {
-    if (document.hidden || startingVoiceRef.current) return;
-    if (!speechConstructor || isResponding || isSpeaking) {
+    if (document.hidden || !voiceModeRef.current || startingVoiceRef.current || recognitionRef.current) return;
+    if (!speechConstructor || isResponding || isSpeaking || isGeneratingAudio || microphoneBlockedRef.current) {
       if (!speechConstructor) setError('Voice input is not supported in this browser.');
       return;
     }
 
     startingVoiceRef.current = true;
-    if (!(await voiceOwnership.acquire())) {
+    const generation = ++recognitionGenerationRef.current;
+    const acquired = await voiceOwnership.acquire();
+    if (generation !== recognitionGenerationRef.current) return;
+    if (!acquired) {
       startingVoiceRef.current = false;
       setVoiceMode(false);
       return;
     }
+    if (document.hidden || !voiceModeRef.current || microphoneBlockedRef.current) {
+      stopListening();
+      return;
+    }
 
-    if (!recognitionRef.current) {
+    {
       const recognition = new speechConstructor();
+      recognitionRef.current = recognition;
       recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       let finalText = '';
+      let preview = '';
+      const isCurrent = () => recognitionRef.current === recognition
+        && generation === recognitionGenerationRef.current && voiceModeRef.current
+        && !microphoneBlockedRef.current && !document.hidden;
 
       recognition.onresult = (event) => {
+        if (!isCurrent()) return;
         let interimText = '';
         for (let index = event.resultIndex ?? 0; index < event.results.length; index += 1) {
           const transcript = event.results[index]?.[0]?.transcript?.trim() ?? '';
@@ -392,23 +418,31 @@ export const BreakSupport = ({
           else interimText = `${interimText} ${transcript}`.trim();
         }
 
-        const preview = `${finalText} ${interimText}`.trim();
+        preview = `${finalText} ${interimText}`.trim();
         setInput(preview);
         if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = window.setTimeout(() => {
+          if (!isCurrent()) return;
           const message = finalText.trim() || preview;
           finalText = '';
+          preview = '';
+          stopListening();
           if (message) void submitRef.current?.(message);
         }, /[.!?…]$/.test(preview) ? 850 : 1850);
       };
       recognition.onerror = () => {
-        voiceOwnership.release();
+        if (!isCurrent()) return;
+        stopListening();
         setVoiceMode(false);
         setIsListening(false);
         setError('I could not capture your voice. Please try again.');
       };
-      recognition.onend = () => setIsListening(false);
-      recognitionRef.current = recognition;
+      recognition.onend = () => {
+        if (!isCurrent()) return;
+        const message = finalText.trim() || preview;
+        stopListening();
+        if (message) void submitRef.current?.(message);
+      };
     }
 
     setError('');
@@ -416,7 +450,7 @@ export const BreakSupport = ({
     try {
       recognitionRef.current.start();
     } catch {
-      voiceOwnership.release();
+      stopListening();
       setVoiceMode(false);
       setIsListening(false);
       setError('I could not capture your voice. Please try again.');
@@ -440,17 +474,21 @@ export const BreakSupport = ({
     audioRef.current?.pause();
     if (audioRef.current) audioRef.current.currentTime = 0;
     setIsSpeaking(false);
+    setIsGeneratingAudio(false);
   }, []);
 
   useEffect(() => {
     stopAudio();
-    setIsGeneratingAudio(false);
   }, [selectedVoice, stopAudio]);
 
   const playResponse = async (voice) => {
     const text = latestAssistant?.content?.trim();
     if (!text || isGeneratingAudio || isResponding) return;
     stopAudio();
+    // Block synchronously before async voice ownership or speech events can run.
+    microphoneBlockedRef.current = true;
+    setMicrophonePaused(true);
+    stopListening();
     const request = audioRequestRef.current;
 
     try {
@@ -463,7 +501,14 @@ export const BreakSupport = ({
       audioUrlRef.current = audioUrl;
       if (!audioRef.current) audioRef.current = new Audio();
       audioRef.current.src = audioUrl;
-      audioRef.current.onended = () => setIsSpeaking(false);
+      audioRef.current.onended = () => {
+        if (request === audioRequestRef.current) setIsSpeaking(false);
+      };
+      audioRef.current.onerror = () => {
+        if (request !== audioRequestRef.current) return;
+        stopAudio();
+        setError('I could not play that voice right now. Please try again or choose another voice.');
+      };
       await audioRef.current.play();
       if (request === audioRequestRef.current) setIsSpeaking(true);
     } catch (speechError) {
@@ -482,18 +527,25 @@ export const BreakSupport = ({
   }, [messages]);
 
   useEffect(() => {
-    if (document.hidden || !voiceMode || isResponding || isSpeaking || isListening) return;
+    if (!microphonePaused || isSpeaking || isGeneratingAudio) return;
+    // Let the final sound finish before reopening microphone recognition.
+    const timeout = window.setTimeout(() => {
+      microphoneBlockedRef.current = false;
+      setMicrophonePaused(false);
+    }, 350);
+    return () => window.clearTimeout(timeout);
+  }, [microphonePaused, isSpeaking, isGeneratingAudio]);
+
+  useEffect(() => {
+    if (document.hidden || !voiceMode || isResponding || isSpeaking || isGeneratingAudio || microphonePaused || isListening) return;
     startListening();
-  }, [voiceMode, isResponding, isSpeaking, isListening]);
+  }, [voiceMode, isResponding, isSpeaking, isGeneratingAudio, microphonePaused, isListening]);
 
   useEffect(() => {
     const pauseListening = () => {
       if (!document.hidden) return;
-      voiceOwnership.release();
       setVoiceMode(false);
-      if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
-      recognitionRef.current?.abort();
-      setIsListening(false);
+      stopListening();
     };
     document.addEventListener('visibilitychange', pauseListening);
     return () => document.removeEventListener('visibilitychange', pauseListening);
@@ -593,6 +645,8 @@ export const BreakSupport = ({
             type="button"
             onClick={toggleMicrophone}
             aria-label={voiceMode ? 'Turn voice input off' : 'Use voice input'}
+            aria-pressed={voiceMode}
+            title={voiceMode && microphonePaused ? 'Microphone paused while Willow speaks' : undefined}
             className={voiceMode ? 'active' : ''}
           >
             {voiceMode ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}
