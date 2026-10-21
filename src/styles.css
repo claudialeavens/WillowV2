@@ -1369,6 +1369,19 @@ button {
   background: #607458;
 }
 
+.interrupt-speech {
+  display: block;
+  margin: 0 0 .7rem auto;
+  padding: .55rem .9rem;
+  border: 1px solid #607458;
+  border-radius: 999px;
+  color: #3e5438;
+  background: #fffdf4;
+  cursor: pointer;
+}
+
+.interrupt-speech:focus-visible { outline: 2px solid #3e5438; outline-offset: 3px; }
+
 .voice-input-hint { margin: 0 0 .7rem; color: #53684d; font-size: .78rem; }
 
 .break-tools button:disabled {

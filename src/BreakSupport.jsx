@@ -8,7 +8,6 @@ import { useVoicePreference } from './useVoicePreference';
 import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
 import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
 import willowVariant from './willowVariant.json';
-import { isPlaybackEcho } from './playbackEcho';
 import {
   buildConversationSummary,
   createConversationId,
@@ -187,7 +186,6 @@ export const BreakSupport = ({
   const speechActiveRef = useRef(false);
   const submitRef = useRef(null);
   const audioRef = useRef(null);
-  const playbackRef = useRef({ text: '', until: 0, active: false });
   const audioUrlRef = useRef('');
   const initialMessageRef = useRef(initialMessage.trim());
   const initialMessageSentRef = useRef(false);
@@ -422,7 +420,7 @@ export const BreakSupport = ({
 
   const startListening = async () => {
     if (document.hidden || !voiceModeRef.current || startingVoiceRef.current || recognitionRef.current) return;
-    if (!speechConstructor || isResponding || microphoneBlockedRef.current) {
+    if (!speechConstructor || isResponding || isSpeaking || isGeneratingAudio || microphoneBlockedRef.current) {
       if (!speechConstructor) setError('Voice input is not supported in this browser.');
       return;
     }
@@ -449,33 +447,18 @@ export const BreakSupport = ({
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       const draftBeforeSession = inputRef.current.trim();
-      const echoResults = new Set();
-      const userResults = new Set();
       const isCurrent = () => recognitionRef.current === recognition
         && generation === recognitionGenerationRef.current && voiceModeRef.current
         && !microphoneBlockedRef.current && !document.hidden;
 
       recognition.onresult = (event) => {
         if (!isCurrent()) return;
-        const playback = playbackRef.current;
-        const transcript = Array.from(event.results).map((result, index) => {
-          const text = result[0]?.transcript?.trim() ?? '';
-          if (echoResults.has(index)) return '';
-          if (!userResults.has(index) && Date.now() < playback.until
-            && isPlaybackEcho(text, playback.text)) {
-            if (result.isFinal) echoResults.add(index);
-            return '';
-          }
-          if (text) userResults.add(index);
-          return text;
-        }).filter(Boolean).join(' ');
-        if (!transcript) return;
-        // Interrupt on recognized user words, not sound alone (which can be echo).
-        if (playback.active) stopAudio();
+        const transcript = Array.from(event.results)
+          .map((result) => result[0]?.transcript?.trim() ?? '').filter(Boolean).join(' ');
         const preview = [draftBeforeSession, transcript].filter(Boolean).join(' ');
         const lastResult = event.results[event.results.length - 1];
         // A final trailing word is a command; phrases like "send an email" are dictation.
-        if (lastResult?.isFinal && !echoResults.has(event.results.length - 1) && /(?:^|\s)send[\s.!?,;:]*$/i.test(transcript)) {
+        if (lastResult?.isFinal && /(?:^|\s)send[\s.!?,;:]*$/i.test(transcript)) {
           const message = preview.replace(/(?:^|\s)send[\s.!?,;:]*$/i, '').trim();
           setInput(message);
           stopListening();
@@ -488,7 +471,6 @@ export const BreakSupport = ({
       };
       recognition.onspeechstart = () => {
         if (!isCurrent()) return;
-        if (Date.now() < playbackRef.current.until) return;
         speechActiveRef.current = true;
         if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = null;
@@ -545,7 +527,6 @@ export const BreakSupport = ({
 
   const stopAudio = useCallback(() => {
     audioRequestRef.current += 1;
-    playbackRef.current = { ...playbackRef.current, active: false, until: Date.now() + 350 };
     audioRef.current?.pause();
     if (audioRef.current) audioRef.current.currentTime = 0;
     setIsSpeaking(false);
@@ -570,8 +551,11 @@ export const BreakSupport = ({
     const text = latestAssistant?.content?.trim();
     if (!text || isGeneratingAudio || isResponding || isPreviewingVoice) return;
     stopAudio();
-    // Keep dictation available for interruption; discard recognized playback echo.
-    playbackRef.current = { text, until: Infinity, active: true };
+    // Invalidate recognition before requesting audio, including queued results and
+    // pending ownership acquisition. Text matching cannot reliably identify echo.
+    microphoneBlockedRef.current = true;
+    setMicrophonePaused(true);
+    stopListening();
     const request = audioRequestRef.current;
 
     try {
@@ -628,7 +612,7 @@ export const BreakSupport = ({
     const timeout = window.setTimeout(() => {
       microphoneBlockedRef.current = false;
       setMicrophonePaused(false);
-    }, 350);
+    }, 600);
     return () => window.clearTimeout(timeout);
   }, [microphonePaused, isSpeaking, isGeneratingAudio, isPreviewingVoice]);
 
@@ -640,7 +624,7 @@ export const BreakSupport = ({
 
   useEffect(() => {
     if (!pageVisible || landed || !voiceMode || microphoneUnavailable || microphoneRetryDelay
-      || isResponding || microphonePaused || isListening) return;
+      || isResponding || isSpeaking || isGeneratingAudio || microphonePaused || isListening) return;
     startListening();
   }, [voiceMode, pageVisible, landed, microphoneUnavailable, microphoneRetryDelay,
     isResponding, isSpeaking, isGeneratingAudio, microphonePaused, isListening]);
@@ -774,7 +758,16 @@ export const BreakSupport = ({
           </button>
         </div>
 
-        {voiceMode && <p className="voice-input-hint">Say “send” or pause for 5 seconds to send your message.</p>}
+        {voiceMode && (isSpeaking || isGeneratingAudio) && (
+          <button className="interrupt-speech" type="button" onClick={stopAudio}>
+            Interrupt and speak
+          </button>
+        )}
+        {voiceMode && <p className="voice-input-hint" role="status">
+          {microphonePaused
+            ? 'Microphone paused during playback. Interrupt to speak, or send a typed message.'
+            : 'Say “send” or pause for 5 seconds to send your message.'}
+        </p>}
 
         <div className="break-chat-messages" ref={scrollRef} aria-live="polite">
           {messages.map((message, index) => (
