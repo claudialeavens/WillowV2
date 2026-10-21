@@ -699,7 +699,6 @@ export const BreakSupport = ({
       </div>
       <button className="landed-continue" type="button" onClick={continueExploring}><Leaf aria-hidden="true" />Continue exploring</button>
       <button className="landed-home" type="button" onClick={onHome}>Back to home</button>
-      <p className="landed-footer">We’ll be here whenever you need us.</p>
     </section>
   );
 
