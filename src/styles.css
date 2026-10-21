@@ -2150,3 +2150,6 @@ button {
 .privacy-shield svg { width: 3rem; height: 3rem; stroke-width: 1.5; }
 .signin-privacy-dialog p { margin: 0; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.6rem, 3vw, 2.3rem); font-weight: 500; line-height: 1.4; }
 @media (max-width: 480px) { .signin-privacy-dialog { padding: 3rem 1.5rem 2rem; } }
+
+.break-input-row button.message-sent:disabled { opacity: 1; background: #607458; color: #fffdf4; }
+.send-status { margin: .4rem 0 0; color: #53684d; font-size: .82rem; text-align: right; }

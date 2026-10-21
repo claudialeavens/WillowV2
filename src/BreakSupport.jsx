@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowUp, Mic, MicOff, Volume2, VolumeX, Leaf, Users, Sprout, Sparkles, Heart, X } from 'lucide-react';
+import { ArrowUp, Check, Mic, MicOff, Volume2, VolumeX, Leaf, Users, Sprout, Sparkles, Heart, X } from 'lucide-react';
 import { streamWillowMessage } from './openAIService';
 import { createAudioBlob, generateSpeech, getVoicePlaybackRate } from './textToSpeech';
 import { isVoicePreviewActive, subscribeVoicePreview } from './voicePreviewState';
@@ -183,7 +183,6 @@ export const BreakSupport = ({
     setError('Voice input is active in another Willow window. Turn the microphone off and on here to resume.');
   });
   const silenceTimerRef = useRef(null);
-  const speechActiveRef = useRef(false);
   const submitRef = useRef(null);
   const audioRef = useRef(null);
   const audioUrlRef = useRef('');
@@ -383,7 +382,6 @@ export const BreakSupport = ({
     recognitionGenerationRef.current += 1;
     startingVoiceRef.current = false;
     voiceOwnership.release();
-    speechActiveRef.current = false;
     if (!preserveDraftTimer) {
       if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
       silenceTimerRef.current = null;
@@ -398,14 +396,14 @@ export const BreakSupport = ({
   const scheduleVoiceSend = () => {
     if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
     silenceTimerRef.current = null;
-    if (!inputRef.current.trim() || speechActiveRef.current) return;
+    if (!inputRef.current.trim()) return;
     silenceTimerRef.current = window.setTimeout(() => {
       silenceTimerRef.current = null;
-      if (!voiceModeRef.current || microphoneBlockedRef.current || document.hidden || speechActiveRef.current) return;
+      if (!voiceModeRef.current || microphoneBlockedRef.current || document.hidden) return;
       const message = inputRef.current.trim();
       stopListening();
       if (message) void submitRef.current?.(message);
-    }, 1000);
+    }, 4000);
   };
 
   const editInput = (value) => {
@@ -471,14 +469,12 @@ export const BreakSupport = ({
       };
       recognition.onspeechstart = () => {
         if (!isCurrent()) return;
-        speechActiveRef.current = true;
-        if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
-        silenceTimerRef.current = null;
+        scheduleVoiceSend();
       };
       recognition.onspeechend = () => {
         if (!isCurrent()) return;
-        speechActiveRef.current = false;
-        scheduleVoiceSend();
+        // A delayed browser event must not extend an already-running deadline.
+        if (!silenceTimerRef.current) scheduleVoiceSend();
       };
       recognition.onerror = (event) => {
         if (!isCurrent()) return;
@@ -797,10 +793,15 @@ export const BreakSupport = ({
             placeholder="Share what feels most true right now…"
             aria-label="Your message"
           />
-          <button type="submit" disabled={isResponding || !input.trim()} aria-label="Send message">
-            <ArrowUp aria-hidden="true" />
+          <button type="submit" disabled={isResponding || !input.trim()}
+            className={isResponding ? 'message-sent' : undefined}
+            aria-label={isResponding ? 'Message sent' : 'Send message'}>
+            {isResponding ? <Check aria-hidden="true" /> : <ArrowUp aria-hidden="true" />}
           </button>
         </form>
+        {isResponding && <p className="send-status" role="status">
+          {latestAssistant?.content?.trim() ? 'Replying…' : 'Message sent · Thinking…'}
+        </p>}
         <button className="happy-landed" type="button" onClick={() => void finishConversation()}
           disabled={isResponding || isGeneratingAudio || !messages.some((message) => message.role === 'user')}>
           <img src="/images/willow-leaf-sprig.png" alt="" aria-hidden="true" width="64" height="64" />
