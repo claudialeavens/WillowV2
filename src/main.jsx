@@ -201,7 +201,7 @@ const MainMenu = ({ onHome, onArchive, auth, onSignIn }) => {
           </fieldset>
           <p role="status">{sampleStatus || 'Select a voice to hear a sample.'}</p>
           {sampleVoice && <button type="button" onClick={stopSample}>Stop sample</button>}
-          <p>AI-generated voice · Nova plays at 1.2×</p>
+          <p>AI-generated voice · Nova plays at 1.1×</p>
         </details>
         <button type="button" onClick={() => choose(onArchive)}><ArchiveIcon aria-hidden="true" />Archive</button>
         <button type="button" onClick={() => choose(() => setPrivacyOpen(true))}><ShieldCheck aria-hidden="true" />Privacy Policy</button>
