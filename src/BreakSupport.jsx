@@ -405,7 +405,7 @@ export const BreakSupport = ({
       const message = inputRef.current.trim();
       stopListening();
       if (message) void submitRef.current?.(message);
-    }, 4000);
+    }, 3000);
   };
 
   const editInput = (value) => {
@@ -733,7 +733,6 @@ export const BreakSupport = ({
             onClick={toggleMicrophone}
             aria-label={voiceMode ? 'Turn voice input off' : 'Use voice input'}
             aria-pressed={voiceMode}
-            title={voiceMode && microphonePaused ? 'Microphone paused while Willow speaks' : undefined}
             className={voiceMode ? 'active' : ''}
           >
             {voiceMode ? <Mic aria-hidden="true" /> : <MicOff aria-hidden="true" />}
@@ -758,11 +757,7 @@ export const BreakSupport = ({
           </button>
         </div>
 
-        {voiceMode && <p className="voice-input-hint" role="status">
-          {microphonePaused
-            ? 'Microphone paused during playback. Send a typed message to interrupt.'
-            : 'Say “send” or pause for 4 seconds to send your message.'}
-        </p>}
+
 
         <div className="break-chat-messages" ref={scrollRef} aria-live="polite">
           {messages.map((message, index) => (
