@@ -162,8 +162,8 @@ const NavigationContext = React.createContext({ canGoBack: false, goBack: () => 
 const HomeButton = ({ onHome }) => {
   const { canGoBack, goBack } = React.useContext(NavigationContext);
   return <>
-    <button className="home-button" type="button" onClick={onHome} aria-label="Return to home page">
-      <Home aria-hidden="true" />
+    <button className="home-button" type="button" onClick={canGoBack ? onHome : goBack} aria-label={canGoBack ? 'Return to home page' : 'Go back'}>
+      {canGoBack ? <Home aria-hidden="true" /> : <ArrowLeft aria-hidden="true" />}
     </button>
     {canGoBack && <button className="home-button back-button" type="button" onClick={goBack} aria-label="Go back">
       <ArrowLeft aria-hidden="true" />

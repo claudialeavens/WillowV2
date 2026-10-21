@@ -521,7 +521,7 @@ export const BreakSupport = ({
     try {
       const text = await streamWillowMessage([
         ...messages.filter((m) => m.content?.trim()).slice(-12),
-        { role: 'user', content: 'The user clicked "Happy where we landed". Write a brief takeaway for their closing page, in 1–2 warm, specific sentences (maximum 55 words). Summarize only what this conversation actually established. If they chose an action, remind them of that action and connect it to their original intention or need. Otherwise capture the insight or direction that resonated; do not invent an action or imply they committed to one. No questions, new suggestions, lists, metadata, or introductory labels. Return only the takeaway.' },
+        { role: 'user', content: 'The user clicked "Happy where we have landed?". Write a brief takeaway for their closing page, in 1–2 warm, specific sentences (maximum 55 words). Summarize only what this conversation actually established. If they chose an action, remind them of that action and connect it to their original intention or need. Otherwise capture the insight or direction that resonated; do not invent an action or imply they committed to one. No questions, new suggestions, lists, metadata, or introductory labels. Return only the takeaway.' },
       ], () => {}, { maxTokens: 110, signal: controller.signal });
       if (!controller.signal.aborted) setTakeaway(text.trim());
     } catch {
@@ -646,7 +646,7 @@ export const BreakSupport = ({
         <button className="happy-landed" type="button" onClick={() => void finishConversation()}
           disabled={isResponding || isGeneratingAudio || !messages.some((message) => message.role === 'user')}>
           <img src="/images/willow-leaf-sprig.png" alt="" aria-hidden="true" width="64" height="64" />
-          <span><strong>~ Happy where we landed ~</strong><small>Let’s wrap up →</small></span>
+          <span><strong>~ Happy where we have landed? ~</strong><small>Let’s wrap up →</small></span>
         </button>
       </div>
 
