@@ -405,7 +405,7 @@ export const BreakSupport = ({
       const message = inputRef.current.trim();
       stopListening();
       if (message) void submitRef.current?.(message);
-    }, 3000);
+    }, 1000);
   };
 
   const editInput = (value) => {
