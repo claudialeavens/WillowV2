@@ -2046,7 +2046,7 @@ button {
 .landed-reassurance span { display: inline-grid; place-items: center; width: 2.75rem; height: 2.75rem; border-radius: 50%; }
 .landed-reassurance .connection { background: #f3d4c7; } .landed-reassurance .growth { background: #d8dfc2; } .landed-reassurance .support { background: #d8e5e8; }
 .landed-reassurance p { font-size: .85rem; line-height: 1.5; }
-.landed-continue { display: flex; align-items: center; justify-content: center; gap: .6rem; width: 100%; padding: .75rem; border: 1px solid #899875; border-radius: 999px; background: #fffbedc9; color: inherit; font: inherit; cursor: pointer; }
+.landed-continue { display: flex; align-items: center; justify-content: center; gap: .6rem; width: calc(100% / 3); margin-inline: auto; padding: .75rem; border: 1px solid #899875; border-radius: 999px; background: #fffbedc9; color: inherit; font: inherit; cursor: pointer; }
 .landed-home { margin: 1rem 0 .4rem; border: 0; background: transparent; color: inherit; text-decoration: underline; font: inherit; cursor: pointer; }
 .landed-footer { margin: 0; font-size: .85rem; color: #667354; }
 @media (max-width: 600px) { .landed-content { padding-top: 7rem; } .landed-close { top: 6.5rem; } .landed-reassurance { gap: .5rem; } .landed-reassurance p { font-size: .8rem; } .landed-note { padding: 1.5rem 1.25rem; } }

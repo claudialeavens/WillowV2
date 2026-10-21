@@ -697,7 +697,7 @@ export const BreakSupport = ({
         <div><span className="growth"><Sprout aria-hidden="true" /></span><p>{researchMessage.tip ?? `Explore ${researchMessage.theme.toLowerCase()} through a small step that feels right for you.`}</p></div>
         <div><span className="support"><Sparkles aria-hidden="true" /></span><p>Return to Willow any time. We’ll be here whenever you need us.</p></div>
       </div>
-      <button className="landed-continue" type="button" onClick={continueExploring}><Leaf aria-hidden="true" />Continue exploring</button>
+      <button className="landed-continue" type="button" onClick={continueExploring}>← Back</button>
       <button className="landed-home" type="button" onClick={onHome}>Back to home</button>
     </section>
   );
