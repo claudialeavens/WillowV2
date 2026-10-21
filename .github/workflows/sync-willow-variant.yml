@@ -67,3 +67,16 @@ jobs:
           SOURCE_SHA=$(git -C ../source rev-parse --short HEAD)
           git commit -m "Sync WillowV2 ${SOURCE_SHA} without prompt guidance"
           git push origin HEAD:main
+
+      - name: Deploy WillowV2.0 production
+        if: steps.changes.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+        env:
+          DEPLOY_HOOK: ${{ secrets.WILLOW_V20_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$DEPLOY_HOOK" ]; then
+            echo 'Configure the WILLOW_V20_DEPLOY_HOOK repository secret.' >&2
+            exit 1
+          fi
+          curl --fail --silent --show-error --retry 2 --request POST \
+            "$DEPLOY_HOOK" --output "$RUNNER_TEMP/willow-deploy-result.json"
+          echo 'Requested a WillowV2.0 production deployment of main.'

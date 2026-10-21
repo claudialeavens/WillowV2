@@ -18,7 +18,9 @@ never overwritten. Unrelated editor and local deployment files remain local.
 
 The public sites are https://willow-v2.vercel.app and
 https://willow-v2-0.vercel.app. Both Vercel projects are connected to their GitHub
-repositories' `main` branches, including commits made by the sync workflow.
+repositories' `main` branches. WillowV2 deploys through its Git integration;
+after syncing, V2.0 explicitly starts a deployment using its production deploy
+hook, so publication does not depend on GitHub emitting a push event for bot commits.
 This command verifies deployment completion instead of assuming that a push
 means a public release succeeded.
 
@@ -47,9 +49,12 @@ personal access token or persistent cross-repository deploy key. GitHub disables
 scheduled workflows in public repositories after 60 days without activity; if
 that happens, re-enable this workflow in WillowV2.0's Actions tab.
 
-GitHub does not trigger other Actions workflows for commits pushed using
-`GITHUB_TOKEN`. If hosting relies on a separate GitHub Actions deployment
-workflow, invoke that deployment explicitly after syncing.
+`WILLOW_V20_DEPLOY_HOOK` is an encrypted Actions secret in WillowV2.0. It can
+trigger production builds of that Vercel project's `main` branch; it grants no
+repository write access or general Vercel API access. The sync workflow invokes
+it after changed syncs and manual runs. The publishing command then waits for
+both exact commits to reach READY in Vercel. This secret is configured separately
+from committed files and must not be printed or committed.
 
 This sync covers committed files. Local `.env` files, Vercel project settings,
 production secrets, databases, and hosting configuration are managed separately.
