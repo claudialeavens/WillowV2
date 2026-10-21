@@ -7,6 +7,7 @@ The workflow copies the current source into WillowV2.0, sets
 `showPromptGuidance` to `false` in
 `src/willowVariant.json`, verifies the production build, and pushes a normal
 commit to WillowV2.0's `main` branch.
+Runs with no source changes skip dependency installation, building, and committing.
 
 Make shared changes in WillowV2. Direct changes in WillowV2.0 are overwritten
 by the next sync. Deleted source files are also deleted in the copy. The
