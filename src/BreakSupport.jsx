@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { ArrowUp, Mic, MicOff, Volume2, VolumeX, Leaf, Users, Sprout, Sparkles, Heart, X } from 'lucide-react';
 import { streamWillowMessage } from './openAIService';
 import { createAudioBlob, generateSpeech } from './textToSpeech';
@@ -44,6 +44,12 @@ const WILLOW_VOICE_INSTRUCTIONS =
 
 const OPTION_PATTERN = /^\s*(?:\d+[.)]|[-*•–—])\s+(.+?)\s*$/;
 const PHASE_PATTERN = /^WILLOW_STATE:\s*(SETTLE|STABILIZE|RECONNECT|ORIENT|ACT)\s*\|\s*([^\n]+)\n?/i;
+const SPEAKER_VOICES = [
+  { id: 'sage', name: 'Sage', description: 'Gentle and calm' },
+  { id: 'coral', name: 'Coral', description: 'Warm and expressive' },
+  { id: 'onyx', name: 'Onyx', description: 'Deep and steady' },
+];
+const VOICE_STORAGE_KEY = 'willow:speaker-voice';
 
 const parsePhaseAssessment = (content) => {
   const match = content.match(PHASE_PATTERN);
@@ -144,6 +150,19 @@ export const BreakSupport = ({
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
+  const [voicePickerOpen, setVoicePickerOpen] = useState(false);
+  const [selectedVoice, setSelectedVoice] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem(VOICE_STORAGE_KEY);
+      return SPEAKER_VOICES.some((voice) => voice.id === saved) ? saved : 'sage';
+    } catch {
+      return 'sage';
+    }
+  });
+  const voicePickerId = useId();
+  const voicePickerRef = useRef(null);
+  const speakerButtonRef = useRef(null);
+  const audioRequestRef = useRef(0);
   const [phaseAssessment, setPhaseAssessment] = useState(
     savedConversation?.phase_assessment ?? null,
   );
@@ -433,28 +452,29 @@ export const BreakSupport = ({
   };
 
   const stopAudio = () => {
+    audioRequestRef.current += 1;
     audioRef.current?.pause();
     if (audioRef.current) audioRef.current.currentTime = 0;
     setIsSpeaking(false);
   };
 
-  const toggleSpeaker = async () => {
-    if (isSpeaking) {
-      stopAudio();
-      return;
-    }
+  const playResponse = async (voice) => {
     const text = latestAssistant?.content?.trim();
-    if (!text) return;
+    if (!text || isGeneratingAudio || isResponding) return;
+    stopAudio();
+    const request = audioRequestRef.current;
+    setSelectedVoice(voice);
+    setVoicePickerOpen(false);
+    speakerButtonRef.current?.focus();
+    try {
+      window.localStorage.setItem(VOICE_STORAGE_KEY, voice);
+    } catch { /* Voice selection still works when storage is unavailable. */ }
 
     try {
       setError('');
       setIsGeneratingAudio(true);
-      let audioContent;
-      try {
-        audioContent = await generateSpeech(text, 'sage', WILLOW_VOICE_INSTRUCTIONS);
-      } catch {
-        audioContent = await generateSpeech(text, 'marin', WILLOW_VOICE_INSTRUCTIONS);
-      }
+      const audioContent = await generateSpeech(text, voice, WILLOW_VOICE_INSTRUCTIONS);
+      if (request !== audioRequestRef.current) return;
       const audioUrl = URL.createObjectURL(createAudioBlob(audioContent));
       if (audioUrlRef.current) URL.revokeObjectURL(audioUrlRef.current);
       audioUrlRef.current = audioUrl;
@@ -462,14 +482,35 @@ export const BreakSupport = ({
       audioRef.current.src = audioUrl;
       audioRef.current.onended = () => setIsSpeaking(false);
       await audioRef.current.play();
-      setIsSpeaking(true);
+      if (request === audioRequestRef.current) setIsSpeaking(true);
     } catch (speechError) {
       console.error('Failed to play response:', speechError);
-      setError('I could not play audio right now. Please try again.');
+      if (request === audioRequestRef.current) {
+        setError('I could not play that voice right now. Please try again or choose another voice.');
+      }
     } finally {
-      setIsGeneratingAudio(false);
+      if (request === audioRequestRef.current) setIsGeneratingAudio(false);
     }
   };
+
+  useEffect(() => {
+    if (!voicePickerOpen) return;
+    voicePickerRef.current?.querySelector('[aria-pressed="true"]')?.focus();
+    const dismiss = (event) => {
+      if (!voicePickerRef.current?.contains(event.target)) setVoicePickerOpen(false);
+    };
+    const escape = (event) => {
+      if (event.key !== 'Escape') return;
+      setVoicePickerOpen(false);
+      speakerButtonRef.current?.focus();
+    };
+    document.addEventListener('pointerdown', dismiss);
+    document.addEventListener('keydown', escape);
+    return () => {
+      document.removeEventListener('pointerdown', dismiss);
+      document.removeEventListener('keydown', escape);
+    };
+  }, [voicePickerOpen]);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -592,14 +633,37 @@ export const BreakSupport = ({
           >
             {voiceMode ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}
           </button>
-          <button
-            type="button"
-            onClick={() => void toggleSpeaker()}
-            disabled={!latestAssistant?.content || isGeneratingAudio}
-            aria-label={isSpeaking ? 'Stop spoken response' : 'Play spoken response'}
-          >
-            {isSpeaking ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
-          </button>
+          <div className="speaker-voice-picker" ref={voicePickerRef}>
+            <button
+              ref={speakerButtonRef}
+              type="button"
+              onClick={() => {
+                if (isSpeaking) stopAudio();
+                setVoicePickerOpen((open) => !open);
+              }}
+              disabled={!latestAssistant?.content?.trim() || isGeneratingAudio || isResponding}
+              aria-label={isGeneratingAudio ? 'Preparing spoken response' : isSpeaking ? 'Stop audio and choose a voice' : 'Choose a voice'}
+              aria-expanded={voicePickerOpen}
+              aria-controls={voicePickerOpen ? voicePickerId : undefined}
+              aria-busy={isGeneratingAudio}
+            >
+              {isSpeaking ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
+            </button>
+            {voicePickerOpen && (
+              <div className="speaker-voice-options" id={voicePickerId} role="group" aria-label="Choose a voice">
+                <p>Choose a voice</p>
+                {SPEAKER_VOICES.map((voice) => (
+                  <button key={voice.id} type="button" aria-pressed={selectedVoice === voice.id}
+                    disabled={isGeneratingAudio || isResponding || !latestAssistant?.content?.trim()}
+                    onClick={() => void playResponse(voice.id)}>
+                    <strong>{voice.name}</strong>
+                    <span>{voice.description}</span>
+                  </button>
+                ))}
+                <small>AI-generated voices · Select one to listen</small>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="break-chat-messages" ref={scrollRef} aria-live="polite">
