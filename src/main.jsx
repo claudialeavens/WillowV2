@@ -25,6 +25,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from './useAuth';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
+import { getVoicePlaybackRate } from './textToSpeech';
+import { setVoicePreviewActive } from './voicePreviewState';
 import { BreakSupport } from './BreakSupport';
 import { getLatestConversation, recordActivity } from './conversationStore';
 import { Archive } from './Archive';
@@ -107,12 +109,59 @@ const MainMenu = ({ onHome, onArchive, auth, onSignIn }) => {
   const menuRef = useRef(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
+  const sampleAudioRef = useRef(null);
+  const [sampleVoice, setSampleVoice] = useState(null);
+  const [sampleStatus, setSampleStatus] = useState('');
+  const stopSample = useCallback(() => {
+    const audio = sampleAudioRef.current;
+    sampleAudioRef.current = null;
+    if (audio) {
+      audio.onended = null;
+      audio.onerror = null;
+      audio.pause();
+    }
+    setSampleVoice(null);
+    setSampleStatus('');
+    setVoicePreviewActive(false);
+  }, []);
+  const playSample = async (voice) => {
+    stopSample();
+    setVoice(voice);
+    const audio = new Audio(`/audio/voices/${voice}.mp3`);
+    sampleAudioRef.current = audio;
+    audio.playbackRate = getVoicePlaybackRate(voice);
+    setSampleVoice(voice);
+    setSampleStatus(`Loading ${SPEAKER_VOICES.find((option) => option.id === voice).name} sample…`);
+    setVoicePreviewActive(true);
+    const failed = () => {
+      if (sampleAudioRef.current !== audio) return;
+      stopSample();
+      setSampleStatus('Could not play the sample. Select a voice to try again.');
+    };
+    audio.onended = () => {
+      if (sampleAudioRef.current === audio) stopSample();
+    };
+    audio.onerror = failed;
+    try {
+      await audio.play();
+      if (sampleAudioRef.current === audio) {
+        setSampleStatus(`Playing ${SPEAKER_VOICES.find((option) => option.id === voice).name} sample`);
+      }
+    } catch {
+      failed();
+    }
+  };
+  useEffect(() => stopSample, [stopSample]);
   useEffect(() => {
     const closeOutside = (event) => {
-      if (menuRef.current?.open && !menuRef.current.contains(event.target)) menuRef.current.open = false;
+      if (menuRef.current?.open && !menuRef.current.contains(event.target)) {
+        stopSample();
+        menuRef.current.open = false;
+      }
     };
     const escape = (event) => {
       if (event.key === 'Escape') {
+        stopSample();
         if (menuRef.current) menuRef.current.open = false;
         setAboutOpen(false);
         setPrivacyOpen(false);
@@ -124,29 +173,37 @@ const MainMenu = ({ onHome, onArchive, auth, onSignIn }) => {
       document.removeEventListener('pointerdown', closeOutside);
       document.removeEventListener('keydown', escape);
     };
-  }, []);
-  const choose = (action) => { menuRef.current.open = false; action(); };
+  }, [stopSample]);
+  const choose = (action) => { stopSample(); menuRef.current.open = false; action(); };
   return <>
-    <details className="main-menu" ref={menuRef}>
+    <details className="main-menu" ref={menuRef} onToggle={(event) => {
+      if (event.target === event.currentTarget && !event.currentTarget.open) stopSample();
+    }}>
       <summary aria-label="Open Willow menu"><Menu aria-hidden="true" /></summary>
       <nav className="main-menu-items" aria-label="Willow navigation">
         <button type="button" onClick={() => choose(onHome)}><Home aria-hidden="true" />Home</button>
         <button type="button" onClick={() => choose(() => setAboutOpen(true))}><Info aria-hidden="true" />About</button>
-        <button type="button" onClick={() => choose(onArchive)}><ArchiveIcon aria-hidden="true" />Archive</button>
-        <details className="menu-voice-settings">
+        <details className="menu-voice-settings" onToggle={(event) => {
+          if (!event.currentTarget.open) stopSample();
+        }}>
           <summary><Volume2 aria-hidden="true" />Change voice<small>{SPEAKER_VOICES.find((voice) => voice.id === selectedVoice)?.name}</small></summary>
           <fieldset>
             <legend className="sr-only">Willow's voice</legend>
             {SPEAKER_VOICES.map((voice) => (
               <label key={voice.id}>
                 <input type="radio" name="willow-speaker-voice" value={voice.id}
-                  checked={selectedVoice === voice.id} onChange={() => setVoice(voice.id)} />
+                  checked={selectedVoice === voice.id}
+                  onChange={() => void playSample(voice.id)}
+                  onClick={() => { if (selectedVoice === voice.id) void playSample(voice.id); }} />
                 {voice.name}
               </label>
             ))}
           </fieldset>
-          <p>AI-generated voice</p>
+          <p role="status">{sampleStatus || 'Select a voice to hear a sample.'}</p>
+          {sampleVoice && <button type="button" onClick={stopSample}>Stop sample</button>}
+          <p>AI-generated voice · Nova plays at 1.2×</p>
         </details>
+        <button type="button" onClick={() => choose(onArchive)}><ArchiveIcon aria-hidden="true" />Archive</button>
         <button type="button" onClick={() => choose(() => setPrivacyOpen(true))}><ShieldCheck aria-hidden="true" />Privacy Policy</button>
         <button type="button" disabled={auth.loading} onClick={() => choose(auth.user ? auth.signOut : onSignIn)}>
           {auth.user ? <LogOut aria-hidden="true" /> : <User aria-hidden="true" />}

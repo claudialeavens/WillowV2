@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ArrowUp, Mic, MicOff, Volume2, VolumeX, Leaf, Users, Sprout, Sparkles, Heart, X } from 'lucide-react';
 import { streamWillowMessage } from './openAIService';
-import { createAudioBlob, generateSpeech } from './textToSpeech';
+import { createAudioBlob, generateSpeech, getVoicePlaybackRate } from './textToSpeech';
+import { isVoicePreviewActive, subscribeVoicePreview } from './voicePreviewState';
 import { useVoiceOwnership } from './useVoiceOwnership';
 import { useVoicePreference } from './useVoicePreference';
 import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
@@ -147,8 +148,9 @@ export const BreakSupport = ({
     voiceModeRef.current = enabled;
     setVoiceModeState(enabled);
   }, []);
-  const [microphonePaused, setMicrophonePaused] = useState(false);
-  const microphoneBlockedRef = useRef(false);
+  const [microphonePaused, setMicrophonePaused] = useState(isVoicePreviewActive);
+  const microphoneBlockedRef = useRef(isVoicePreviewActive());
+  const [isPreviewingVoice, setIsPreviewingVoice] = useState(isVoicePreviewActive);
   const recognitionGenerationRef = useRef(0);
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
@@ -481,9 +483,19 @@ export const BreakSupport = ({
     stopAudio();
   }, [selectedVoice, stopAudio]);
 
+  useEffect(() => subscribeVoicePreview((active) => {
+    if (active) {
+      microphoneBlockedRef.current = true;
+      setMicrophonePaused(true);
+      stopListening();
+      stopAudio();
+    }
+    setIsPreviewingVoice(active);
+  }), [stopAudio]);
+
   const playResponse = async (voice) => {
     const text = latestAssistant?.content?.trim();
-    if (!text || isGeneratingAudio || isResponding) return;
+    if (!text || isGeneratingAudio || isResponding || isPreviewingVoice) return;
     stopAudio();
     // Block synchronously before async voice ownership or speech events can run.
     microphoneBlockedRef.current = true;
@@ -501,6 +513,7 @@ export const BreakSupport = ({
       audioUrlRef.current = audioUrl;
       if (!audioRef.current) audioRef.current = new Audio();
       audioRef.current.src = audioUrl;
+      audioRef.current.playbackRate = getVoicePlaybackRate(voice);
       audioRef.current.onended = () => {
         if (request === audioRequestRef.current) setIsSpeaking(false);
       };
@@ -527,14 +540,14 @@ export const BreakSupport = ({
   }, [messages]);
 
   useEffect(() => {
-    if (!microphonePaused || isSpeaking || isGeneratingAudio) return;
+    if (!microphonePaused || isSpeaking || isGeneratingAudio || isPreviewingVoice) return;
     // Let the final sound finish before reopening microphone recognition.
     const timeout = window.setTimeout(() => {
       microphoneBlockedRef.current = false;
       setMicrophonePaused(false);
     }, 350);
     return () => window.clearTimeout(timeout);
-  }, [microphonePaused, isSpeaking, isGeneratingAudio]);
+  }, [microphonePaused, isSpeaking, isGeneratingAudio, isPreviewingVoice]);
 
   useEffect(() => {
     if (document.hidden || !voiceMode || isResponding || isSpeaking || isGeneratingAudio || microphonePaused || isListening) return;
@@ -657,7 +670,7 @@ export const BreakSupport = ({
               if (isSpeaking) stopAudio();
               else void playResponse(selectedVoice);
             }}
-            disabled={!latestAssistant?.content?.trim() || isGeneratingAudio || isResponding}
+            disabled={!latestAssistant?.content?.trim() || isGeneratingAudio || isResponding || isPreviewingVoice}
             aria-label={isGeneratingAudio ? 'Preparing spoken response' : isSpeaking ? 'Stop spoken response' : 'Play spoken response'}
             aria-busy={isGeneratingAudio}
           >
