@@ -1,0 +1,69 @@
+name: Sync WillowV2.0
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-willow-variant
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    if: github.repository == 'claudialeavens/WillowV2.0'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out current WillowV2 main
+        uses: actions/checkout@v7
+        with:
+          repository: claudialeavens/WillowV2
+          ref: main
+          path: source
+          persist-credentials: false
+
+      - name: Check out WillowV2.0
+        uses: actions/checkout@v7
+        with:
+          repository: claudialeavens/WillowV2.0
+          ref: main
+          path: variant
+
+      - name: Copy source and apply WillowV2.0 settings
+        run: |
+          rsync -a --delete --exclude='/.git/' source/ variant/
+          python3 source/scripts/configure-willow-variant.py variant
+
+      - name: Check for changes
+        id: changes
+        working-directory: variant
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install dependencies and verify build
+        if: steps.changes.outputs.changed == 'true'
+        working-directory: variant
+        run: |
+          npm ci
+          npm run build
+
+      - name: Commit and push changed files
+        if: steps.changes.outputs.changed == 'true'
+        working-directory: variant
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          SOURCE_SHA=$(git -C ../source rev-parse --short HEAD)
+          git commit -m "Sync WillowV2 ${SOURCE_SHA} without prompt guidance"
+          git push origin HEAD:main
