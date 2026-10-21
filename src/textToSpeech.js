@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export const generateSpeech = async (text, voice = 'sage', instructions) => {
+export const generateSpeech = async (text, voice = 'nova', instructions) => {
   const { data, error } = await supabase.functions.invoke('text-to-speech', {
     body: { text, voice, instructions },
   });

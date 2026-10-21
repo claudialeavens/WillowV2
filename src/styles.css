@@ -1374,27 +1374,6 @@ button {
   cursor: not-allowed;
 }
 
-.speaker-voice-picker { position: relative; }
-.speaker-voice-options {
-  position: absolute; top: calc(100% + .6rem); right: 0; z-index: 5;
-  width: min(17rem, calc(100vw - 4rem)); padding: .85rem;
-  border: 1px solid #c5ccba; border-radius: 1.1rem;
-  background: #faf7ef; box-shadow: 0 10px 32px #354e3626;
-  color: #40583f;
-}
-.speaker-voice-options > p { margin: 0 0 .6rem; font-weight: 600; }
-.break-tools .speaker-voice-options button {
-  display: flex; flex-direction: column; align-items: flex-start; gap: .15rem;
-  width: 100%; height: auto; min-height: 3.2rem; margin: .35rem 0;
-  padding: .65rem .8rem; border-radius: .75rem; text-align: left; font: inherit;
-}
-.speaker-voice-options button span { font-size: .82rem; }
-.break-tools .speaker-voice-options button[aria-pressed="true"] {
-  border-color: #607458; background: #e7edda;
-}
-.break-tools .speaker-voice-options button:hover { background: #e7edda; }
-.speaker-voice-options > small { display: block; margin-top: .6rem; font-size: .72rem; }
-
 .break-tools svg,
 .break-input-row svg {
   width: 1.05rem;
@@ -2081,6 +2060,17 @@ button {
 .main-menu-items button { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .85rem; border: 0; border-radius: .6rem; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
 .main-menu-items button:hover { background: #e7edda; }
 .main-menu-items svg { width: 1.2rem; height: 1.2rem; }
+.menu-voice-settings > summary {
+  display: flex; align-items: center; gap: .75rem; padding: .85rem;
+  border-radius: .6rem; list-style: none; cursor: pointer;
+}
+.menu-voice-settings > summary::-webkit-details-marker { display: none; }
+.menu-voice-settings > summary:hover { background: #e7edda; }
+.menu-voice-settings > summary small { margin-left: auto; font-size: .75rem; }
+.menu-voice-settings fieldset { display: grid; grid-template-columns: 1fr 1fr; border: 0; margin: 0; padding: 0 .5rem; }
+.menu-voice-settings label { display: flex; align-items: center; gap: .45rem; min-height: 2.75rem; cursor: pointer; }
+.menu-voice-settings input { accent-color: #607458; }
+.menu-voice-settings > p { margin: .2rem .85rem .65rem; font-size: .72rem; }
 .sign-in, .account-loading, .account-menu { left: 6rem; }
 @media (max-width: 760px) { .main-menu { top: 1.15rem; left: 1rem; } .sign-in, .account-loading, .account-menu { left: 4.5rem; } }
 

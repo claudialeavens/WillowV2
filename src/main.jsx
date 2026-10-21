@@ -20,9 +20,11 @@ import {
   Play,
   Sun,
   User,
+  Volume2,
   X,
 } from 'lucide-react';
 import { useAuth } from './useAuth';
+import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
 import { BreakSupport } from './BreakSupport';
 import { getLatestConversation, recordActivity } from './conversationStore';
 import { Archive } from './Archive';
@@ -101,6 +103,7 @@ const AboutContent = () => <>
 </>;
 
 const MainMenu = ({ onHome, onArchive, auth, onSignIn }) => {
+  const [selectedVoice, setVoice] = useVoicePreference();
   const menuRef = useRef(null);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [privacyOpen, setPrivacyOpen] = useState(false);
@@ -130,6 +133,20 @@ const MainMenu = ({ onHome, onArchive, auth, onSignIn }) => {
         <button type="button" onClick={() => choose(onHome)}><Home aria-hidden="true" />Home</button>
         <button type="button" onClick={() => choose(() => setAboutOpen(true))}><Info aria-hidden="true" />About</button>
         <button type="button" onClick={() => choose(onArchive)}><ArchiveIcon aria-hidden="true" />Archive</button>
+        <details className="menu-voice-settings">
+          <summary><Volume2 aria-hidden="true" />Change voice<small>{SPEAKER_VOICES.find((voice) => voice.id === selectedVoice)?.name}</small></summary>
+          <fieldset>
+            <legend className="sr-only">Willow's voice</legend>
+            {SPEAKER_VOICES.map((voice) => (
+              <label key={voice.id}>
+                <input type="radio" name="willow-speaker-voice" value={voice.id}
+                  checked={selectedVoice === voice.id} onChange={() => setVoice(voice.id)} />
+                {voice.name}
+              </label>
+            ))}
+          </fieldset>
+          <p>AI-generated voice</p>
+        </details>
         <button type="button" onClick={() => choose(() => setPrivacyOpen(true))}><ShieldCheck aria-hidden="true" />Privacy Policy</button>
         <button type="button" disabled={auth.loading} onClick={() => choose(auth.user ? auth.signOut : onSignIn)}>
           {auth.user ? <LogOut aria-hidden="true" /> : <User aria-hidden="true" />}
