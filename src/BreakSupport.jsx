@@ -8,6 +8,7 @@ import { useVoicePreference } from './useVoicePreference';
 import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
 import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
 import willowVariant from './willowVariant.json';
+import { isPlaybackEcho } from './playbackEcho';
 import {
   buildConversationSummary,
   createConversationId,
@@ -186,6 +187,7 @@ export const BreakSupport = ({
   const speechActiveRef = useRef(false);
   const submitRef = useRef(null);
   const audioRef = useRef(null);
+  const playbackRef = useRef({ text: '', until: 0, active: false });
   const audioUrlRef = useRef('');
   const initialMessageRef = useRef(initialMessage.trim());
   const initialMessageSentRef = useRef(false);
@@ -420,7 +422,7 @@ export const BreakSupport = ({
 
   const startListening = async () => {
     if (document.hidden || !voiceModeRef.current || startingVoiceRef.current || recognitionRef.current) return;
-    if (!speechConstructor || isResponding || isSpeaking || isGeneratingAudio || microphoneBlockedRef.current) {
+    if (!speechConstructor || isResponding || microphoneBlockedRef.current) {
       if (!speechConstructor) setError('Voice input is not supported in this browser.');
       return;
     }
@@ -447,18 +449,33 @@ export const BreakSupport = ({
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       const draftBeforeSession = inputRef.current.trim();
+      const echoResults = new Set();
+      const userResults = new Set();
       const isCurrent = () => recognitionRef.current === recognition
         && generation === recognitionGenerationRef.current && voiceModeRef.current
         && !microphoneBlockedRef.current && !document.hidden;
 
       recognition.onresult = (event) => {
         if (!isCurrent()) return;
-        const transcript = Array.from(event.results)
-          .map((result) => result[0]?.transcript?.trim() ?? '').filter(Boolean).join(' ');
+        const playback = playbackRef.current;
+        const transcript = Array.from(event.results).map((result, index) => {
+          const text = result[0]?.transcript?.trim() ?? '';
+          if (echoResults.has(index)) return '';
+          if (!userResults.has(index) && Date.now() < playback.until
+            && isPlaybackEcho(text, playback.text)) {
+            if (result.isFinal) echoResults.add(index);
+            return '';
+          }
+          if (text) userResults.add(index);
+          return text;
+        }).filter(Boolean).join(' ');
+        if (!transcript) return;
+        // Interrupt on recognized user words, not sound alone (which can be echo).
+        if (playback.active) stopAudio();
         const preview = [draftBeforeSession, transcript].filter(Boolean).join(' ');
         const lastResult = event.results[event.results.length - 1];
         // A final trailing word is a command; phrases like "send an email" are dictation.
-        if (lastResult?.isFinal && /(?:^|\s)send[\s.!?,;:]*$/i.test(transcript)) {
+        if (lastResult?.isFinal && !echoResults.has(event.results.length - 1) && /(?:^|\s)send[\s.!?,;:]*$/i.test(transcript)) {
           const message = preview.replace(/(?:^|\s)send[\s.!?,;:]*$/i, '').trim();
           setInput(message);
           stopListening();
@@ -471,6 +488,7 @@ export const BreakSupport = ({
       };
       recognition.onspeechstart = () => {
         if (!isCurrent()) return;
+        if (Date.now() < playbackRef.current.until) return;
         speechActiveRef.current = true;
         if (silenceTimerRef.current) window.clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = null;
@@ -527,6 +545,7 @@ export const BreakSupport = ({
 
   const stopAudio = useCallback(() => {
     audioRequestRef.current += 1;
+    playbackRef.current = { ...playbackRef.current, active: false, until: Date.now() + 350 };
     audioRef.current?.pause();
     if (audioRef.current) audioRef.current.currentTime = 0;
     setIsSpeaking(false);
@@ -551,10 +570,8 @@ export const BreakSupport = ({
     const text = latestAssistant?.content?.trim();
     if (!text || isGeneratingAudio || isResponding || isPreviewingVoice) return;
     stopAudio();
-    // Block synchronously before async voice ownership or speech events can run.
-    microphoneBlockedRef.current = true;
-    setMicrophonePaused(true);
-    stopListening();
+    // Keep dictation available for interruption; discard recognized playback echo.
+    playbackRef.current = { text, until: Infinity, active: true };
     const request = audioRequestRef.current;
 
     try {
@@ -569,7 +586,7 @@ export const BreakSupport = ({
       audioRef.current.src = audioUrl;
       audioRef.current.playbackRate = getVoicePlaybackRate(voice);
       audioRef.current.onended = () => {
-        if (request === audioRequestRef.current) setIsSpeaking(false);
+        if (request === audioRequestRef.current) stopAudio();
       };
       audioRef.current.onerror = () => {
         if (request !== audioRequestRef.current) return;
@@ -581,6 +598,7 @@ export const BreakSupport = ({
     } catch (speechError) {
       console.error('Failed to play response:', speechError);
       if (request === audioRequestRef.current) {
+        stopAudio();
         setError('I could not play that voice right now. Please try again or choose another voice.');
       }
     } finally {
@@ -589,7 +607,7 @@ export const BreakSupport = ({
   };
 
   useEffect(() => {
-    if (!speakerMode || !pageVisible || landed || isResponding || isPreviewingVoice || isGeneratingAudio || isSpeaking) return;
+    if (input.trim() || !speakerMode || !pageVisible || landed || isResponding || isPreviewingVoice || isGeneratingAudio || isSpeaking) return;
     const text = latestAssistant?.content?.trim();
     if (!text) return;
     const reply = `${conversationIdRef.current}:${latestAssistantIndex}:${text}`;
@@ -597,7 +615,7 @@ export const BreakSupport = ({
     lastSpokenReplyRef.current = reply;
     void playResponse(selectedVoice);
   }, [speakerMode, pageVisible, landed, isResponding, isPreviewingVoice, isGeneratingAudio,
-    isSpeaking, latestAssistant?.content, latestAssistantIndex, selectedVoice]);
+    isSpeaking, latestAssistant?.content, latestAssistantIndex, selectedVoice, input]);
 
   useEffect(() => {
     const container = scrollRef.current;
@@ -622,7 +640,7 @@ export const BreakSupport = ({
 
   useEffect(() => {
     if (!pageVisible || landed || !voiceMode || microphoneUnavailable || microphoneRetryDelay
-      || isResponding || isSpeaking || isGeneratingAudio || microphonePaused || isListening) return;
+      || isResponding || microphonePaused || isListening) return;
     startListening();
   }, [voiceMode, pageVisible, landed, microphoneUnavailable, microphoneRetryDelay,
     isResponding, isSpeaking, isGeneratingAudio, microphonePaused, isListening]);
