@@ -5,6 +5,7 @@ import { createAudioBlob, generateSpeech, getVoicePlaybackRate } from './textToS
 import { isVoicePreviewActive, subscribeVoicePreview } from './voicePreviewState';
 import { useVoiceOwnership } from './useVoiceOwnership';
 import { useVoicePreference } from './useVoicePreference';
+import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
 import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
 import willowVariant from './willowVariant.json';
 import {
@@ -142,12 +143,17 @@ export const BreakSupport = ({
   const [input, setInput] = useState('');
   const [isResponding, setIsResponding] = useState(false);
   const [error, setError] = useState('');
-  const [voiceMode, setVoiceModeState] = useState(false);
-  const voiceModeRef = useRef(false);
+  const { microphone: voiceMode, speaker: speakerMode } = useAudioModes();
+  const voiceModeRef = useRef(voiceMode);
+  voiceModeRef.current = voiceMode;
   const setVoiceMode = useCallback((enabled) => {
     voiceModeRef.current = enabled;
-    setVoiceModeState(enabled);
+    setMicrophoneEnabled(enabled);
   }, []);
+  const [microphoneUnavailable, setMicrophoneUnavailable] = useState(false);
+  const [microphoneRetryDelay, setMicrophoneRetryDelay] = useState(0);
+  const [pageVisible, setPageVisible] = useState(() => !document.hidden);
+  const lastSpokenReplyRef = useRef('');
   const [microphonePaused, setMicrophonePaused] = useState(isVoicePreviewActive);
   const microphoneBlockedRef = useRef(isVoicePreviewActive());
   const [isPreviewingVoice, setIsPreviewingVoice] = useState(isVoicePreviewActive);
@@ -167,8 +173,9 @@ export const BreakSupport = ({
   const recognitionRef = useRef(null);
   const startingVoiceRef = useRef(false);
   const voiceOwnership = useVoiceOwnership(() => {
-    setVoiceMode(false);
     stopListening();
+    setMicrophoneUnavailable(true);
+    setError('Voice input is active in another Willow window. Turn the microphone off and on here to resume.');
   });
   const silenceTimerRef = useRef(null);
   const submitRef = useRef(null);
@@ -196,6 +203,7 @@ export const BreakSupport = ({
     const trimmed = messageText.trim();
     if (!trimmed || isResponding) return;
     stopListening();
+    stopAudio();
 
     const nextMessages = [...messages, { role: 'user', content: displayText.trim() }];
     const assistantIndex = nextMessages.length;
@@ -391,7 +399,8 @@ export const BreakSupport = ({
     if (generation !== recognitionGenerationRef.current) return;
     if (!acquired) {
       startingVoiceRef.current = false;
-      setVoiceMode(false);
+      setMicrophoneUnavailable(true);
+      setError('Voice input could not start. Turn the microphone off and on to retry.');
       return;
     }
     if (document.hidden || !voiceModeRef.current || microphoneBlockedRef.current) {
@@ -432,12 +441,15 @@ export const BreakSupport = ({
           if (message) void submitRef.current?.(message);
         }, /[.!?…]$/.test(preview) ? 850 : 1850);
       };
-      recognition.onerror = () => {
+      recognition.onerror = (event) => {
         if (!isCurrent()) return;
         stopListening();
-        setVoiceMode(false);
-        setIsListening(false);
-        setError('I could not capture your voice. Please try again.');
+        if (['no-speech', 'aborted', 'network'].includes(event.error)) {
+          setMicrophoneRetryDelay(event.error === 'network' ? 2000 : 500);
+        } else {
+          setMicrophoneUnavailable(true);
+          setError('Voice input is unavailable. Check microphone access, then turn voice input off and on to retry.');
+        }
       };
       recognition.onend = () => {
         if (!isCurrent()) return;
@@ -453,8 +465,7 @@ export const BreakSupport = ({
       recognitionRef.current.start();
     } catch {
       stopListening();
-      setVoiceMode(false);
-      setIsListening(false);
+      setMicrophoneUnavailable(true);
       setError('I could not capture your voice. Please try again.');
     } finally {
       startingVoiceRef.current = false;
@@ -467,6 +478,8 @@ export const BreakSupport = ({
       stopListening();
       return;
     }
+    setMicrophoneUnavailable(false);
+    setMicrophoneRetryDelay(0);
     setVoiceMode(true);
     startListening();
   };
@@ -535,6 +548,17 @@ export const BreakSupport = ({
   };
 
   useEffect(() => {
+    if (!speakerMode || !pageVisible || landed || isResponding || isPreviewingVoice || isGeneratingAudio || isSpeaking) return;
+    const text = latestAssistant?.content?.trim();
+    if (!text) return;
+    const reply = `${conversationIdRef.current}:${latestAssistantIndex}:${text}`;
+    if (lastSpokenReplyRef.current === reply) return;
+    lastSpokenReplyRef.current = reply;
+    void playResponse(selectedVoice);
+  }, [speakerMode, pageVisible, landed, isResponding, isPreviewingVoice, isGeneratingAudio,
+    isSpeaking, latestAssistant?.content, latestAssistantIndex, selectedVoice]);
+
+  useEffect(() => {
     const container = scrollRef.current;
     if (container) container.scrollTop = container.scrollHeight;
   }, [messages]);
@@ -550,15 +574,24 @@ export const BreakSupport = ({
   }, [microphonePaused, isSpeaking, isGeneratingAudio, isPreviewingVoice]);
 
   useEffect(() => {
-    if (document.hidden || !voiceMode || isResponding || isSpeaking || isGeneratingAudio || microphonePaused || isListening) return;
+    if (!microphoneRetryDelay) return;
+    const timeout = window.setTimeout(() => setMicrophoneRetryDelay(0), microphoneRetryDelay);
+    return () => window.clearTimeout(timeout);
+  }, [microphoneRetryDelay]);
+
+  useEffect(() => {
+    if (!pageVisible || landed || !voiceMode || microphoneUnavailable || microphoneRetryDelay
+      || isResponding || isSpeaking || isGeneratingAudio || microphonePaused || isListening) return;
     startListening();
-  }, [voiceMode, isResponding, isSpeaking, isGeneratingAudio, microphonePaused, isListening]);
+  }, [voiceMode, pageVisible, landed, microphoneUnavailable, microphoneRetryDelay,
+    isResponding, isSpeaking, isGeneratingAudio, microphonePaused, isListening]);
 
   useEffect(() => {
     const pauseListening = () => {
+      setPageVisible(!document.hidden);
       if (!document.hidden) return;
-      setVoiceMode(false);
       stopListening();
+      stopAudio();
     };
     document.addEventListener('visibilitychange', pauseListening);
     return () => document.removeEventListener('visibilitychange', pauseListening);
@@ -581,7 +614,6 @@ export const BreakSupport = ({
   };
 
   const finishConversation = async () => {
-    setVoiceMode(false);
     stopListening();
     stopAudio();
     setLanded(true);
@@ -662,19 +694,25 @@ export const BreakSupport = ({
             title={voiceMode && microphonePaused ? 'Microphone paused while Willow speaks' : undefined}
             className={voiceMode ? 'active' : ''}
           >
-            {voiceMode ? <MicOff aria-hidden="true" /> : <Mic aria-hidden="true" />}
+            {voiceMode ? <Mic aria-hidden="true" /> : <MicOff aria-hidden="true" />}
           </button>
           <button
             type="button"
             onClick={() => {
-              if (isSpeaking) stopAudio();
-              else void playResponse(selectedVoice);
+              if (speakerMode) {
+                setSpeakerEnabled(false);
+                stopAudio();
+              } else {
+                lastSpokenReplyRef.current = '';
+                setSpeakerEnabled(true);
+              }
             }}
-            disabled={!latestAssistant?.content?.trim() || isGeneratingAudio || isResponding || isPreviewingVoice}
-            aria-label={isGeneratingAudio ? 'Preparing spoken response' : isSpeaking ? 'Stop spoken response' : 'Play spoken response'}
+            aria-label={speakerMode ? 'Turn spoken responses off' : 'Turn spoken responses on'}
+            aria-pressed={speakerMode}
+            className={speakerMode ? 'active' : ''}
             aria-busy={isGeneratingAudio}
           >
-            {isSpeaking ? <VolumeX aria-hidden="true" /> : <Volume2 aria-hidden="true" />}
+            {speakerMode ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
           </button>
         </div>
 
