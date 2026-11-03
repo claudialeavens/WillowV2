@@ -5,6 +5,7 @@ import {
   Archive as ArchiveIcon,
   ArrowRight,
   Bell,
+  CalendarCheck,
   ChevronRight,
   Cloud,
   Heart,
@@ -316,6 +317,7 @@ const IntroPage = ({
   onClearing,
   onGrounding,
   onTakeStep,
+  onKeepOnTrack,
   onThoughtSubmit,
   resumeConversation,
   onResumeConversation,
@@ -359,9 +361,10 @@ const IntroPage = ({
               { href: '#take-a-break', onClick: onBreak, Icon: Leaf, title: 'Take a break', caption: 'A moment for you' },
               { href: '#clearing', onClick: onClearing, Icon: Cloud, title: 'Clear my mind', caption: 'Make sense of things' },
               { href: '#grounding', onClick: onGrounding, Icon: Heart, title: 'Find my balance', caption: 'Feel more grounded' },
-              { href: '#take-a-step', onClick: onTakeStep, Icon: Sparkles, title: 'Explore what matters', caption: 'Move toward what’s next' },
-            ].map(({ href, onClick, Icon, title, caption }) => (
-              <a key={href} href={href} onClick={(event) => { event.preventDefault(); onClick(); }}>
+              { href: '#take-a-step', onClick: onTakeStep, Icon: Sparkles, title: <>Surprise me<br />with meaning</>, caption: 'A fresh perspective' },
+              { href: '#keep-on-track', onClick: onKeepOnTrack, Icon: CalendarCheck, title: 'Keep me on track', caption: 'Stay consistent.', className: 'intro-action-track' },
+            ].map(({ href, onClick, Icon, title, caption, className }) => (
+              <a key={href} className={className} href={href} onClick={(event) => { event.preventDefault(); onClick(); }}>
                 <span className="intro-action-icon"><Icon aria-hidden="true" /></span>
                 <strong>{title}</strong>
                 <small>{caption}</small>
@@ -845,6 +848,13 @@ const App = () => {
           setActiveConversation(null);
           setEntryContext(null);
           setInitialThought(thought);
+          setConversationMode('core');
+          setStep(4);
+        }}
+        onKeepOnTrack={() => {
+          setActiveConversation(null);
+          setEntryContext({ activity: 'Keep me on track', selection: 'Stay consistent' });
+          setInitialThought('Help me stay consistent with what matters to me.');
           setConversationMode('core');
           setStep(4);
         }}
