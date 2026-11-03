@@ -2272,3 +2272,16 @@ button {
 .habit-edit label { display: grid; gap: .4rem; font-size: .9rem; }
 .habit-edit input, .habit-edit textarea { width: 100%; padding: .6rem; border: 1px solid #bbc7a4; border-radius: .5rem; font: inherit; color: inherit; background: #fffdf7; }
 .habit-week button:focus-visible, .habit-section-heading button:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; border-radius: .5rem; }
+
+.reminder-content .habit-section-heading h1 { font-size: clamp(1.7rem, 4vw, 2.3rem); }
+.reminder-guidance { margin: .5rem 0 1.5rem; line-height: 1.6; }
+.reminder-content .reminder-edit { display: flex; flex-direction: column; gap: .75rem; }
+.reminder-edit > label { display: block; font-weight: 600; }
+.reminder-edit label span { font-weight: 400; }
+.reminder-edit > textarea { min-height: 6rem; resize: vertical; line-height: 1.5; }
+.reminder-edit .tracking-continue { width: 100%; margin-top: .5rem; }
+.reminder-cancel { align-self: center; border: 0; background: transparent; color: inherit; text-decoration: underline; cursor: pointer; padding: .5rem; }
+.reminder-card { margin-top: 1rem; align-items: flex-start; }
+.reminder-card p, .reminder-reason p { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 1.05rem; line-height: 1.6; }
+.reminder-return { margin-top: 2rem; line-height: 1.6; }
+.reminder-storage { font-size: .8rem; color: #65735f; }

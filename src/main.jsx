@@ -24,7 +24,6 @@ import {
   Pause,
   Play,
   Sun,
-  Target,
   User,
   Users,
   Volume2,
@@ -549,7 +548,6 @@ const TRACKING_OPTIONS = [
   { title: 'A daily habit', detail: '(e.g., movement, meditation)', Icon: Leaf },
   { title: 'A wellbeing focus', detail: '(e.g., better sleep, less stress)', Icon: Heart },
   { title: 'A current intention', detail: '(e.g., more energy, emotional balance)', Icon: Sun },
-  { title: 'A specific goal', detail: '(e.g., build a new routine)', Icon: Target },
 ];
 
 const KeepOnTrackPage = ({ onBack, onContinue }) => {
@@ -574,6 +572,72 @@ const KeepOnTrackPage = ({ onBack, onContinue }) => {
           </fieldset>
           <button className="tracking-continue" type="submit">Continue <ArrowRight aria-hidden="true" /></button>
         </form>
+      </section>
+    </main>
+  );
+};
+
+const PersonalReminderPage = ({ kind, userId, onBack }) => {
+  const isFocus = kind === 'focus';
+  const noun = isFocus ? 'focus' : 'intention';
+  const storageKey = `willow-${kind}-reminder:${userId ?? 'guest'}`;
+  const [reminder, setReminder] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey));
+      if (typeof saved?.text === 'string' && saved.text.trim()) {
+        return { text: saved.text, reason: typeof saved.reason === 'string' ? saved.reason : '' };
+      }
+    } catch { /* Allow writing a reminder even when storage is unavailable. */ }
+    return null;
+  });
+  const [editing, setEditing] = useState(!reminder);
+  const [storageError, setStorageError] = useState(false);
+  const Icon = isFocus ? Heart : Sun;
+
+  const saveReminder = (event) => {
+    event.preventDefault();
+    const fields = new FormData(event.currentTarget);
+    const text = fields.get('reminder').trim();
+    if (!text) return;
+    const next = { text, reason: fields.get('reason').trim() };
+    setReminder(next);
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(next));
+      setStorageError(false);
+    } catch { setStorageError(true); }
+    setEditing(false);
+  };
+
+  return (
+    <main className="page tracking-page">
+      <section className="tracking-content reminder-content" aria-labelledby="reminder-heading">
+        <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
+        <button className="tracking-back" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+        <div className="habit-section-heading">
+          <h1 id="reminder-heading">Your {isFocus ? 'wellbeing focus' : 'current intention'}</h1>
+          {!editing && <button type="button" onClick={() => setEditing(true)}>Edit</button>}
+        </div>
+        {editing ? (
+          <>
+            <p className="reminder-guidance">{isFocus ? 'What would you like to nurture in your wellbeing? You might focus on better sleep, feeling calmer, or making space to rest.' : 'What would you like to bring into your days? You might intend to move gently, protect your energy, or respond with more patience.'}</p>
+            <form className="habit-edit reminder-edit" onSubmit={saveReminder}>
+              <label htmlFor="reminder-text">{isFocus ? 'My wellbeing focus is…' : 'My intention is…'}</label>
+              <textarea id="reminder-text" name="reminder" defaultValue={reminder?.text ?? ''} placeholder={isFocus ? 'Make more space for restful sleep.' : 'Pause and take a breath before responding.'} required maxLength={500} autoFocus />
+              <label htmlFor="reminder-reason">Why does this matter to you? <span>(optional)</span></label>
+              <textarea id="reminder-reason" name="reason" defaultValue={reminder?.reason ?? ''} placeholder="A few words to reconnect with your why." maxLength={500} />
+              <button className="tracking-continue" type="submit">Save my {noun}<Check aria-hidden="true" /></button>
+              {reminder && <button className="reminder-cancel" type="button" onClick={() => setEditing(false)}>Cancel</button>}
+            </form>
+          </>
+        ) : (
+          <>
+            <div className="habit-focus reminder-card"><Icon aria-hidden="true" /><div><h2>My {noun}</h2><p>{reminder.text}</p></div></div>
+            {reminder.reason && <section className="reminder-reason"><h2 className="habit-section-title">Why it matters to me</h2><p>{reminder.reason}</p></section>}
+            <p className="reminder-return">Come back to Keep me on track → {isFocus ? 'A wellbeing focus' : 'A current intention'} whenever you’d like a reminder. You can update this as life changes.</p>
+            <p className="reminder-storage">Saved in this browser on this device.</p>
+          </>
+        )}
+        {storageError && <p role="status">Your browser couldn’t save this reminder. Keep this page open to retain it.</p>}
       </section>
     </main>
   );
@@ -1054,16 +1118,15 @@ const App = () => {
             setStep(9);
             return;
           }
-          setActiveConversation(null);
-          setEntryContext({ activity: 'Keep me on track', selection });
-          setInitialThought(`I'd like support staying consistent with ${selection.toLowerCase()}.`);
-          setConversationMode('core');
-          setStep(4);
+          setStep(selection === 'A wellbeing focus' ? 10 : 11);
         }}
       />
     );
   } else if (step === 9) {
     page = <DailyHabitPage key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onBack={goBack} />;
+  } else if (step === 10 || step === 11) {
+    const kind = step === 10 ? 'focus' : 'intention';
+    page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} />;
   } else if (step === 7) {
     page = (
       <MattersPage
