@@ -550,14 +550,21 @@ const TRACKING_OPTIONS = [
   { title: 'A current intention', detail: '(e.g., more energy, emotional balance)', Icon: Sun },
 ];
 
-const KeepOnTrackPage = ({ onBack, onContinue }) => {
+const TrackingNavigation = ({ onBack, onHome }) => (
+  <nav className="tracking-navigation" aria-label="Page navigation">
+    <button type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+    <button type="button" onClick={onHome} aria-label="Return to home page"><Home aria-hidden="true" /></button>
+  </nav>
+);
+
+const KeepOnTrackPage = ({ onBack, onHome, onContinue }) => {
   const [selection, setSelection] = useState(TRACKING_OPTIONS[0].title);
 
   return (
     <main className="page tracking-page">
       <section className="tracking-content" aria-labelledby="tracking-heading">
         <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
-        <button className="tracking-back" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+        <TrackingNavigation onBack={onBack} onHome={onHome} />
         <h1 id="tracking-heading">What would you like support staying consistent with?</h1>
         <form onSubmit={(event) => { event.preventDefault(); onContinue(selection); }}>
           <fieldset className="tracking-options">
@@ -577,7 +584,7 @@ const KeepOnTrackPage = ({ onBack, onContinue }) => {
   );
 };
 
-const PersonalReminderPage = ({ kind, userId, onBack }) => {
+const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
   const isFocus = kind === 'focus';
   const noun = isFocus ? 'focus' : 'intention';
   const storageKey = `willow-${kind}-reminder:${userId ?? 'guest'}`;
@@ -612,7 +619,7 @@ const PersonalReminderPage = ({ kind, userId, onBack }) => {
     <main className="page tracking-page">
       <section className="tracking-content reminder-content" aria-labelledby="reminder-heading">
         <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
-        <button className="tracking-back" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+        <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading">
           <h1 id="reminder-heading">Your {isFocus ? 'wellbeing focus' : 'current intention'}</h1>
           {!editing && <button type="button" onClick={() => setEditing(true)}>Edit</button>}
@@ -645,7 +652,7 @@ const PersonalReminderPage = ({ kind, userId, onBack }) => {
 
 const habitDateKey = (date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
 
-const DailyHabitPage = ({ onBack, userId }) => {
+const DailyHabitPage = ({ onBack, onHome, userId }) => {
   const storageKey = `willow-daily-habit:${userId ?? 'guest'}`;
   const [habit, setHabit] = useState(() => {
     try {
@@ -681,7 +688,7 @@ const DailyHabitPage = ({ onBack, userId }) => {
     <main className="page tracking-page">
       <section className="tracking-content habit-content" aria-labelledby="habit-heading">
         <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
-        <button className="tracking-back" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+        <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading"><h1 id="habit-heading">Your focus</h1><button type="button" onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Edit'}</button></div>
         {editing ? (
           <form className="habit-edit" onSubmit={(event) => {
@@ -1113,6 +1120,7 @@ const App = () => {
     page = (
       <KeepOnTrackPage
         onBack={goBack}
+        onHome={goHome}
         onContinue={(selection) => {
           if (selection === 'A daily habit') {
             setStep(9);
@@ -1123,10 +1131,10 @@ const App = () => {
       />
     );
   } else if (step === 9) {
-    page = <DailyHabitPage key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onBack={goBack} />;
+    page = <DailyHabitPage key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
   } else if (step === 10 || step === 11) {
     const kind = step === 10 ? 'focus' : 'intention';
-    page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} />;
+    page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
   } else if (step === 7) {
     page = (
       <MattersPage
