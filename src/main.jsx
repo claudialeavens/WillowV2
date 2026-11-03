@@ -524,7 +524,6 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
     <AccountButton auth={auth} onSignIn={onSignIn} />
     <HomeButton onHome={onHome} />
     <section className="matters-content" aria-labelledby="matters-heading">
-      <p className="matters-eyebrow">WILLOW</p>
       <h1 id="matters-heading">Move towards<br />what matters</h1>
       <p className="matters-question">What would you like a little more of in your life?</p>
       <div className="matters-options">

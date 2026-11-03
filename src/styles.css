@@ -12,13 +12,12 @@
   width: min(44rem, calc(100% - 2rem));
   min-height: 100svh;
   margin: 0 auto;
-  padding: 3.4rem 0 10rem;
+  padding: 4.6rem 0 10rem;
   display: flex;
   flex-direction: column;
   text-align: center;
   color: #203b2b;
 }
-.matters-eyebrow { font-size: 1rem; letter-spacing: .2em; margin: 0 0 1.8rem; }
 .matters-content h1 { font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2.65rem, 5vw, 4rem); font-weight: 600; line-height: .98; margin: 0; }
 .matters-question { font-size: clamp(1.1rem, 2vw, 1.35rem); line-height: 1.5; margin: 1rem 0 1.5rem; }
 .matters-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem .65rem; }
