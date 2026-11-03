@@ -611,7 +611,16 @@ button {
 
 .intro-content {
   --willow-title-size: clamp(5.5rem, 10vw, 8.25rem);
+}
+
+.intro-content-scaled {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
   gap: clamp(1rem, 2.2vh, 1.35rem);
+  transform: scale(0.8);
+  transform-origin: top center;
 }
 
 .intro-hero {

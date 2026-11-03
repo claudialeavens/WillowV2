@@ -1,5 +1,6 @@
 import React, { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { createPortal } from 'react-dom';
 import {
   ArrowLeft,
   Archive as ArchiveIcon,
@@ -287,7 +288,7 @@ const WillowLogo = ({ showAboutLink = false, secondaryAction, children }) => {
         </div>
         </div>
       )}
-      {aboutOpen && (
+      {aboutOpen && createPortal(
         <div className="willow-about-overlay" onMouseDown={() => setAboutOpen(false)}>
           <section
             className="willow-about-dialog"
@@ -308,7 +309,8 @@ const WillowLogo = ({ showAboutLink = false, secondaryAction, children }) => {
             <h2 id="willow-about-heading">About Willow</h2>
             <AboutContent />
           </section>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
@@ -338,6 +340,7 @@ const IntroPage = ({
     <main className="page intro-page">
       <AccountButton auth={auth} onSignIn={onSignIn} />
       <section className="intro-content">
+        <div className="intro-content-scaled">
         <WillowLogo showAboutLink secondaryAction={
           <button className="intro-track-button" type="button" onClick={onKeepOnTrack}>
             <CalendarCheck aria-hidden="true" />
@@ -382,6 +385,7 @@ const IntroPage = ({
               Pick up where we left off
             </button>
           )}
+        </div>
         </div>
       </section>
     </main>
