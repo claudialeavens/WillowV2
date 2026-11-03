@@ -528,7 +528,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
           <button key={choice} type="button" onClick={() => onSelect(choice)}>{choice}</button>
         ))}
       </div>
-      <p className="matters-note">Explore what feels right for you. No checklist, no pressure.</p>
+      <p className="matters-note">Explore what feels right for you. Follow your curiosity, wherever it leads you.</p>
     </section>
   </main>
 );
