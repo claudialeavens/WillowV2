@@ -23,6 +23,7 @@ import {
   Pause,
   Play,
   Sun,
+  Target,
   User,
   Users,
   Volume2,
@@ -544,6 +545,40 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
   </main>
 );
 
+const TRACKING_OPTIONS = [
+  { title: 'A daily habit', detail: '(e.g., movement, meditation)', Icon: Leaf },
+  { title: 'A wellbeing focus', detail: '(e.g., better sleep, less stress)', Icon: Heart },
+  { title: 'A current intention', detail: '(e.g., more energy, emotional balance)', Icon: Sun },
+  { title: 'A specific goal', detail: '(e.g., build a new routine)', Icon: Target },
+];
+
+const KeepOnTrackPage = ({ onBack, onContinue }) => {
+  const [selection, setSelection] = useState(TRACKING_OPTIONS[0].title);
+
+  return (
+    <main className="page tracking-page">
+      <section className="tracking-content" aria-labelledby="tracking-heading">
+        <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
+        <button className="tracking-back" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+        <h1 id="tracking-heading">What would you like support staying consistent with?</h1>
+        <form onSubmit={(event) => { event.preventDefault(); onContinue(selection); }}>
+          <fieldset className="tracking-options">
+            <legend className="sr-only">Choose what you’d like support staying consistent with</legend>
+            {TRACKING_OPTIONS.map(({ title, detail, Icon }) => (
+              <label className="tracking-option" key={title}>
+                <Icon aria-hidden="true" />
+                <span><strong>{title}</strong><small>{detail}</small></span>
+                <input type="radio" name="tracking-focus" value={title} checked={selection === title} onChange={() => setSelection(title)} />
+              </label>
+            ))}
+          </fieldset>
+          <button className="tracking-continue" type="submit">Continue <ArrowRight aria-hidden="true" /></button>
+        </form>
+      </section>
+    </main>
+  );
+};
+
 const SilencePage = ({ onBack, auth, onSignIn }) => {
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
@@ -873,11 +908,7 @@ const App = () => {
           setStep(4);
         }}
         onKeepOnTrack={() => {
-          setActiveConversation(null);
-          setEntryContext({ activity: 'Keep me on track', selection: 'Stay consistent' });
-          setInitialThought('Help me stay consistent with what matters to me.');
-          setConversationMode('core');
-          setStep(4);
+          setStep(8);
         }}
         resumeConversation={resumeConversation}
         onResumeConversation={() => {
@@ -941,6 +972,19 @@ const App = () => {
     );
   } else if (step === 5) {
     page = <SilencePage onBack={goHome} auth={auth} onSignIn={openAuth} />;
+  } else if (step === 8) {
+    page = (
+      <KeepOnTrackPage
+        onBack={goBack}
+        onContinue={(selection) => {
+          setActiveConversation(null);
+          setEntryContext({ activity: 'Keep me on track', selection });
+          setInitialThought(`I'd like support staying consistent with ${selection.toLowerCase()}.`);
+          setConversationMode('core');
+          setStep(4);
+        }}
+      />
+    );
   } else if (step === 7) {
     page = (
       <MattersPage
