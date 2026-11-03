@@ -2287,3 +2287,5 @@ button {
 .reminder-storage { font-size: .8rem; color: #65735f; }
 
 .tracking-navigation { display: contents; }
+.tracking-page .home-button { right: .75rem; }
+.tracking-page .home-button.back-button { right: 3.75rem; }
