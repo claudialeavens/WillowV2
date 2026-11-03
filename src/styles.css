@@ -925,10 +925,7 @@ button {
   gap: 2rem;
 }
 .intro-secondary-actions::before, .intro-secondary-actions::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: rgba(84, 96, 79, 0.18);
+  content: none;
 }
 .intro-about { align-self: stretch; padding-left: 2rem; border-left: 1px solid rgba(84, 96, 79, 0.3); text-align: center; }
 .intro-track-button {
