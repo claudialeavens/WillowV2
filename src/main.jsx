@@ -545,9 +545,9 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
 );
 
 const TRACKING_OPTIONS = [
-  { title: 'A daily habit', detail: '(e.g., movement, meditation)', Icon: Leaf },
-  { title: 'A wellbeing focus', detail: '(e.g., better sleep, less stress)', Icon: Heart },
-  { title: 'A current intention', detail: '(e.g., more energy, emotional balance)', Icon: Sun },
+  { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
+  { title: 'A wellbeing focus', detail: 'e.g., better sleep, less stress', Icon: Heart },
+  { title: 'A current intention', detail: 'e.g., more energy, emotional balance', Icon: Sun },
 ];
 
 const TrackingNavigation = ({ onBack, onHome }) => (
@@ -562,15 +562,16 @@ const KeepOnTrackPage = ({ onBack, onHome, onContinue }) => {
 
   return (
     <main className="page tracking-page">
-      <section className="tracking-content" aria-labelledby="tracking-heading">
+      <section className="tracking-content tracking-selection" aria-labelledby="tracking-heading">
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <h1 id="tracking-heading">What would you like support staying consistent with?</h1>
+        <div className="matters-divider tracking-divider" aria-hidden="true"><Leaf /></div>
         <form onSubmit={(event) => { event.preventDefault(); onContinue(selection); }}>
           <fieldset className="tracking-options">
             <legend className="sr-only">Choose what you’d like support staying consistent with</legend>
             {TRACKING_OPTIONS.map(({ title, detail, Icon }) => (
               <label className="tracking-option" key={title}>
-                <Icon aria-hidden="true" />
+                <span className="tracking-option-icon"><Icon aria-hidden="true" /></span>
                 <span><strong>{title}</strong><small>{detail}</small></span>
                 <input type="radio" name="tracking-focus" value={title} checked={selection === title} onChange={() => setSelection(title)} />
               </label>
