@@ -9,9 +9,11 @@ import {
   CalendarCheck,
   ChevronRight,
   Cloud,
+  Compass,
   Heart,
   Lightbulb,
   Sparkles,
+  Sprout,
   Home,
   Menu,
   Info,
@@ -22,6 +24,7 @@ import {
   Play,
   Sun,
   User,
+  Users,
   Volume2,
   X,
 } from 'lucide-react';
@@ -521,14 +524,22 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
     <HomeButton onHome={onHome} />
     <section className="matters-content" aria-labelledby="matters-heading">
       <p className="matters-eyebrow">WILLOW</p>
-      <h1 id="matters-heading">Move towards what matters</h1>
-      <p className="matters-question">What would you like a little more of in your life?</p>
+      <h1 id="matters-heading">Move towards<br />what matters</h1>
+      <p className="matters-question">What would you like a little more of<br />in your life?</p>
       <div className="matters-options">
-        {['Feeling connected', 'Energy & vitality', 'Peace of mind', 'Joy & enjoyment', 'Meaning & purpose', 'Not sure yet'].map((choice) => (
-          <button key={choice} type="button" onClick={() => onSelect(choice)}>{choice}</button>
+        {[
+          { choice: 'Feeling connected', Icon: Users },
+          { choice: 'Energy & vitality', Icon: Sprout },
+          { choice: 'Peace of mind', Icon: Leaf },
+          { choice: 'Joy & enjoyment', Icon: Sun },
+          { choice: 'Meaning & purpose', Icon: Heart },
+          { choice: 'Not sure yet', Icon: Compass },
+        ].map(({ choice, Icon }) => (
+          <button key={choice} type="button" onClick={() => onSelect(choice)}><Icon aria-hidden="true" /><span>{choice}</span></button>
         ))}
       </div>
-      <p className="matters-note">Explore what feels right for you. Follow your curiosity, wherever it leads you.</p>
+      <div className="matters-divider" aria-hidden="true"><Leaf /></div>
+      <p className="matters-note">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
     </section>
   </main>
 );
