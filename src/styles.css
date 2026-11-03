@@ -46,7 +46,7 @@
 .matters-divider { display: flex; align-items: center; justify-content: center; gap: 1rem; width: 80%; margin: 2.4rem auto 1.5rem; color: #91ab70; }
 .matters-divider::before, .matters-divider::after { content: ''; height: 1px; flex: 1; background: #a5ae8b66; }
 .matters-divider svg { width: 1.3rem; height: 1.3rem; transform: rotate(-20deg); stroke-width: 1.5; }
-.matters-note { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(1.15rem, 2vw, 1.4rem); font-style: italic; font-weight: 500; letter-spacing: 0.01em; line-height: 1.2; color: #354e36; }
+.matters-note { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: calc(clamp(1.15rem, 2vw, 1.4rem) + 4pt); font-style: italic; font-weight: 500; letter-spacing: 0.01em; line-height: 1.2; color: #354e36; }
 @media (max-width: 360px) {
   .matters-content { width: calc(100% - 1rem); }
   .matters-options button { gap: .35rem; padding: .65rem .4rem; }
