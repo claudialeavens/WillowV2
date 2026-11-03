@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Bell,
   CalendarCheck,
+  Check,
   ChevronRight,
   Cloud,
   Compass,
@@ -578,6 +579,79 @@ const KeepOnTrackPage = ({ onBack, onContinue }) => {
   );
 };
 
+const habitDateKey = (date) => `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
+const DailyHabitPage = ({ onBack, userId }) => {
+  const storageKey = `willow-daily-habit:${userId ?? 'guest'}`;
+  const [habit, setHabit] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey));
+      if (typeof saved?.title === 'string' && typeof saved?.intention === 'string' && Array.isArray(saved?.days)) {
+        return { title: saved.title, intention: saved.intention, days: saved.days.filter((day) => typeof day === 'string'), note: typeof saved.note === 'string' ? saved.note : '' };
+      }
+    } catch { /* Start with a fresh habit when storage is unavailable. */ }
+    return { title: 'Daily movement', intention: 'A little each day to feel stronger and more grounded.', days: [], note: '' };
+  });
+  const [editing, setEditing] = useState(false);
+  const [storageError, setStorageError] = useState(false);
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(habit));
+      setStorageError(false);
+    } catch { setStorageError(true); }
+  }, [habit, storageKey]);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (today.getDay() + 6) % 7);
+  const week = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + index);
+    return { date, key: habitDateKey(date) };
+  });
+  const completed = week.filter(({ key }) => habit.days.includes(key)).length;
+  const percentage = Math.round(completed / 7 * 100);
+
+  return (
+    <main className="page tracking-page">
+      <section className="tracking-content habit-content" aria-labelledby="habit-heading">
+        <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
+        <button className="tracking-back" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+        <div className="habit-section-heading"><h1 id="habit-heading">Your focus</h1><button type="button" onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Edit'}</button></div>
+        {editing ? (
+          <form className="habit-edit" onSubmit={(event) => {
+            event.preventDefault();
+            const fields = new FormData(event.currentTarget);
+            setHabit((current) => ({ ...current, title: fields.get('title').trim(), intention: fields.get('intention').trim() }));
+            setEditing(false);
+          }}>
+            <label>Your habit<input name="title" defaultValue={habit.title} required maxLength={100} pattern=".*\S.*" /></label>
+            <label>Why it matters<textarea name="intention" defaultValue={habit.intention} required maxLength={240} /></label>
+            <button className="tracking-continue" type="submit">Save focus <Check aria-hidden="true" /></button>
+          </form>
+        ) : <div className="habit-focus"><Sprout aria-hidden="true" /><div><h2>{habit.title}</h2><p>{habit.intention}</p></div></div>}
+        <h2 className="habit-section-title">Your rhythm</h2>
+        <div className="habit-week" role="group" aria-label="This week’s daily check-ins">
+          {week.map(({ date, key }) => {
+            const checked = habit.days.includes(key);
+            const label = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+            return <button key={key} type="button" disabled={date > today} aria-label={label} aria-pressed={checked} onClick={() => setHabit((current) => ({ ...current, days: checked ? current.days.filter((day) => day !== key) : [...current.days, key] }))}>
+              <span>{date.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 1)}</span>
+              <span className={`habit-day ${checked ? 'is-complete' : ''}`}>{checked && <Check aria-hidden="true" />}</span>
+            </button>;
+          })}
+        </div>
+        <h2 className="habit-section-title">Your momentum</h2>
+        <p className="habit-count"><CalendarCheck aria-hidden="true" />{completed} of 7 days this week</p>
+        <div className="habit-progress"><progress max="7" value={completed} aria-label="Days completed this week" /><strong>{percentage}%</strong></div>
+        <div className="habit-reflection"><Sun aria-hidden="true" /><label><strong>Noticing a difference?</strong><textarea aria-label="How your habit is making a difference" placeholder="How are you feeling? Notice any small shifts?" value={habit.note} maxLength={500} onChange={(event) => setHabit((current) => ({ ...current, note: event.target.value }))} /></label></div>
+        {storageError && <p role="status">Your browser couldn’t save these updates. Keep this page open to retain them.</p>}
+      </section>
+    </main>
+  );
+};
+
 const SilencePage = ({ onBack, auth, onSignIn }) => {
   const [secondsRemaining, setSecondsRemaining] = useState(300);
   const [isRunning, setIsRunning] = useState(false);
@@ -976,6 +1050,10 @@ const App = () => {
       <KeepOnTrackPage
         onBack={goBack}
         onContinue={(selection) => {
+          if (selection === 'A daily habit') {
+            setStep(9);
+            return;
+          }
           setActiveConversation(null);
           setEntryContext({ activity: 'Keep me on track', selection });
           setInitialThought(`I'd like support staying consistent with ${selection.toLowerCase()}.`);
@@ -984,6 +1062,8 @@ const App = () => {
         }}
       />
     );
+  } else if (step === 9) {
+    page = <DailyHabitPage key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onBack={goBack} />;
   } else if (step === 7) {
     page = (
       <MattersPage

@@ -2240,3 +2240,35 @@ button {
   .tracking-content { padding-top: 1.8rem; }
   .tracking-content form { min-height: 27rem; }
 }
+
+.habit-content { padding-bottom: 5rem; }
+.habit-section-heading { display: flex; align-items: center; justify-content: space-between; margin: .5rem 0 .75rem; gap: 1rem; }
+.habit-section-heading h1 { margin: 0; font-size: 1.65rem; }
+.habit-section-heading > button { border: 1px solid #e3e6bf; border-radius: 999px; padding: .3rem 1.25rem; color: #253c2e; background: #f4f5d9; cursor: pointer; }
+.habit-focus, .habit-reflection { display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 1.1rem; background: linear-gradient(120deg, #f9f8e2e6, #ebefcbd9); }
+.habit-focus > svg { width: 2.5rem; height: 2.5rem; flex-shrink: 0; color: #657b38; stroke-width: 1.5; }
+.habit-focus h2, .habit-section-title, .habit-reflection strong { font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.4rem; font-weight: 600; line-height: 1.2; }
+.habit-focus h2 { margin: 0 0 .2rem; overflow-wrap: anywhere; }
+.habit-focus p { margin: 0; font-size: .9rem; line-height: 1.4; overflow-wrap: anywhere; }
+.habit-section-title { margin: 1.4rem 0 .7rem; }
+.habit-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); padding: .65rem .35rem; border: 1px solid #e5e3d6; border-radius: .9rem; background: #fffdfa99; }
+.habit-week button { display: flex; flex-direction: column; align-items: center; gap: .5rem; padding: 0; border: 0; color: inherit; background: transparent; font-size: .8rem; cursor: pointer; }
+.habit-week button:disabled { opacity: .5; cursor: default; }
+.habit-day { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border: 1px solid #a9b4a4; border-radius: 50%; background: #fffdfa; }
+.habit-day.is-complete { border: 0; color: white; background: linear-gradient(#a7bd70, #759342); }
+.habit-day svg { width: 1.1rem; height: 1.1rem; }
+.habit-count { display: flex; align-items: center; gap: .65rem; font-size: .9rem; margin: 0 0 .6rem; }
+.habit-count svg { width: 1.15rem; height: 1.15rem; color: #658344; }
+.habit-progress { display: flex; align-items: center; gap: 1rem; font-size: .9rem; }
+.habit-progress progress { width: 100%; min-width: 0; height: .85rem; border: 0; border-radius: 999px; overflow: hidden; background: #e7e7d8; accent-color: #849f51; }
+.habit-progress progress::-webkit-progress-bar { background: #e7e7d8; border-radius: 999px; }
+.habit-progress progress::-webkit-progress-value { background: linear-gradient(#a7bd70, #759342); border-radius: 999px; }
+.habit-progress progress::-moz-progress-bar { background: #849f51; border-radius: 999px; }
+.habit-reflection { align-items: flex-start; margin-top: 1.4rem; }
+.habit-reflection > svg { flex-shrink: 0; width: 2rem; height: 2rem; color: #d7a220; stroke-width: 1.5; }
+.habit-reflection label { flex: 1; min-width: 0; }
+.habit-reflection textarea { display: block; width: 100%; min-height: 4rem; margin-top: .35rem; padding: .2rem 0; border: 0; background: transparent; color: inherit; font: inherit; font-size: .9rem; line-height: 1.4; resize: vertical; }
+.habit-content .habit-edit { min-height: 0; gap: .8rem; padding: 1rem; border: 1px solid #d9dbcbaa; border-radius: 1rem; background: #fffdf7cc; }
+.habit-edit label { display: grid; gap: .4rem; font-size: .9rem; }
+.habit-edit input, .habit-edit textarea { width: 100%; padding: .6rem; border: 1px solid #bbc7a4; border-radius: .5rem; font: inherit; color: inherit; background: #fffdf7; }
+.habit-week button:focus-visible, .habit-section-heading button:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; border-radius: .5rem; }
