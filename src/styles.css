@@ -612,8 +612,6 @@ button {
 .intro-content {
   --willow-title-size: clamp(5.5rem, 10vw, 8.25rem);
   gap: clamp(1rem, 2.2vh, 1.35rem);
-  transform: translateY(calc(var(--willow-title-size) * -0.5)) scale(0.85);
-  transform-origin: top center;
 }
 
 .intro-hero {
@@ -622,8 +620,6 @@ button {
   align-items: center;
   gap: clamp(1rem, 2.2vh, 1.35rem);
   width: 100%;
-  transform: scale(0.85);
-  transform-origin: bottom center;
 }
 
 .willow-logo {
@@ -858,7 +854,7 @@ button {
 
 .intro-quick-actions {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 1rem;
 }
 
@@ -903,16 +899,6 @@ button {
   line-height: 1.15;
 }
 .intro-quick-actions small { color: #7b8073; font-size: calc(0.9rem * 1.07); line-height: 1.4; }
-.intro-quick-actions .intro-action-track {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-content: center;
-  justify-content: center;
-  column-gap: 0.6rem;
-}
-.intro-action-track .intro-action-icon { grid-row: span 2; align-self: center; }
-.intro-action-track strong { align-self: end; }
-.intro-action-track small { align-self: start; }
 .intro-quick-actions a:hover .intro-action-icon { background: rgba(206, 214, 190, 0.7); }
 .intro-quick-actions a:focus-visible, .intro-about button:focus-visible {
   outline: 2px solid #53684d;
@@ -920,7 +906,37 @@ button {
   border-radius: 0.25rem;
 }
 
-.intro-about { order: 1; margin-top: 0.75rem; text-align: center; }
+.intro-secondary-actions {
+  order: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: min(60rem, 100%);
+  margin-top: 2rem;
+  gap: 2rem;
+}
+.intro-secondary-actions::before, .intro-secondary-actions::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(84, 96, 79, 0.18);
+}
+.intro-about { padding-left: 2rem; border-left: 1px solid rgba(84, 96, 79, 0.3); text-align: center; }
+.intro-track-button {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.25rem;
+  border: 0;
+  color: #53604f;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+.intro-track-button > svg { width: 1.7rem; height: 1.7rem; stroke-width: 1.5; }
+.intro-track-button strong { text-decoration: underline; text-underline-offset: 0.2rem; }
+.intro-track-button small { display: block; margin-top: 0.45rem; color: #7b8073; }
+.intro-track-button:focus-visible { outline: 2px solid #53684d; outline-offset: 5px; border-radius: 0.25rem; }
 .intro-about button {
   display: inline-flex;
   align-items: center;
@@ -943,8 +959,9 @@ button {
   .intro-heading { margin-top: 0.75rem; }
   .intro-quick-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.5rem 0; }
   .intro-quick-actions a:nth-child(3)::before { display: none; }
-  .intro-quick-actions .intro-action-track { grid-column: 1 / -1; }
-  .intro-quick-actions .intro-action-track::before { display: none; }
+  .intro-secondary-actions { gap: 1rem; }
+  .intro-secondary-actions::before, .intro-secondary-actions::after { display: none; }
+  .intro-about { padding-left: 1rem; }
 }
 
 .resume-conversation-link {

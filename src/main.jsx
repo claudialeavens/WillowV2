@@ -246,7 +246,7 @@ const HomeButton = ({ onHome }) => {
   </>;
 };
 
-const WillowLogo = ({ showAboutLink = false, children }) => {
+const WillowLogo = ({ showAboutLink = false, secondaryAction, children }) => {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
@@ -278,11 +278,13 @@ const WillowLogo = ({ showAboutLink = false, children }) => {
       </div>
 
       {showAboutLink && (
+        <div className="intro-secondary-actions">
+          {secondaryAction}
         <div className="intro-about">
           <button type="button" onClick={() => setAboutOpen(true)}>
             <Lightbulb aria-hidden="true" /><span>About Willow</span><ChevronRight aria-hidden="true" />
           </button>
-          <p><strong>How it works and the inspiration behind it.</strong></p>
+        </div>
         </div>
       )}
       {aboutOpen && (
@@ -336,7 +338,12 @@ const IntroPage = ({
     <main className="page intro-page">
       <AccountButton auth={auth} onSignIn={onSignIn} />
       <section className="intro-content">
-        <WillowLogo showAboutLink>
+        <WillowLogo showAboutLink secondaryAction={
+          <button className="intro-track-button" type="button" onClick={onKeepOnTrack}>
+            <CalendarCheck aria-hidden="true" />
+            <span><strong>Keep me on track</strong><small>Stay consistent.</small></span>
+          </button>
+        }>
         <p className="tagline">Clear the way. Reconnect with yourself. Reveal your light.</p>
         <header className="intro-heading">
           <h2>A little clarity can change a lot.</h2>
@@ -359,10 +366,9 @@ const IntroPage = ({
           <nav className="intro-quick-actions" aria-label="Quick practices">
             {[
               { href: '#take-a-break', onClick: onBreak, Icon: Leaf, title: 'Take a break', caption: 'A moment for you' },
-              { href: '#clearing', onClick: onClearing, Icon: Cloud, title: 'Clear my mind', caption: 'Make sense of things' },
-              { href: '#grounding', onClick: onGrounding, Icon: Heart, title: 'Find my balance', caption: 'Feel more grounded' },
+              { href: '#clearing', onClick: onClearing, Icon: Cloud, title: <>Clear my<br />mind</>, caption: 'Make sense of things' },
+              { href: '#grounding', onClick: onGrounding, Icon: Heart, title: <>Find my<br />balance</>, caption: 'Feel more grounded' },
               { href: '#take-a-step', onClick: onTakeStep, Icon: Sparkles, title: <>Surprise me<br />with meaning</>, caption: 'A fresh perspective' },
-              { href: '#keep-on-track', onClick: onKeepOnTrack, Icon: CalendarCheck, title: 'Keep me on track', caption: 'Stay consistent.', className: 'intro-action-track' },
             ].map(({ href, onClick, Icon, title, caption, className }) => (
               <a key={href} className={className} href={href} onClick={(event) => { event.preventDefault(); onClick(); }}>
                 <span className="intro-action-icon"><Icon aria-hidden="true" /></span>

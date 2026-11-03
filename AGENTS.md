@@ -1,5 +1,8 @@
 # Publishing both Willow versions
 
+After making updates, always commit and push changes using the full publishing
+flow below, unless the user explicitly requests otherwise.
+
 WillowV2 is the source project. WillowV2.0 is its generated variant with
 `src/willowVariant.json` setting `showPromptGuidance` to `false`.
 
