@@ -552,8 +552,8 @@ const TRACKING_OPTIONS = [
 
 const TrackingNavigation = ({ onBack, onHome }) => (
   <nav className="tracking-navigation" aria-label="Page navigation">
-    <button type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
-    <button type="button" onClick={onHome} aria-label="Return to home page"><Home aria-hidden="true" /></button>
+    <button className="home-button back-button" type="button" onClick={onBack} aria-label="Go back"><ArrowLeft aria-hidden="true" /></button>
+    <button className="home-button" type="button" onClick={onHome} aria-label="Return to home page"><Home aria-hidden="true" /></button>
   </nav>
 );
 

@@ -2286,8 +2286,4 @@ button {
 .reminder-return { margin-top: 2rem; line-height: 1.6; }
 .reminder-storage { font-size: .8rem; color: #65735f; }
 
-.tracking-navigation { display: flex; justify-content: flex-end; gap: .85rem; margin: .75rem 0 1.25rem; }
-.tracking-navigation button { display: grid; place-items: center; width: 3.5rem; height: 3.5rem; padding: 0; border: 1px solid #b7bea4; border-radius: 50%; color: #435e43; background: #fffdf5e8; cursor: pointer; }
-.tracking-navigation button svg { width: 1.7rem; height: 1.7rem; stroke-width: 1.7; }
-.tracking-navigation button:hover { background: #eef1df; }
-.tracking-navigation button:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; }
+.tracking-navigation { display: contents; }
