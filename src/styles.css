@@ -930,7 +930,7 @@ button {
   height: 1px;
   background: rgba(84, 96, 79, 0.18);
 }
-.intro-about { padding-left: 2rem; border-left: 1px solid rgba(84, 96, 79, 0.3); text-align: center; }
+.intro-about { align-self: stretch; padding-left: 2rem; border-left: 1px solid rgba(84, 96, 79, 0.3); text-align: center; }
 .intro-track-button {
   display: flex;
   align-items: flex-start;
@@ -940,10 +940,11 @@ button {
   color: #53604f;
   background: transparent;
   font: inherit;
+  font-size: calc(0.9rem * 1.07);
   cursor: pointer;
 }
 .intro-track-button > svg { width: 1.7rem; height: 1.7rem; stroke-width: 1.5; }
-.intro-track-button strong { text-decoration: underline; text-underline-offset: 0.2rem; }
+.intro-track-button strong { display: block; font-weight: 600; line-height: 1.7rem; text-decoration: underline; text-underline-offset: 0.2rem; }
 .intro-track-button small { display: block; margin-top: 0.45rem; color: #7b8073; }
 .intro-track-button:focus-visible { outline: 2px solid #53684d; outline-offset: 5px; border-radius: 0.25rem; }
 .intro-about button {
@@ -959,7 +960,7 @@ button {
   font-weight: 600;
   cursor: pointer;
 }
-.intro-about button span { text-decoration: underline; text-underline-offset: 0.2rem; }
+.intro-about button span { line-height: 1.7rem; text-decoration: underline; text-underline-offset: 0.2rem; }
 .intro-about button svg { width: 1rem; height: 1rem; }
 .intro-about button svg:first-child { width: 1.7rem; height: 1.7rem; stroke-width: 1.5; }
 .intro-about p { margin: 0.35rem 0 0; color: #7b8073; font-size: calc(0.85rem * 1.07); }
