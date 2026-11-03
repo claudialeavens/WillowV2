@@ -563,7 +563,6 @@ const KeepOnTrackPage = ({ onBack, onHome, onContinue }) => {
   return (
     <main className="page tracking-page">
       <section className="tracking-content" aria-labelledby="tracking-heading">
-        <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <h1 id="tracking-heading">What would you like support staying consistent with?</h1>
         <form onSubmit={(event) => { event.preventDefault(); onContinue(selection); }}>
@@ -618,7 +617,6 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
   return (
     <main className="page tracking-page">
       <section className="tracking-content reminder-content" aria-labelledby="reminder-heading">
-        <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading">
           <h1 id="reminder-heading">Your {isFocus ? 'wellbeing focus' : 'current intention'}</h1>
@@ -687,7 +685,6 @@ const DailyHabitPage = ({ onBack, onHome, userId }) => {
   return (
     <main className="page tracking-page">
       <section className="tracking-content habit-content" aria-labelledby="habit-heading">
-        <div className="tracking-brand">Willow<Leaf aria-hidden="true" /></div>
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading"><h1 id="habit-heading">Your focus</h1><button type="button" onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Edit'}</button></div>
         {editing ? (
