@@ -2290,6 +2290,16 @@ button {
 .tracking-page .home-button { right: .75rem; }
 .tracking-page .home-button.back-button { right: 3.75rem; }
 
+.tracking-content.habit-content,
+.tracking-content.reminder-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+.reminder-content .reminder-edit { min-height: 0; }
+
 .tracking-selection { width: min(49rem, calc(100% - 2.5rem)); padding-top: 3.5rem; }
 .tracking-selection h1 { max-width: 49rem; margin: 0 auto; text-align: center; font-size: clamp(2rem, 4.4vw, 3.5rem); line-height: 1.12; }
 .tracking-selection .tracking-divider { width: 70%; margin: 1.5rem auto 1.75rem; color: #739243; }
