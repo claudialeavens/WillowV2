@@ -2360,3 +2360,20 @@ button {
 .account-check-in-goals label:has(input:focus-visible) { outline: 2px solid #536c4d; outline-offset: 1px; }
 .account-check-in-goals span { overflow-wrap: anywhere; }
 .account-popover .account-check-in-status { margin: .65rem 0 0; font-size: .75rem; line-height: 1.4; color: #65735f; }
+
+.account-popover { max-height: calc(100svh - 5rem); overflow-y: auto; }
+.account-reminders { margin: .85rem 0; padding-bottom: .85rem; border-bottom: 1px solid #dce0ce; }
+.account-reminder-list { display: grid; gap: .4rem; margin: .65rem 0; }
+.account-reminder { border: 1px solid #dce0ce; border-radius: .6rem; background: #fffdf599; }
+.account-reminder summary { display: flex; align-items: center; gap: .5rem; padding: .65rem; cursor: pointer; font-weight: 500; }
+.account-reminder summary svg { flex-shrink: 0; width: 1rem; height: 1rem; color: #6b854c; }
+.account-reminder summary span { overflow-wrap: anywhere; }
+.account-popover .account-reminder-message { margin: 0; padding: 0 .65rem .6rem; white-space: pre-wrap; overflow-wrap: anywhere; color: #40583f; line-height: 1.5; }
+.account-reminder-actions { display: flex; flex-wrap: wrap; gap: .4rem; padding: .4rem .65rem .65rem; }
+.account-reminder-actions button, .account-reminder-add { border: 1px solid #cbd3b2; border-radius: 999px; padding: .4rem .7rem; background: #f6f7e1; color: #40583f; cursor: pointer; font: inherit; font-size: .8rem; }
+.account-reminder-actions button:disabled { opacity: .5; cursor: default; }
+.account-reminder-editor { display: grid; gap: .65rem; margin-top: .65rem; }
+.account-reminder-editor label { display: grid; gap: .3rem; font-size: .85rem; }
+.account-reminder-editor input, .account-reminder-editor textarea { min-width: 0; width: 100%; border: 1px solid #bbc7a4; border-radius: .5rem; padding: .5rem; background: #fffdf7; color: #40583f; font: inherit; }
+.account-reminder-editor textarea { min-height: 6rem; resize: vertical; }
+.account-reminder summary:focus-visible, .account-reminder-actions button:focus-visible, .account-reminder-add:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }

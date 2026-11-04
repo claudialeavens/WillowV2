@@ -189,3 +189,19 @@ test('old guest focus and intention combine locally without account writes', asy
   await settle();
   assert.equal(user.writes, 0);
 });
+
+test('custom reminders can be added, edited, removed, and restored on another device', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('reminders', 'user-a', []); await settle();
+  const saved = [{ id: 'breath', title: 'Take a breath', message: 'Pause. You have time.' }];
+  first.render('reminders', 'user-a', []).update(saved); await first.finishSaves();
+  const second = device(user);
+  second.render('reminders', 'user-a', []); await settle();
+  assert.equal(second.render('reminders', 'user-a', []).value[0].message, 'Pause. You have time.');
+  second.render('reminders', 'user-a', []).update((current) => current.map((item) => ({ ...item, message: 'One step at a time.' })));
+  await second.finishSaves();
+  assert.equal(user.metadata.willow_tracking_reminders[0].message, 'One step at a time.');
+  second.render('reminders', 'user-a', []).update([]); await second.finishSaves();
+  assert.deepEqual(user.metadata.willow_tracking_reminders, []);
+});

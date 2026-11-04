@@ -80,6 +80,41 @@ const AccountDailyCheckIn = ({ userId }) => {
   </section>;
 };
 
+const AccountReminders = ({ userId }) => {
+  const { value: reminders, update: setReminders, loading, status } = useTrackingRecord('reminders', userId, [], `willow-custom-reminders:${userId}`);
+  const [draft, setDraft] = useState(null);
+  return <section className="account-reminders" aria-label="My reminders">
+    <strong>My reminders</strong>
+    {loading ? <p role="status">Loading your reminders…</p> : <>
+      {!reminders.length && !draft && <p>Add a reminder, then click its name whenever you need it.</p>}
+      <div className="account-reminder-list">
+        {reminders.map((reminder) => <details key={reminder.id} className="account-reminder">
+          <summary><Bell aria-hidden="true" /><span>{reminder.title}</span></summary>
+          <p className="account-reminder-message">{reminder.message}</p>
+          <div className="account-reminder-actions">
+            <button type="button" onClick={() => setDraft({ ...reminder })} aria-label={`Edit reminder: ${reminder.title}`}>Edit</button>
+            <button type="button" onClick={() => { setReminders((current) => current.filter((item) => item.id !== reminder.id)); if (draft?.id === reminder.id) setDraft(null); }} aria-label={`Remove reminder: ${reminder.title}`}>Remove</button>
+          </div>
+        </details>)}
+      </div>
+      {draft ? <form className="account-reminder-editor" onSubmit={(event) => {
+        event.preventDefault();
+        const title = draft.title.trim();
+        const message = draft.message.trim();
+        if (!title || !message) return;
+        const next = { ...draft, title, message };
+        setReminders((current) => current.some((item) => item.id === next.id) ? current.map((item) => item.id === next.id ? next : item) : [...current, next]);
+        setDraft(null);
+      }}>
+        <label>Short name<input value={draft.title} onChange={(event) => setDraft({ ...draft, title: event.target.value })} maxLength={60} placeholder="e.g., Take a breath" required autoFocus /></label>
+        <label>Remind me…<textarea value={draft.message} onChange={(event) => setDraft({ ...draft, message: event.target.value })} maxLength={1000} placeholder="Write what you’d like to be reminded of." required /></label>
+        <div className="account-reminder-actions"><button type="submit" disabled={!draft.title.trim() || !draft.message.trim()}>Save reminder</button><button type="button" onClick={() => setDraft(null)}>Cancel</button></div>
+      </form> : <button className="account-reminder-add" type="button" onClick={() => setDraft({ id: crypto.randomUUID(), title: '', message: '' })}>+ Add reminder</button>}
+    </>}
+    {!loading && <p className="account-check-in-status" role="status">{status}</p>}
+  </section>;
+};
+
 const AccountButton = ({ auth, onSignIn }) => {
   const menuRef = useRef(null);
   const [checkInOpen, setCheckInOpen] = useState(false);
@@ -120,6 +155,7 @@ const AccountButton = ({ auth, onSignIn }) => {
       <div className="account-popover">
         <p>{auth.user.email}</p>
         {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
+        {checkInOpen && <AccountReminders key={`reminders:${auth.user.id}`} userId={auth.user.id} />}
         <div className="account-history-note">
           <strong>Your saved conversations</strong>
           <p>Sign in with this account on any device to continue where you left off.</p>
