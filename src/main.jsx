@@ -30,6 +30,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from './useAuth';
+import { useTrackingRecord } from './useTrackingRecord';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
 import { getVoicePlaybackRate } from './textToSpeech';
 import { setVoicePreviewActive } from './voicePreviewState';
@@ -557,6 +558,10 @@ const TrackingNavigation = ({ onBack, onHome }) => (
   </nav>
 );
 
+const TrackingLoading = ({ onBack, onHome }) => (
+  <main className="page tracking-page"><TrackingNavigation onBack={onBack} onHome={onHome} /><section className="tracking-content"><p role="status">Loading your saved updates…</p></section></main>
+);
+
 const KeepOnTrackPage = ({ onBack, onHome, onContinue }) => {
   const [selection, setSelection] = useState(TRACKING_OPTIONS[0].title);
 
@@ -588,17 +593,9 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
   const isFocus = kind === 'focus';
   const noun = isFocus ? 'focus' : 'intention';
   const storageKey = `willow-${kind}-reminder:${userId ?? 'guest'}`;
-  const [reminder, setReminder] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey));
-      if (typeof saved?.text === 'string' && saved.text.trim()) {
-        return { text: saved.text, reason: typeof saved.reason === 'string' ? saved.reason : '' };
-      }
-    } catch { /* Allow writing a reminder even when storage is unavailable. */ }
-    return null;
-  });
-  const [editing, setEditing] = useState(!reminder);
-  const [storageError, setStorageError] = useState(false);
+  const { value: reminder, update: setReminder, loading, status } = useTrackingRecord(kind, userId, null, storageKey);
+  const [editing, setEditing] = useState(false);
+  const isEditing = editing || !reminder;
   const Icon = isFocus ? Heart : Sun;
 
   const saveReminder = (event) => {
@@ -608,12 +605,10 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
     if (!text) return;
     const next = { text, reason: fields.get('reason').trim() };
     setReminder(next);
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(next));
-      setStorageError(false);
-    } catch { setStorageError(true); }
     setEditing(false);
   };
+
+  if (loading) return <TrackingLoading onBack={onBack} onHome={onHome} />;
 
   return (
     <main className="page tracking-page">
@@ -621,9 +616,9 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading">
           <h1 id="reminder-heading">Your {isFocus ? 'wellbeing focus' : 'current intention'}</h1>
-          {!editing && <button type="button" onClick={() => setEditing(true)}>Edit</button>}
+          {!isEditing && <button type="button" onClick={() => setEditing(true)}>Edit</button>}
         </div>
-        {editing ? (
+        {isEditing ? (
           <>
             <p className="reminder-guidance">{isFocus ? 'What would you like to nurture in your wellbeing? You might focus on better sleep, feeling calmer, or making space to rest.' : 'What would you like to bring into your days? You might intend to move gently, protect your energy, or respond with more patience.'}</p>
             <form className="habit-edit reminder-edit" onSubmit={saveReminder}>
@@ -640,10 +635,9 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
             <div className="habit-focus reminder-card"><Icon aria-hidden="true" /><div><h2>My {noun}</h2><p>{reminder.text}</p></div></div>
             {reminder.reason && <section className="reminder-reason"><h2 className="habit-section-title">Why it matters to me</h2><p>{reminder.reason}</p></section>}
             <p className="reminder-return">Come back to Keep me on track → {isFocus ? 'A wellbeing focus' : 'A current intention'} whenever you’d like a reminder. You can update this as life changes.</p>
-            <p className="reminder-storage">Saved in this browser on this device.</p>
           </>
         )}
-        {storageError && <p role="status">Your browser couldn’t save this reminder. Keep this page open to retain it.</p>}
+        <p className="reminder-storage" role="status">{status}</p>
       </section>
     </main>
   );
@@ -653,23 +647,11 @@ const habitDateKey = (date) => `${date.getFullYear()}-${date.getMonth() + 1}-${d
 
 const DailyHabitPage = ({ onBack, onHome, userId }) => {
   const storageKey = `willow-daily-habit:${userId ?? 'guest'}`;
-  const [habit, setHabit] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem(storageKey));
-      if (typeof saved?.title === 'string' && typeof saved?.intention === 'string' && Array.isArray(saved?.days)) {
-        return { title: saved.title, intention: saved.intention, days: saved.days.filter((day) => typeof day === 'string'), note: typeof saved.note === 'string' ? saved.note : '' };
-      }
-    } catch { /* Start with a fresh habit when storage is unavailable. */ }
-    return { title: 'Daily movement', intention: 'A little each day to feel stronger and more grounded.', days: [], note: '' };
-  });
+  const { value: habit, update: setHabit, loading, status } = useTrackingRecord('habit', userId, {
+    title: 'Daily movement', intention: 'A little each day to feel stronger and more grounded.', days: [], note: '',
+  }, storageKey);
   const [editing, setEditing] = useState(false);
-  const [storageError, setStorageError] = useState(false);
-  useEffect(() => {
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(habit));
-      setStorageError(false);
-    } catch { setStorageError(true); }
-  }, [habit, storageKey]);
+  if (loading) return <TrackingLoading onBack={onBack} onHome={onHome} />;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -715,7 +697,7 @@ const DailyHabitPage = ({ onBack, onHome, userId }) => {
         <p className="habit-count"><CalendarCheck aria-hidden="true" />{completed} of 7 days this week</p>
         <div className="habit-progress"><progress max="7" value={completed} aria-label="Days completed this week" /><strong>{percentage}%</strong></div>
         <div className="habit-reflection"><Sun aria-hidden="true" /><label><strong>Noticing a difference?</strong><textarea aria-label="How your habit is making a difference" placeholder="How are you feeling? Notice any small shifts?" value={habit.note} maxLength={500} onChange={(event) => setHabit((current) => ({ ...current, note: event.target.value }))} /></label></div>
-        {storageError && <p role="status">Your browser couldn’t save these updates. Keep this page open to retain them.</p>}
+        <p className="reminder-storage" role="status">{status}</p>
       </section>
     </main>
   );
