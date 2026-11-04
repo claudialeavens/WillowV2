@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from './useAuth';
 import { useTrackingRecord } from './useTrackingRecord';
-import { habitGoals, saveHabitGoal, toggleGoalDay } from './habitGoals';
+import { habitGoals, saveHabitGoal, shortGoalTitle, toggleGoalDay } from './habitGoals';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
 import { getVoicePlaybackRate } from './textToSpeech';
 import { setVoicePreviewActive } from './voicePreviewState';
@@ -52,8 +52,37 @@ const HOME_ACTIONS = [
   'Follow What Matters',
 ];
 
+const AccountDailyCheckIn = ({ userId }) => {
+  const { value: habit, update: setHabit, loading, status } = useTrackingRecord('habit', userId, null, `willow-daily-habit:${userId}`);
+  const [today, setToday] = useState(() => new Date());
+  useEffect(() => {
+    const nextDay = new Date(today);
+    nextDay.setHours(24, 0, 0, 0);
+    const timer = setTimeout(() => setToday(new Date()), Math.max(1, nextDay.getTime() - Date.now()));
+    return () => clearTimeout(timer);
+  }, [today]);
+  const dateKey = habitDateKey(today);
+
+  return <section className="account-check-in" aria-label="Daily goal check-in">
+    <strong>Today’s check-in</strong>
+    <p className="account-check-in-date">{today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
+    {loading ? <p role="status">Loading your goals…</p> : habit ? (
+      <>
+        <div className="account-check-in-goals">
+          {habitGoals(habit).map((goal) => <label key={goal.id} title={goal.title}>
+            <input type="checkbox" checked={goal.days.includes(dateKey)} aria-label={`${goal.title}: completed today`} onChange={() => setHabit((current) => toggleGoalDay(current, goal.id, dateKey))} />
+            <span>{shortGoalTitle(goal.title)}</span>
+          </label>)}
+        </div>
+        <p className="account-check-in-status" role="status">{status}</p>
+      </>
+    ) : <p>Add goals in Keep me on track to check in here.</p>}
+  </section>;
+};
+
 const AccountButton = ({ auth, onSignIn }) => {
   const menuRef = useRef(null);
+  const [checkInOpen, setCheckInOpen] = useState(false);
 
   useEffect(() => {
     const closeOutside = (event) => {
@@ -86,10 +115,11 @@ const AccountButton = ({ auth, onSignIn }) => {
   }
 
   return (
-    <details className="account-menu" ref={menuRef}>
+    <details className="account-menu" ref={menuRef} onToggle={(event) => setCheckInOpen(event.currentTarget.open)}>
       <summary aria-label="Open account menu"><User className="signed-in-person" aria-hidden="true" /></summary>
       <div className="account-popover">
         <p>{auth.user.email}</p>
+        {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
         <div className="account-history-note">
           <strong>Your saved conversations</strong>
           <p>Sign in with this account on any device to continue where you left off.</p>

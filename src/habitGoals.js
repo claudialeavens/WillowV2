@@ -20,3 +20,5 @@ export const saveHabitGoal = (habit, goal) => {
     ? goals.map((item) => item.id === goal.id ? { ...item, title } : item)
     : [...goals, { id: goal.id, title, days: [] }] };
 };
+export const shortGoalTitle = (title) => title.trim().split(/\s+/).slice(0, 3).join(' ');
+

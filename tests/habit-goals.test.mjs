@@ -21,3 +21,9 @@ test('renaming either goal preserves its check-ins', () => {
   assert.deepEqual(saveHabitGoal(renamed, { id: 'primary', title: 'Exercise' }).days, original.days);
   assert.equal(saveHabitGoal(renamed, { id: 'walk', title: '  ' }), renamed);
 });
+
+test('account menu descriptions use at most three words', async () => {
+  const { shortGoalTitle } = await import('../src/habitGoals.js');
+  assert.equal(shortGoalTitle('  Daily   morning walk outside '), 'Daily morning walk');
+  assert.equal(shortGoalTitle('Meditation'), 'Meditation');
+});

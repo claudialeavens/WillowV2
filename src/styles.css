@@ -2350,3 +2350,13 @@ button {
 .habit-goal-editor > div { display: flex; gap: .5rem; }
 .habit-goal-editor button:disabled { opacity: .5; cursor: default; }
 .habit-goal-heading button:focus-visible, .habit-add-goal:focus-visible, .habit-goal-editor button:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
+
+.account-check-in { margin: .85rem 0; padding: .85rem 0; border-block: 1px solid #dce0ce; }
+.account-popover .account-check-in-date { margin: .2rem 0 .65rem; font-size: .8rem; color: #65735f; }
+.account-check-in-goals { display: grid; gap: .35rem; max-height: 14rem; overflow-y: auto; }
+.account-check-in-goals label { display: flex; align-items: center; gap: .65rem; min-height: 2.5rem; padding: .3rem .4rem; border-radius: .5rem; cursor: pointer; }
+.account-check-in-goals label:hover { background: #eef1df; }
+.account-check-in-goals input { flex-shrink: 0; width: 1.15rem; height: 1.15rem; accent-color: #789650; cursor: pointer; }
+.account-check-in-goals label:has(input:focus-visible) { outline: 2px solid #536c4d; outline-offset: 1px; }
+.account-check-in-goals span { overflow-wrap: anywhere; }
+.account-popover .account-check-in-status { margin: .65rem 0 0; font-size: .75rem; line-height: 1.4; color: #65735f; }
