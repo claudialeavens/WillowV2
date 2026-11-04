@@ -12,7 +12,7 @@ const enqueue = (key, task) => {
 export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
   const key = `willow-tracking-v1:${userId ?? 'guest'}:${kind}`;
   const valid = (value) => kind === 'habit'
-    ? typeof value?.title === 'string' && typeof value?.intention === 'string' && Array.isArray(value?.days) && value.days.every((day) => typeof day === 'string') && typeof value?.note === 'string'
+    ? typeof value?.title === 'string' && typeof value?.intention === 'string' && Array.isArray(value?.days) && value.days.every((day) => typeof day === 'string') && typeof value?.note === 'string' && (value.goals === undefined || (Array.isArray(value.goals) && value.goals.every((goal) => typeof goal?.id === 'string' && typeof goal?.title === 'string' && Array.isArray(goal?.days) && goal.days.every((day) => typeof day === 'string'))))
     : value === null || (typeof value?.text === 'string' && typeof value?.reason === 'string');
   const read = () => {
     try {

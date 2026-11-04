@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from './useAuth';
 import { useTrackingRecord } from './useTrackingRecord';
+import { habitGoals, saveHabitGoal, toggleGoalDay } from './habitGoals';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
 import { getVoicePlaybackRate } from './textToSpeech';
 import { setVoicePreviewActive } from './voicePreviewState';
@@ -651,6 +652,7 @@ const DailyHabitPage = ({ onBack, onHome, userId }) => {
     title: 'Daily movement', intention: 'A little each day to feel stronger and more grounded.', days: [], note: '',
   }, storageKey);
   const [editing, setEditing] = useState(false);
+  const [goalEditor, setGoalEditor] = useState(null);
   if (loading) return <TrackingLoading onBack={onBack} onHome={onHome} />;
 
   const today = new Date();
@@ -662,8 +664,6 @@ const DailyHabitPage = ({ onBack, onHome, userId }) => {
     date.setDate(monday.getDate() + index);
     return { date, key: habitDateKey(date) };
   });
-  const completed = week.filter(({ key }) => habit.days.includes(key)).length;
-  const percentage = Math.round(completed / 7 * 100);
 
   return (
     <main className="page tracking-page">
@@ -683,19 +683,42 @@ const DailyHabitPage = ({ onBack, onHome, userId }) => {
           </form>
         ) : <div className="habit-focus"><Sprout aria-hidden="true" /><div><h2>{habit.title}</h2><p>{habit.intention}</p></div></div>}
         <h2 className="habit-section-title">Your rhythm</h2>
-        <div className="habit-week" role="group" aria-label="This week’s daily check-ins">
+        {habitGoals(habit).map((goal) => {
+          const completed = week.filter(({ key }) => goal.days.includes(key)).length;
+          const percentage = Math.round(completed / 7 * 100);
+          return <section className="habit-goal" key={goal.id} aria-label={goal.title}>
+            <div className="habit-goal-heading"><h3>{goal.title}</h3><button type="button" onClick={() => setGoalEditor({ id: goal.id, title: goal.title })} aria-label={`Edit ${goal.title}`}>Edit</button></div>
+            {goalEditor?.id === goal.id && <form className="habit-goal-editor" onSubmit={(event) => {
+              event.preventDefault();
+              setHabit((current) => saveHabitGoal(current, goalEditor));
+              setGoalEditor(null);
+            }}>
+              <label>What are you tracking?<input value={goalEditor.title} onChange={(event) => setGoalEditor({ ...goalEditor, title: event.target.value })} required maxLength={100} autoFocus /></label>
+              <div><button type="submit" disabled={!goalEditor.title.trim()}>Save</button><button type="button" onClick={() => setGoalEditor(null)}>Cancel</button></div>
+            </form>}
+        <div className="habit-week" role="group" aria-label={`${goal.title}: this week’s check-ins`}>
           {week.map(({ date, key }) => {
-            const checked = habit.days.includes(key);
+            const checked = goal.days.includes(key);
             const label = date.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
-            return <button key={key} type="button" disabled={date > today} aria-label={label} aria-pressed={checked} onClick={() => setHabit((current) => ({ ...current, days: checked ? current.days.filter((day) => day !== key) : [...current.days, key] }))}>
+            return <button key={key} type="button" disabled={date > today} aria-label={`${goal.title}: ${label}`} aria-pressed={checked} onClick={() => setHabit((current) => toggleGoalDay(current, goal.id, key))}>
               <span>{date.toLocaleDateString(undefined, { weekday: 'short' }).slice(0, 1)}</span>
               <span className={`habit-day ${checked ? 'is-complete' : ''}`}>{checked && <Check aria-hidden="true" />}</span>
             </button>;
           })}
         </div>
-        <h2 className="habit-section-title">Your momentum</h2>
         <p className="habit-count"><CalendarCheck aria-hidden="true" />{completed} of 7 days this week</p>
-        <div className="habit-progress"><progress max="7" value={completed} aria-label="Days completed this week" /><strong>{percentage}%</strong></div>
+        <div className="habit-progress"><progress max="7" value={completed} aria-label={`${goal.title}: days completed this week`} /><strong>{percentage}%</strong></div>
+          </section>;
+        })}
+        {goalEditor && !habitGoals(habit).some((goal) => goal.id === goalEditor.id) && <form className="habit-goal-editor" onSubmit={(event) => {
+          event.preventDefault();
+          setHabit((current) => saveHabitGoal(current, goalEditor));
+          setGoalEditor(null);
+        }}>
+          <label>What would you like to track?<input value={goalEditor.title} onChange={(event) => setGoalEditor({ ...goalEditor, title: event.target.value })} placeholder="e.g., Meditation or an evening walk" required maxLength={100} autoFocus /></label>
+          <div><button type="submit" disabled={!goalEditor.title.trim()}>Add goal</button><button type="button" onClick={() => setGoalEditor(null)}>Cancel</button></div>
+        </form>}
+        {!goalEditor && <button className="habit-add-goal" type="button" onClick={() => setGoalEditor({ id: crypto.randomUUID(), title: '' })}>+ Add goal</button>}
         <div className="habit-reflection"><Sun aria-hidden="true" /><label><strong>Noticing a difference?</strong><textarea aria-label="How your habit is making a difference" placeholder="How are you feeling? Notice any small shifts?" value={habit.note} maxLength={500} onChange={(event) => setHabit((current) => ({ ...current, note: event.target.value }))} /></label></div>
         <p className="reminder-storage" role="status">{status}</p>
       </section>

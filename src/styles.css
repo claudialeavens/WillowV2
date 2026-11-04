@@ -2337,3 +2337,16 @@ button {
   .tracking-selection .tracking-option-icon svg { width: 1.65rem; height: 1.65rem; }
   .tracking-selection .tracking-option input { width: 1.1rem; height: 1.1rem; }
 }
+
+.habit-goal { margin-bottom: 1.25rem; }
+.habit-goal-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .65rem; }
+.habit-goal-heading h3 { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.3rem; font-weight: 600; overflow-wrap: anywhere; }
+.habit-goal-heading button, .habit-add-goal, .habit-goal-editor button { padding: .4rem 1rem; border: 1px solid #cbd3b2; border-radius: 999px; color: #40583f; background: #f6f7e1; cursor: pointer; }
+.habit-goal .habit-count { margin-top: .75rem; }
+.habit-add-goal { align-self: flex-start; }
+.habit-content form.habit-goal-editor { min-height: 0; gap: .65rem; margin: .5rem 0 1rem; }
+.habit-goal-editor label { display: grid; gap: .4rem; font-size: .9rem; }
+.habit-goal-editor input { width: 100%; padding: .7rem; border: 1px solid #bbc7a4; border-radius: .6rem; font: inherit; color: inherit; background: #fffdf7; }
+.habit-goal-editor > div { display: flex; gap: .5rem; }
+.habit-goal-editor button:disabled { opacity: .5; cursor: default; }
+.habit-goal-heading button:focus-visible, .habit-add-goal:focus-visible, .habit-goal-editor button:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }

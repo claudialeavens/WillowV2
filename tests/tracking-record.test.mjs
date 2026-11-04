@@ -143,3 +143,14 @@ test('sign-out waits for in-flight tracking writes', async () => {
   user.id = null;
   assert.equal(user.metadata.willow_tracking_focus.text, 'Before sign-out');
 });
+
+test('separate goal names and check-ins sync and restore with the habit', async () => {
+  const user = account();
+  const habit = { title: 'Movement', intention: 'Feel good', days: ['2026-11-2'], note: '', goals: [{ id: 'meditation', title: 'Meditation', days: ['2026-11-3'] }] };
+  const first = device(user);
+  first.render('habit', 'user-a', habit); await settle();
+  first.render('habit', 'user-a', habit).update(habit); await first.finishSaves();
+  const second = device(user);
+  second.render('habit', 'user-a', { ...habit, goals: [] }); await settle();
+  assert.deepEqual(JSON.parse(JSON.stringify(second.render('habit', 'user-a', habit).value)), habit);
+});
