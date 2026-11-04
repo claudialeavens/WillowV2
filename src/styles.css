@@ -190,7 +190,7 @@ button {
   animation: account-pulse 1.5s ease-in-out infinite;
 }
 
-.account-menu summary {
+.account-menu > summary {
   width: 2.7rem;
   height: 2.7rem;
   display: grid;
@@ -207,11 +207,11 @@ button {
   cursor: pointer;
 }
 
-.account-menu summary::-webkit-details-marker {
+.account-menu > summary::-webkit-details-marker {
   display: none;
 }
 
-.account-menu summary:focus-visible {
+.account-menu > summary:focus-visible {
   outline: 2px solid #6f7563;
   outline-offset: 4px;
 }
@@ -2370,6 +2370,7 @@ button {
 .account-reminder summary span { overflow-wrap: anywhere; }
 .account-popover .account-reminder-message { margin: 0; padding: 0 .65rem .6rem; white-space: pre-wrap; overflow-wrap: anywhere; color: #40583f; line-height: 1.5; }
 .account-reminder-actions { display: flex; flex-wrap: wrap; gap: .4rem; padding: .4rem .65rem .65rem; }
+.account-reminder-actions button { width: auto; }
 .account-reminder-actions button, .account-reminder-add { border: 1px solid #cbd3b2; border-radius: 999px; padding: .4rem .7rem; background: #f6f7e1; color: #40583f; cursor: pointer; font: inherit; font-size: .8rem; }
 .account-reminder-actions button:disabled { opacity: .5; cursor: default; }
 .account-reminder-editor { display: grid; gap: .65rem; margin-top: .65rem; }
