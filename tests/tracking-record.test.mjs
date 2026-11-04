@@ -5,8 +5,8 @@ import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
 
 const source = (await readFile(new URL('../src/useTrackingRecord.js', import.meta.url), 'utf8'))
-  .replace(/^import .*;\n/gm, '').replace('export const useTrackingRecord', 'const useTrackingRecord')
-  + '\nglobalThis.hook = useTrackingRecord;';
+  .replace(/^import .*;\n/gm, '').replaceAll('export const ', 'const ')
+  + '\nglobalThis.hook = useTrackingRecord; globalThis.finishSaves = finishTrackingSaves;';
 const tick = () => new Promise((resolve) => setImmediate(resolve));
 const settle = async () => { for (let i = 0; i < 8; i++) await tick(); };
 
@@ -46,6 +46,7 @@ function device(account, entries = {}) {
     },
     focus: () => listeners.get('focus')?.(),
     online: () => listeners.get('online')?.(),
+    finishSaves: () => context.finishSaves(),
   };
 }
 const account = () => ({ id: 'user-a', metadata: {}, writes: 0 });
@@ -131,4 +132,14 @@ test('rapid updates retain the final value', async () => {
   for (let i = 0; i < 15; i++) browser.render().update({ text: `Update ${i}`, reason: '' });
   await settle();
   assert.equal(user.metadata.willow_tracking_focus.text, 'Update 14');
+});
+
+test('sign-out waits for in-flight tracking writes', async () => {
+  const user = account();
+  const browser = device(user);
+  browser.render(); await settle();
+  browser.render().update({ text: 'Before sign-out', reason: '' });
+  await browser.finishSaves();
+  user.id = null;
+  assert.equal(user.metadata.willow_tracking_focus.text, 'Before sign-out');
 });

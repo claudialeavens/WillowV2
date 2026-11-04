@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from './supabase';
 
 const queues = new Map();
+export const finishTrackingSaves = () => Promise.allSettled([...queues.values()]);
 const enqueue = (key, task) => {
   const next = (queues.get(key) ?? Promise.resolve()).catch(() => {}).then(task);
   queues.set(key, next);

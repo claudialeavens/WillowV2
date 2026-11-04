@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase';
+import { finishTrackingSaves } from './useTrackingRecord';
 
 const GUEST_SESSION_KEY = 'willow_guest_session';
 
@@ -74,6 +75,7 @@ export const useAuth = () => {
 
   const signOut = async () => {
     if (user) {
+      await finishTrackingSaves();
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
     }
