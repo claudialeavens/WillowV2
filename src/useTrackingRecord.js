@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from './supabase';
+import { mergeWellbeingReminders } from './wellbeingReminder';
 
 const queues = new Map();
 export const finishTrackingSaves = () => Promise.allSettled([...queues.values()]);
@@ -18,7 +19,11 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
     try {
       const cached = JSON.parse(localStorage.getItem(key));
       if (cached && valid(cached.value)) return cached;
-      const legacy = JSON.parse(localStorage.getItem(legacyKey));
+      const previous = (oldKind) => JSON.parse(localStorage.getItem(`willow-tracking-v1:${userId ?? 'guest'}:${oldKind}`))?.value
+        ?? JSON.parse(localStorage.getItem(`willow-${oldKind}-reminder:${userId ?? 'guest'}`));
+      const legacy = kind === 'wellbeing'
+        ? mergeWellbeingReminders(previous('focus'), previous('intention'))
+        : JSON.parse(localStorage.getItem(legacyKey));
       return { value: valid(legacy) ? legacy ?? initialValue : initialValue, pending: !!legacy && valid(legacy), legacy: !!legacy && valid(legacy) };
     } catch { return { value: initialValue, pending: false }; }
   };
@@ -60,8 +65,16 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
         const beforeRead = cached.current;
         const { data: account, error } = await supabase.auth.getUser();
         if (error || account.user?.id !== userId) throw error ?? new Error('Account changed');
-        const remote = account.user.user_metadata?.[`willow_tracking_${kind}`];
+        let remote = account.user.user_metadata?.[`willow_tracking_${kind}`];
         if (cached.current !== beforeRead) return;
+        if (kind === 'wellbeing' && remote == null && (!cached.current.pending || cached.current.legacy)) {
+          const merged = mergeWellbeingReminders(account.user.user_metadata?.willow_tracking_focus, account.user.user_metadata?.willow_tracking_intention);
+          if (merged) {
+            valueRef.current = merged;
+            cache({ value: merged, pending: true });
+            if (alive.current) setValue(merged);
+          }
+        }
         if (remote != null && !valid(remote)) throw new Error('Invalid tracking data');
         // Existing account data wins over a one-time import of old browser data.
         const uploaded = cached.current.pending && (!cached.current.legacy || remote == null);

@@ -548,8 +548,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
 
 const TRACKING_OPTIONS = [
   { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
-  { title: 'A wellbeing focus', detail: 'e.g., better sleep, less stress', Icon: Heart },
-  { title: 'A current intention', detail: 'e.g., more energy, emotional balance', Icon: Sun },
+  { title: 'My current wellbeing intention', detail: 'e.g., better sleep, more energy, emotional balance', Icon: Heart },
 ];
 
 const TrackingNavigation = ({ onBack, onHome }) => (
@@ -591,13 +590,12 @@ const KeepOnTrackPage = ({ onBack, onHome, onContinue }) => {
 };
 
 const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
-  const isFocus = kind === 'focus';
-  const noun = isFocus ? 'focus' : 'intention';
+  const noun = 'wellbeing intention';
   const storageKey = `willow-${kind}-reminder:${userId ?? 'guest'}`;
   const { value: reminder, update: setReminder, loading, status } = useTrackingRecord(kind, userId, null, storageKey);
   const [editing, setEditing] = useState(false);
   const isEditing = editing || !reminder;
-  const Icon = isFocus ? Heart : Sun;
+  const Icon = Heart;
 
   const saveReminder = (event) => {
     event.preventDefault();
@@ -616,17 +614,17 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
       <section className="tracking-content reminder-content" aria-labelledby="reminder-heading">
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading">
-          <h1 id="reminder-heading">Your {isFocus ? 'wellbeing focus' : 'current intention'}</h1>
+          <h1 id="reminder-heading">My current wellbeing intention</h1>
           {!isEditing && <button type="button" onClick={() => setEditing(true)}>Edit</button>}
         </div>
         {isEditing ? (
           <>
-            <p className="reminder-guidance">{isFocus ? 'What would you like to nurture in your wellbeing? You might focus on better sleep, feeling calmer, or making space to rest.' : 'What would you like to bring into your days? You might intend to move gently, protect your energy, or respond with more patience.'}</p>
+            <p className="reminder-guidance">What would you like to nurture in your wellbeing? You might choose better sleep, more energy, emotional balance, or making space to rest.</p>
             <form className="habit-edit reminder-edit" onSubmit={saveReminder}>
-              <label htmlFor="reminder-text">{isFocus ? 'My wellbeing focus is…' : 'My intention is…'}</label>
-              <textarea id="reminder-text" name="reminder" defaultValue={reminder?.text ?? ''} placeholder={isFocus ? 'Make more space for restful sleep.' : 'Pause and take a breath before responding.'} required maxLength={500} autoFocus />
+              <label htmlFor="reminder-text">My current wellbeing intention is…</label>
+              <textarea id="reminder-text" name="reminder" defaultValue={reminder?.text ?? ''} placeholder="Make more space for restful sleep." required maxLength={1200} autoFocus />
               <label htmlFor="reminder-reason">Why does this matter to you? <span>(optional)</span></label>
-              <textarea id="reminder-reason" name="reason" defaultValue={reminder?.reason ?? ''} placeholder="A few words to reconnect with your why." maxLength={500} />
+              <textarea id="reminder-reason" name="reason" defaultValue={reminder?.reason ?? ''} placeholder="A few words to reconnect with your why." maxLength={1200} />
               <button className="tracking-continue" type="submit">Save my {noun}<Check aria-hidden="true" /></button>
               {reminder && <button className="reminder-cancel" type="button" onClick={() => setEditing(false)}>Cancel</button>}
             </form>
@@ -635,7 +633,7 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
           <>
             <div className="habit-focus reminder-card"><Icon aria-hidden="true" /><div><h2>My {noun}</h2><p>{reminder.text}</p></div></div>
             {reminder.reason && <section className="reminder-reason"><h2 className="habit-section-title">Why it matters to me</h2><p>{reminder.reason}</p></section>}
-            <p className="reminder-return">Come back to Keep me on track → {isFocus ? 'A wellbeing focus' : 'A current intention'} whenever you’d like a reminder. You can update this as life changes.</p>
+            <p className="reminder-return">Come back to Keep me on track → My current wellbeing intention whenever you’d like a reminder. You can update this as life changes.</p>
           </>
         )}
         <p className="reminder-storage" role="status">{status}</p>
@@ -1129,14 +1127,14 @@ const App = () => {
             setStep(9);
             return;
           }
-          setStep(selection === 'A wellbeing focus' ? 10 : 11);
+          setStep(10);
         }}
       />
     );
   } else if (step === 9) {
     page = <DailyHabitPage key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
   } else if (step === 10 || step === 11) {
-    const kind = step === 10 ? 'focus' : 'intention';
+    const kind = 'wellbeing';
     page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
   } else if (step === 7) {
     page = (

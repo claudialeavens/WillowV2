@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { randomUUID } from 'node:crypto';
+import { mergeWellbeingReminders } from '../src/wellbeingReminder.js';
 
 const source = (await readFile(new URL('../src/useTrackingRecord.js', import.meta.url), 'utf8'))
   .replace(/^import .*;\n/gm, '').replaceAll('export const ', 'const ')
@@ -19,6 +20,7 @@ function device(account, entries = {}) {
   let mounted = false;
   const context = {
     crypto: { randomUUID },
+    mergeWellbeingReminders,
     localStorage: { getItem: (key) => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value) },
     window: { addEventListener: (event, fn) => listeners.set(event, fn), removeEventListener: (event) => listeners.delete(event) },
     useRef: (initial) => { const i = cursor++; return slots[i] ??= { current: initial }; },
@@ -153,4 +155,37 @@ test('separate goal names and check-ins sync and restore with the habit', async 
   const second = device(user);
   second.render('habit', 'user-a', { ...habit, goals: [] }); await settle();
   assert.deepEqual(JSON.parse(JSON.stringify(second.render('habit', 'user-a', habit).value)), habit);
+});
+
+test('combined wellbeing intention preserves both earlier account reminders', async () => {
+  const user = account();
+  user.metadata.willow_tracking_focus = { text: 'Sleep better', reason: 'Feel rested' };
+  user.metadata.willow_tracking_intention = { text: 'Pause more', reason: 'Feel calm' };
+  const browser = device(user);
+  browser.render('wellbeing'); await settle();
+  assert.equal(browser.render('wellbeing').value.text, 'Sleep better\n\nPause more');
+  assert.equal(user.metadata.willow_tracking_wellbeing.reason, 'Feel rested\n\nFeel calm');
+  const second = device(user);
+  second.render('wellbeing'); await settle();
+  assert.equal(second.render('wellbeing').value.text, 'Sleep better\n\nPause more');
+});
+
+test('combined reminder takes priority after being edited', async () => {
+  const user = account();
+  user.metadata.willow_tracking_focus = { text: 'Old focus', reason: '' };
+  user.metadata.willow_tracking_wellbeing = { text: 'My current intention', reason: '' };
+  const browser = device(user);
+  browser.render('wellbeing'); await settle();
+  assert.equal(browser.render('wellbeing').value.text, 'My current intention');
+});
+
+test('old guest focus and intention combine locally without account writes', async () => {
+  const user = account();
+  const browser = device(user, {
+    'willow-focus-reminder:guest': JSON.stringify({ text: 'Rest', reason: '' }),
+    'willow-intention-reminder:guest': JSON.stringify({ text: 'Breathe', reason: '' }),
+  });
+  assert.equal(browser.render('wellbeing', null).value.text, 'Rest\n\nBreathe');
+  await settle();
+  assert.equal(user.writes, 0);
 });
