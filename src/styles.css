@@ -2322,3 +2322,18 @@ button {
   .tracking-option-icon svg { width: 2rem; height: 2rem; }
   .tracking-selection .tracking-option input { width: 1.25rem; height: 1.25rem; }
 }
+
+.tracking-selection .tracking-options { width: 85%; margin-inline: auto; }
+.tracking-selection .tracking-option { min-height: 5rem; padding: .4rem 1.6rem; gap: 1.2rem; border-radius: 1.6rem; }
+.tracking-selection .tracking-option-icon { flex-basis: 4rem; width: 4rem; height: 4rem; }
+.tracking-selection .tracking-option-icon svg { width: 2.4rem; height: 2.4rem; }
+.tracking-selection .tracking-option strong { font-size: clamp(1.2rem, 2.08vw, 1.68rem); }
+.tracking-selection .tracking-option small { font-size: clamp(.8rem, 1.28vw, 1rem); }
+.tracking-selection .tracking-option input { width: 1.4rem; height: 1.4rem; }
+@media (max-width: 480px) {
+  .tracking-selection .tracking-options { width: 100%; }
+  .tracking-selection .tracking-option { min-height: 4.25rem; padding: .5rem .65rem; gap: .6rem; border-radius: 1.2rem; }
+  .tracking-selection .tracking-option-icon { flex-basis: 2.5rem; width: 2.5rem; height: 2.5rem; }
+  .tracking-selection .tracking-option-icon svg { width: 1.65rem; height: 1.65rem; }
+  .tracking-selection .tracking-option input { width: 1.1rem; height: 1.1rem; }
+}
