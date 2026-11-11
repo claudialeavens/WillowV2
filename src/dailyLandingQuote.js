@@ -1,17 +1,17 @@
 const EMERSON = 'https://www.gutenberg.org/files/2944/2944-h/2944-h.htm';
-const THOREAU = 'https://www.gutenberg.org/files/205/205-h/205-h.htm';
-// Verified against the original works linked here; keep quotations verbatim.
+const ALLEN = 'https://www.gutenberg.org/files/4507/4507-h/4507-h.htm';
+const MARCUS = 'https://www.gutenberg.org/files/15877/15877-h/15877-h.htm';
+const DHAMMAPADA = 'https://www.gutenberg.org/files/2017/2017-h/2017-h.htm';
+// Source-verified quotations/excerpts; excerpt capitalization and final punctuation normalized. Sources are retained for editorial checks,
+// but only the quote and author are displayed. New IDs retire the broader old set.
 export const LANDING_QUOTES = [
-  { id: 'trust', text: 'Trust thyself: every heart vibrates to that iron string.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['confidence', 'direction'] },
-  { id: 'yourself', text: 'Insist on yourself; never imitate.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['confidence', 'direction'] },
-  { id: 'peace', text: 'Nothing can bring you peace but yourself.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['rest', 'acceptance'] },
-  { id: 'simplify', text: 'Simplify, simplify.', author: 'Henry David Thoreau', source: THOREAU, themes: ['rest', 'direction'] },
-  { id: 'friend', text: 'the only way to have a friend is to be one.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['connection'] },
-  { id: 'heart', text: 'Wait, and thy heart shall speak.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['connection', 'rest'] },
-  { id: 'change', text: 'Things do not change; we change.', author: 'Henry David Thoreau', source: THOREAU, themes: ['acceptance', 'growth'] },
-  { id: 'strength', text: 'Our strength grows out of our weakness.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['growth', 'confidence'] },
-  { id: 'dawn', text: 'Only that day dawns to which we are awake.', author: 'Henry David Thoreau', source: THOREAU, themes: ['growth', 'acceptance'] },
-  { id: 'music', text: 'Let him step to the music which he hears, however measured or far away.', author: 'Henry David Thoreau', source: THOREAU, themes: ['confidence', 'growth'] },
+  { id: 'wellbeing-calm-power', text: 'Calmness is power.', author: 'James Allen', source: ALLEN, themes: ['confidence', 'direction', 'growth', 'rest'] },
+  { id: 'wellbeing-tranquil-action', text: 'The more tranquil a man becomes, the greater is his success, his influence, his power for good.', author: 'James Allen', source: ALLEN, themes: ['direction', 'growth', 'confidence', 'connection'] },
+  { id: 'wellbeing-ordered-mind', text: 'Tranquillity is nothing else than the good ordering of the mind.', author: 'Marcus Aurelius', source: MARCUS, themes: ['direction', 'rest', 'acceptance'] },
+  { id: 'wellbeing-renewal', text: 'Constantly then give to thyself this retreat, and renew thyself.', author: 'Marcus Aurelius', source: MARCUS, themes: ['rest', 'growth', 'confidence', 'acceptance'] },
+  { id: 'wellbeing-contentment', text: 'Health is the greatest of gifts, contentedness the best riches.', author: 'Gautama Buddha', source: DHAMMAPADA, themes: ['rest', 'acceptance', 'connection', 'growth'] },
+  { id: 'wellbeing-rest', text: 'There is no happiness higher than rest.', author: 'Gautama Buddha', source: DHAMMAPADA, themes: ['rest', 'acceptance', 'connection'] },
+  { id: 'wellbeing-inner-peace', text: 'Nothing can bring you peace but yourself.', author: 'Ralph Waldo Emerson', source: EMERSON, themes: ['rest', 'confidence', 'acceptance', 'connection'] },
 ];
 const THEMES = {
   direction: /\b(goal|goals|purpose|direction|decision|decide|plan|career|priority|priorities|meaning|next step|routine|habit)\b/gi,

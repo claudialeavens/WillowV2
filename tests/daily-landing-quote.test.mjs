@@ -19,3 +19,15 @@ test('daily selection is deterministic, attributed, and changes on consecutive d
   assert.ok(LANDING_QUOTES.find((quote) => quote.id === first.quoteId)?.source.startsWith('https://www.gutenberg.org/'));
 });
 test('day boundary uses local calendar fields', () => assert.equal(localDay(new Date(2026, 10, 11, 23, 59)), '2026-11-11'));
+
+test('every daily quote belongs to the calm, clarity, and wellbeing collection', () => {
+  const authors = new Set(['James Allen', 'Marcus Aurelius', 'Gautama Buddha', 'Ralph Waldo Emerson']);
+  for (const quote of LANDING_QUOTES) {
+    assert.ok(quote.id.startsWith('wellbeing-'));
+    assert.ok(authors.has(quote.author));
+    assert.match(quote.text, /calm|tranquil|renew|health|rest|peace/i);
+  }
+  for (const theme of ['direction', 'rest', 'connection', 'confidence', 'acceptance', 'growth']) {
+    assert.ok(LANDING_QUOTES.filter((quote) => quote.themes.includes(theme)).length >= 2);
+  }
+});
