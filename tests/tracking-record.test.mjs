@@ -205,3 +205,15 @@ test('custom reminders can be added, edited, removed, and restored on another de
   second.render('reminders', 'user-a', []).update([]); await second.finishSaves();
   assert.deepEqual(user.metadata.willow_tracking_reminders, []);
 });
+
+test('daily quote selection restores from the account with its original date and theme', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('dailyQuote', 'user-a', null); await settle();
+  first.render('dailyQuote', 'user-a', null).update({ day: '2026-11-11', theme: 'direction', quoteId: 'trust' });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('dailyQuote', 'user-a', null); await settle();
+  assert.equal(second.render('dailyQuote', 'user-a', null).value.quoteId, 'trust');
+  assert.equal(second.render('dailyQuote', 'user-a', null).value.day, '2026-11-11');
+});

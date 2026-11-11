@@ -2413,3 +2413,8 @@ button {
   .intro-rest-actions small { font-size: .85rem; }
   .intro-quick-actions .intro-meaning-card { min-height: 0; }
 }
+
+.intro-daily-quote { margin: 0; max-width: 49rem; color: #304333; }
+.intro-daily-quote blockquote { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(1.75rem, 3.6vw, 3rem); font-weight: 500; line-height: 1.2; text-wrap: balance; }
+.intro-daily-quote figcaption { margin-top: .9rem; font-size: 1rem; color: #65735e; }
+.intro-daily-quote a { color: inherit; text-decoration-color: #aab798; text-underline-offset: .2rem; }

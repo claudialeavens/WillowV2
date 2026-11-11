@@ -16,7 +16,9 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
     ? typeof value?.title === 'string' && typeof value?.intention === 'string' && Array.isArray(value?.days) && value.days.every((day) => typeof day === 'string') && typeof value?.note === 'string' && (value.goals === undefined || (Array.isArray(value.goals) && value.goals.every((goal) => typeof goal?.id === 'string' && typeof goal?.title === 'string' && Array.isArray(goal?.days) && goal.days.every((day) => typeof day === 'string'))))
     : kind === 'reminders'
       ? Array.isArray(value) && value.every((item) => typeof item?.id === 'string' && typeof item?.title === 'string' && typeof item?.message === 'string')
-      : value === null || (typeof value?.text === 'string' && typeof value?.reason === 'string');
+      : kind === 'dailyQuote'
+        ? value === null || (typeof value?.day === 'string' && typeof value?.quoteId === 'string' && typeof value?.theme === 'string')
+        : value === null || (typeof value?.text === 'string' && typeof value?.reason === 'string');
   const read = () => {
     try {
       const cached = JSON.parse(localStorage.getItem(key));

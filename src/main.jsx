@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from './useAuth';
 import { useTrackingRecord } from './useTrackingRecord';
+import { useDailyLandingQuote } from './useDailyLandingQuote';
 import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
 import { habitGoals, saveHabitGoal, shortGoalTitle, toggleGoalDay } from './habitGoals';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
@@ -392,6 +393,21 @@ const WillowLogo = ({ showAboutLink = false, secondaryAction, children }) => {
   );
 };
 
+const LandingWelcomeMessage = ({ userId, conversation }) => {
+  const dailyQuote = useDailyLandingQuote(userId, conversation);
+  return (
+<header className="intro-heading">
+          {dailyQuote ? <figure className="intro-daily-quote">
+            <blockquote>“{dailyQuote.text}”</blockquote>
+            <figcaption>— <a href={dailyQuote.source} target="_blank" rel="noopener noreferrer">{dailyQuote.author}</a></figcaption>
+          </figure> : <>
+          <h2>A little clarity can change a lot.</h2>
+          <p>Whatever’s on your mind, Willow helps you work through what’s holding you back and move toward what helps you thrive.</p>
+          </>}
+        </header>
+  );
+};
+
 const IntroPage = ({
   onBreak,
   onClearing,
@@ -504,10 +520,11 @@ const IntroPage = ({
           </button>
         }>
         <p className="tagline">Clear the way. Reconnect with yourself. Reveal your light.</p>
-        <header className="intro-heading">
-          <h2>A little clarity can change a lot.</h2>
-          <p>Whatever’s on your mind, Willow helps you work through what’s holding you back and move toward what helps you thrive.</p>
-        </header>
+        <LandingWelcomeMessage
+          key={!auth.loading && !auth.isGuest ? auth.user?.id ?? 'welcome' : 'welcome'}
+          userId={!auth.loading && !auth.isGuest ? auth.user?.id : null}
+          conversation={resumeConversation}
+        />
         </WillowLogo>
         <div className="intro-thought">
           <form className="intro-thought-field" onSubmit={submitThought}>
