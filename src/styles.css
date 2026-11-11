@@ -2458,3 +2458,6 @@ button {
 .discovery-memory { padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #cbd3b2; border-radius: 1rem; background: #f6f7e1dd; }
 .discovery-memory p { margin: 0 0 .6rem; font-size: .9rem; line-height: 1.5; }
 .discovery-memory button { padding: .4rem .6rem; margin-right: .4rem; border: 0; border-radius: .4rem; background: #e6edda; color: inherit; cursor: pointer; }
+
+.discovery-recommendation + .discovery-recommendation { margin-top: 1rem; }
+.discovery-recommendation + .discovery-text-button { margin-top: 1rem; }

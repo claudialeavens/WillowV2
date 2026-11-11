@@ -134,3 +134,14 @@ export const tailoredActivity = (choice, intentIndex, needIndex, fitIndex, outco
   if (!match || !outcome || !takeaway) return null;
   return { ...match, gain: `${match.gain}. We’ll focus on helping you ${outcome.title.toLowerCase()}, with ${takeaway.title.toLowerCase()} to take away.`, steps: [match.steps[0], match.steps[1], takeaway.firstStep], hopedOutcome: outcome.title, desiredTakeaway: takeaway.title };
 };
+
+export const tailoredApproaches = (...answers) => {
+  const match = tailoredActivity(...answers);
+  if (!match) return [];
+  const finish = match.steps[2];
+  return [
+    { ...match, approach: 'reflect', title: `Reflect: ${match.title}`, type: 'Reflective', minutes: match.minutes, gain: `Explore this in your own words. ${match.gain}`, steps: [match.steps[0], `Write a few private words about what you notice. ${match.steps[1]}`, finish] },
+    { ...match, approach: 'experience', title: `Try a small experiment: ${match.title}`, type: 'Experiential', minutes: match.minutes + 1, gain: `Learn by trying a small version, at your own pace. ${match.gain}`, steps: [`Use this as your starting point: ${match.steps[0]}`, 'Choose one small, comfortable part of that to try now, or rehearse if acting is not possible. Notice what feels supportive and what you would change; stop whenever you want.', finish] },
+    { ...match, approach: 'conversation', title: `Talk it through: ${match.title}`, type: 'Conversational', minutes: match.minutes + 2, gain: `Let Willow help you explore this, one thought at a time. ${match.gain}`, steps: [`Start by telling Willow what comes up for you here: ${match.steps[0]}`, 'Use “Guide me through it” below. Willow will respond to what you share, helping you notice what fits without asking you to repeat the discovery questions.', finish] },
+  ];
+};

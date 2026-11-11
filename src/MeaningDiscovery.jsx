@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Heart, Home, Leaf, Sparkles } from 'lucide-react';
 import { DISCOVERY_PATHS } from './meaningDiscovery';
-import { discoveryFollowUp, sessionOutcomeQuestion, sessionTakeawayQuestion, tailoredActivity } from './discoveryQuestions';
+import { discoveryFollowUp, sessionOutcomeQuestion, sessionTakeawayQuestion, tailoredApproaches } from './discoveryQuestions';
 import { useTrackingRecord } from './useTrackingRecord';
 
 export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => {
@@ -30,7 +30,8 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
   const fourthQuestion = outcome ? sessionTakeawayQuestion(choice, intentIndex, needIndex, fitIndex, outcomeIndex) : null;
   const takeaway = takeawayIndex === null ? null : fourthQuestion?.options[takeawayIndex];
   const question = outcome ? fourthQuestion : fit ? thirdQuestion : need ? secondQuestion : firstQuestion;
-  const recommendation = tailoredActivity(choice, intentIndex, needIndex, fitIndex, outcomeIndex, takeawayIndex);
+  const approaches = tailoredApproaches(choice, intentIndex, needIndex, fitIndex, outcomeIndex, takeawayIndex);
+  const recommendation = approaches[0] ?? null;
   const selectIntent = (index) => { setIntentIndex(index); setNeedIndex(null); setFitIndex(null); setOutcomeIndex(null); setTakeawayIndex(null); setActive(null); };
   const goBack = () => {
     if (active) setActive(null);
@@ -45,7 +46,7 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
     if (remember && intent) savePreference({ text: intent.title, reason: choice });
     setActive(activity);
   };
-  const chat = (message) => onChat(message, { need: choice, intent: intent?.title ?? null, answers: [need?.title, fit?.title, outcome?.title, takeaway?.title].filter(Boolean), hopedOutcome: outcome?.title ?? null, desiredTakeaway: takeaway?.title ?? null, activityId: (active ?? recommendation)?.id ?? null, activityTitle: (active ?? recommendation)?.title ?? null, activitySteps: (active ?? recommendation)?.steps ?? null, stage: active ? 'reflect' : recommendation ? 'orient' : 'discover' });
+  const chat = (message) => onChat(message, { need: choice, intent: intent?.title ?? null, answers: [need?.title, fit?.title, outcome?.title, takeaway?.title].filter(Boolean), hopedOutcome: outcome?.title ?? null, desiredTakeaway: takeaway?.title ?? null, approaches: approaches.map(({ id, approach, title, steps }) => ({ id, approach, title, steps })), approach: active?.approach ?? null, activityId: active?.id ?? null, activityTitle: active?.title ?? null, activitySteps: active?.steps ?? null, stage: active ? 'reflect' : recommendation ? 'orient' : 'discover' });
 
   return <main className="page discovery-page">
     <nav className="tracking-navigation" aria-label="Page navigation">
@@ -54,8 +55,8 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
     </nav>
     <section className="discovery-content" aria-labelledby="discovery-heading">
       <p className="discovery-eyebrow"><Leaf aria-hidden="true" /> Nourish &amp; Flourish</p>
-      <h1 id="discovery-heading" ref={headingRef} tabIndex={-1}>{active ? active.title : recommendation ? 'Here’s a place that fits you.' : intent ? 'Let’s get a little closer.' : path.heading}</h1>
-      <p className="discovery-intro">{active ? active.gain : recommendation ? `You’re hoping to ${outcome.title.toLowerCase()} and leave with ${takeaway.title.toLowerCase()}. Let’s begin there.` : outcome ? `You’re hoping to ${outcome.title.toLowerCase()}. Let’s make the finish useful to you.` : fit ? `“${fit.title}” feels like a fit. Let’s shape this time around what you need from it.` : need ? `You chose “${need.title}”. Let’s find what would feel right in practice.` : intent ? `You chose “${intent.title}”. Let’s find the part of that you most want support with.` : path.intro}</p>
+      <h1 id="discovery-heading" ref={headingRef} tabIndex={-1}>{active ? active.title : recommendation ? 'Three ways to explore what fits.' : intent ? 'Let’s get a little closer.' : path.heading}</h1>
+      <p className="discovery-intro">{active ? active.gain : recommendation ? `You’re hoping to ${outcome.title.toLowerCase()} and leave with ${takeaway.title.toLowerCase()}. Choose the approach that feels right for you.` : outcome ? `You’re hoping to ${outcome.title.toLowerCase()}. Let’s make the finish useful to you.` : fit ? `“${fit.title}” feels like a fit. Let’s shape this time around what you need from it.` : need ? `You chose “${need.title}”. Let’s find what would feel right in practice.` : intent ? `You chose “${intent.title}”. Let’s find the part of that you most want support with.` : path.intro}</p>
       {!intent && !loading && preference?.reason === choice && !dismissed && <aside className="discovery-memory">
         <p>You asked Willow to remember: <strong>{preference.text}</strong></p>
         <div><button type="button" onClick={() => {
@@ -80,18 +81,19 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
         }}><span className="discovery-choice-icon"><Leaf aria-hidden="true" /></span><span><strong>{item.title}</strong><small>{item.caption}</small></span><ChevronRight aria-hidden="true" /></button>)}
       </div>}
       {recommendation && !active && <>
-        <article className="discovery-recommendation">
-          <p className="discovery-label"><Sparkles aria-hidden="true" /> Chosen with you · {recommendation.minutes} minutes</p>
-          <h2>{recommendation.title}</h2><p>{recommendation.gain}</p>
-          <button className="discovery-primary" type="button" onClick={() => start(recommendation)}>Try this <ArrowRight aria-hidden="true" /></button>
-          <button className="discovery-text-button" type="button" onClick={() => { setFitIndex(null); setNeedIndex(null); setOutcomeIndex(null); setTakeawayIndex(null); }}>Change my answers</button>
-        </article>
+        {approaches.map((suggestion) => <article className="discovery-recommendation" key={suggestion.approach}>
+          <p className="discovery-label"><Sparkles aria-hidden="true" /> {suggestion.type} · {suggestion.minutes} minutes</p>
+          <h2>{suggestion.title}</h2><p>{suggestion.gain}</p>
+          <button className="discovery-primary" type="button" onClick={() => start(suggestion)}>{suggestion.approach === 'conversation' ? 'Explore with Willow' : 'Try this'} <ArrowRight aria-hidden="true" /></button>
+        </article>)}
+        <button className="discovery-text-button" type="button" onClick={() => { setFitIndex(null); setNeedIndex(null); setOutcomeIndex(null); setTakeawayIndex(null); }}>Change my answers</button>
         <label className="discovery-remember"><input type="checkbox" checked={remember} onChange={(event) => setRemember(event.target.checked)} /><span>Remember this direction when I start.<small>{userId ? 'Optional. Saved to your account; you can change or forget it next time.' : 'Optional. Saved in this browser; you can change or forget it next time.'}</small></span></label>
         {remember && <p className="discovery-save-status" role="status">{status}</p>}
       </>}
       {active && <article className="discovery-experience">
         <p className="discovery-label">{active.type} · About {active.minutes} minutes · Go at your pace</p>
         <ol>{active.steps.map((step) => <li key={step}>{step}</li>)}</ol>
+        <button className="discovery-text-button" type="button" onClick={() => setActive(null)}>See the three approaches</button>
         <p className="discovery-permission">Take what helps. You can pause, adapt this, or choose something else.</p>
         <button className="discovery-primary" type="button" onClick={() => chat(`I tried “${active.title}”. Help me reflect on what I noticed, one question at a time.`)}><Check aria-hidden="true" /> I’ve tried this</button>
         <button className="discovery-text-button" type="button" onClick={() => chat(`I'd like you to guide me through “${active.title}”, one small step at a time.`)}>Guide me through it</button>

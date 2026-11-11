@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { DISCOVERY_PATHS, TURNER_FACTORS, discoveryInstructions } from '../src/meaningDiscovery.js';
-import { discoveryFollowUp, sessionOutcomeQuestion, sessionTakeawayQuestion, tailoredActivity } from '../src/discoveryQuestions.js';
+import { discoveryFollowUp, sessionOutcomeQuestion, sessionTakeawayQuestion, tailoredActivity, tailoredApproaches } from '../src/discoveryQuestions.js';
 
 test('all six paths offer two answer-dependent follow-up questions', () => {
   assert.equal(Object.keys(DISCOVERY_PATHS).length, 6);
@@ -87,4 +87,25 @@ test('chat after three answers asks only for the missing takeaway', () => {
   assert.match(instructions, /at most 1 more/);
   assert.match(instructions, /do not ask again/);
   assert.match(instructions, /closing reflection/);
+});
+
+test('three distinct approaches retain every path’s tailored need and takeaway', () => {
+  assert.deepEqual(tailoredApproaches('Meaning & purpose', 0, 0, 0), []);
+  for (const [choice, path] of Object.entries(DISCOVERY_PATHS)) {
+    path.intents.forEach((_, intentIndex) => {
+      const args = [choice, intentIndex, 0, 0, 0, 0];
+      const match = tailoredActivity(...args);
+      const approaches = tailoredApproaches(...args);
+      assert.equal(approaches.length, 3);
+      assert.equal(new Set(approaches.map(item => item.type)).size, 3);
+      assert.equal(new Set(approaches.map(item => item.steps[1])).size, 3);
+      for (const approach of approaches) {
+        assert.equal(approach.factor, match.factor);
+        assert.equal(approach.desiredTakeaway, match.desiredTakeaway);
+        assert.equal(approach.steps[2], match.steps[2]);
+        assert.ok(approach.steps[0].includes(match.steps[0]));
+      }
+    });
+  }
+  assert.match(discoveryInstructions({ answers: ['a', 'b', 'c', 'd'] }), /offer three closely matched approaches/);
 });
