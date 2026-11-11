@@ -2378,3 +2378,9 @@ button {
 .account-reminder-editor input, .account-reminder-editor textarea { min-width: 0; width: 100%; border: 1px solid #bbc7a4; border-radius: .5rem; padding: .5rem; background: #fffdf7; color: #40583f; font: inherit; }
 .account-reminder-editor textarea { min-height: 6rem; resize: vertical; }
 .account-reminder summary:focus-visible, .account-reminder-actions button:focus-visible, .account-reminder-add:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+
+.tracking-selection button.tracking-option { width: 100%; text-align: left; }
+.tracking-selection button.tracking-option:hover { background: linear-gradient(#f8f9dfe8, #e9edc8e8); border-color: #9eb762; }
+.tracking-selection button.tracking-option:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; }
+.tracking-selection .tracking-option-arrow { display: grid; place-items: center; flex: 0 0 2.25rem; width: 2.25rem; height: 2.25rem; border-radius: 50%; border: 1px solid #b7c891; background: #eef2d8; color: #526e36; }
+.tracking-option-arrow svg { width: 1.25rem; height: 1.25rem; }

@@ -629,27 +629,21 @@ const TrackingLoading = ({ onBack, onHome }) => (
 );
 
 const KeepOnTrackPage = ({ onBack, onHome, onContinue }) => {
-  const [selection, setSelection] = useState(TRACKING_OPTIONS[0].title);
-
   return (
     <main className="page tracking-page">
       <section className="tracking-content tracking-selection" aria-labelledby="tracking-heading">
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <h1 id="tracking-heading">What would you like support staying consistent with?</h1>
         <div className="matters-divider tracking-divider" aria-hidden="true"><Leaf /></div>
-        <form onSubmit={(event) => { event.preventDefault(); onContinue(selection); }}>
-          <fieldset className="tracking-options">
-            <legend className="sr-only">Choose what you’d like support staying consistent with</legend>
+          <div className="tracking-options" role="group" aria-label="Choose what you’d like support staying consistent with">
             {TRACKING_OPTIONS.map(({ title, detail, Icon }) => (
-              <label className="tracking-option" key={title}>
+              <button type="button" className="tracking-option" key={title} onClick={() => onContinue(title)}>
                 <span className="tracking-option-icon"><Icon aria-hidden="true" /></span>
                 <span><strong>{title}</strong><small>{detail}</small></span>
-                <input type="radio" name="tracking-focus" value={title} checked={selection === title} onChange={() => setSelection(title)} />
-              </label>
+                <span className="tracking-option-arrow"><ArrowRight aria-hidden="true" /></span>
+              </button>
             ))}
-          </fieldset>
-          <button className="tracking-continue" type="submit">Continue <ArrowRight aria-hidden="true" /></button>
-        </form>
+          </div>
       </section>
     </main>
   );
