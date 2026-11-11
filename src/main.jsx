@@ -36,7 +36,7 @@ import { useAuth } from './useAuth';
 import { useTrackingRecord } from './useTrackingRecord';
 import { useDailyLandingQuote } from './useDailyLandingQuote';
 import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
-import { habitGoals, saveHabitGoal, shortGoalTitle, toggleGoalDay } from './habitGoals';
+import { deleteHabitGoal, habitGoals, saveHabitGoal, shortGoalTitle, toggleGoalDay } from './habitGoals';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
 import { getVoicePlaybackRate } from './textToSpeech';
 import { setVoicePreviewActive } from './voicePreviewState';
@@ -72,7 +72,7 @@ const AccountDailyCheckIn = ({ userId }) => {
   return <section className="account-check-in" aria-label="Daily goal check-in">
     <strong>Today’s check-in</strong>
     <p className="account-check-in-date">{today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
-    {loading ? <p role="status">Loading your goals…</p> : habit ? (
+    {loading ? <p role="status">Loading your goals…</p> : habit && habitGoals(habit).length > 0 ? (
       <>
         <div className="account-check-in-goals">
           {habitGoals(habit).map((goal) => <label key={goal.id} title={goal.title}>
@@ -878,7 +878,7 @@ const DailyHabitPage = ({ onBack, onHome, userId }) => {
               setGoalEditor(null);
             }}>
               <label>What are you tracking?<input value={goalEditor.title} onChange={(event) => setGoalEditor({ ...goalEditor, title: event.target.value })} required maxLength={100} autoFocus /></label>
-              <div><button type="submit" disabled={!goalEditor.title.trim()}>Save</button><button type="button" onClick={() => setGoalEditor(null)}>Cancel</button></div>
+              <div><button type="submit" disabled={!goalEditor.title.trim()}>Save</button><button type="button" onClick={() => setGoalEditor(null)}>Cancel</button><button type="button" onClick={() => { setHabit((current) => deleteHabitGoal(current, goal.id)); setGoalEditor(null); }}>Delete</button></div>
             </form>}
         <div className="habit-week" role="group" aria-label={`${goal.title}: this week’s check-ins`}>
           {week.map(({ date, key }) => {

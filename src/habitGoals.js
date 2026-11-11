@@ -1,5 +1,5 @@
 export const habitGoals = (habit) => [
-  { id: 'primary', title: habit.title, days: habit.days },
+  ...(habit.primaryGoalDeleted ? [] : [{ id: 'primary', title: habit.title, days: habit.days }]),
   ...(habit.goals ?? []),
 ];
 
@@ -22,3 +22,7 @@ export const saveHabitGoal = (habit, goal) => {
 };
 export const shortGoalTitle = (title) => title.trim().split(/\s+/).slice(0, 3).join(' ');
 
+
+export const deleteHabitGoal = (habit, goalId) => goalId === 'primary'
+  ? { ...habit, primaryGoalDeleted: true, days: [] }
+  : { ...habit, goals: (habit.goals ?? []).filter(goal => goal.id !== goalId) };

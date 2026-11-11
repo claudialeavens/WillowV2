@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { habitGoals, saveHabitGoal, toggleGoalDay } from '../src/habitGoals.js';
+import { deleteHabitGoal, habitGoals, saveHabitGoal, toggleGoalDay } from '../src/habitGoals.js';
 const original = { title: 'Movement', intention: 'Feel good', days: ['2026-11-2'], note: 'More energy' };
 test('existing habit and check-ins remain the first goal', () => {
   assert.deepEqual(habitGoals(original), [{ id: 'primary', title: 'Movement', days: ['2026-11-2'] }]);
@@ -26,4 +26,21 @@ test('account menu descriptions use at most three words', async () => {
   const { shortGoalTitle } = await import('../src/habitGoals.js');
   assert.equal(shortGoalTitle('  Daily   morning walk outside '), 'Daily morning walk');
   assert.equal(shortGoalTitle('Meditation'), 'Meditation');
+});
+
+test('deleting an additional goal preserves other names, check-ins, and notes', () => {
+  const added = saveHabitGoal(original, { id: 'walk', title: 'Walk' });
+  const removed = deleteHabitGoal(added, 'walk');
+  assert.deepEqual(habitGoals(removed), habitGoals(original));
+  assert.equal(removed.note, original.note);
+  assert.equal(added.goals.length, 1);
+});
+test('deleting the primary goal stays deleted after saving and reloading', () => {
+  const added = toggleGoalDay(saveHabitGoal(original, { id: 'walk', title: 'Walk' }), 'walk', '2026-11-3');
+  const removed = JSON.parse(JSON.stringify(deleteHabitGoal(added, 'primary')));
+  assert.deepEqual(habitGoals(removed), added.goals);
+  assert.deepEqual(removed.days, []);
+  assert.equal(removed.intention, original.intention);
+  assert.deepEqual(habitGoals(deleteHabitGoal(removed, 'walk')), []);
+  assert.equal(habitGoals(saveHabitGoal(deleteHabitGoal(removed, 'walk'), { id: 'new', title: 'Read' })).length, 1);
 });
