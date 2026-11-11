@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Home, Leaf } from 'lucide-react';
 import { DiscoveryOther } from './DiscoveryOther';
-import { customDiscoveryMessages, parseCustomDiscovery } from './customDiscovery';
+import { DiscoveryFormatError } from './customDiscovery';
+import { requestCustomDiscovery } from './requestCustomDiscovery';
 import { streamWillowMessage } from './openAIService';
 
 export const CustomMeaningDiscovery = ({ choice, initialAnswers, onBack, onHome, onChat }) => {
@@ -23,11 +24,15 @@ export const CustomMeaningDiscovery = ({ choice, initialAnswers, onBack, onHome,
     setLoading(true); setError('');
     (async () => {
       try {
-        const raw = await streamWillowMessage(customDiscoveryMessages(choice, answers), () => {}, { signal: controller.signal, maxTokens: answers.length >= 5 ? 1800 : 650, temperature: 0.5 });
-        const next = parseCustomDiscovery(raw, answers.length >= 5);
+        const next = await requestCustomDiscovery({ choice, answers, signal: controller.signal, request: streamWillowMessage });
         if (!controller.signal.aborted) setScreens(current => ({ ...current, [answers.length]: next }));
-      } catch {
-        if (!disposed) setError('We couldn’t prepare the next step. Your answer is still here. Please try again or go back to edit it.');
+      } catch (requestError) {
+        if (!disposed) {
+          // Log only technical metadata, never the person's answers or response text.
+          console.warn('Guided discovery request failed', { name: requestError.name, status: requestError.status ?? null, stage: answers.length });
+          const reason = controller.signal.aborted ? 'The next step took too long to arrive.' : requestError instanceof DiscoveryFormatError ? 'Willow’s response didn’t come through in a usable format.' : 'We couldn’t connect to Willow to prepare the next step.';
+          setError(`${reason} Your answer is still here. Please try again; you don’t need to change what you wrote.`);
+        }
       } finally {
         clearTimeout(timeout);
         if (!disposed) setLoading(false);

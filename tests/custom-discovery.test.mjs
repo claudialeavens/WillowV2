@@ -31,3 +31,14 @@ test('custom approaches require three modes, valid factors, and usable steps', (
   const instructions = discoveryInstructions({ answers: ['a', 'b', 'c', 'd'], activityTitle: active.title, activitySteps: active.steps, activityFactor: active.factor });
   assert.ok(instructions.includes(active.steps[2]));
 });
+
+test('reported engaging-questions failure accepts synonymous and differently capitalized internal factors', () => {
+  const approaches = ['Reflective', 'Experiential', 'Conversational'].map((type, index) => ({ type, title: 'Tools for asking engaging questions', gain: 'Build connection through open-ended questions', factor: ['Embracing Social Support', 'Increasing Positive Emotions', 'Following Your Intuition'][index], minutes: 3, steps: ['Choose a topic', 'Practice an open-ended question', 'Keep three questions to use'] }));
+  const result = parseCustomDiscovery(JSON.stringify({ approaches }), true);
+  assert.deepEqual(result.approaches.map(item => item.factor), ['Finding social support', 'Increasing positive emotions', 'Following your intuition']);
+});
+test('stable numeric factor IDs and harmless type casing are accepted', () => {
+  const approaches = ['reflective', 'EXPERIENTIAL', 'Conversational'].map(type => ({ type, title: 'Ask a little more', gain: 'Build connection', factorId: 9, minutes: 3, steps: ['Choose', 'Practice', 'Keep'] }));
+  assert.equal(parseCustomDiscovery(JSON.stringify({ approaches }), true).approaches[0].factor, 'Finding social support');
+  assert.throws(() => parseCustomDiscovery(JSON.stringify({ approaches: approaches.map(item => ({ ...item, factorId: 10 })) }), true));
+});
