@@ -48,6 +48,7 @@ import './styles.css';
 const AuthModal = lazy(() =>
   import('./AuthModal').then((module) => ({ default: module.AuthModal })),
 );
+const MeaningDiscovery = lazy(() => import('./MeaningDiscovery.jsx').then((module) => ({ default: module.MeaningDiscovery })));
 
 const HOME_ACTIONS = [
   'Grounding',
@@ -1150,6 +1151,7 @@ const App = () => {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const openArchive = useCallback(() => setArchiveOpen(true), []);
   const [entryContext, setEntryContext] = useState(null);
+  const [discoveryChoice, setDiscoveryChoice] = useState('Not sure yet');
   const closeArchive = useCallback(() => setArchiveOpen(false), []);
   const [initialThought, setInitialThought] = useState('');
   const [conversationMode, setConversationMode] = useState('break');
@@ -1321,18 +1323,21 @@ const App = () => {
   } else if (step === 10 || step === 11) {
     const kind = 'wellbeing';
     page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
+  } else if (step === 12) {
+    page = <MeaningDiscovery key={`${discoveryChoice}:${auth.user?.id ?? 'guest'}`} choice={discoveryChoice} userId={auth.user?.id} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
+      setActiveConversation(null);
+      setEntryContext({ activity: 'Move towards what matters', selection: discoveryChoice, discovery });
+      setInitialThought(message);
+      setConversationMode('core');
+      setStep(4);
+    }} />;
   } else if (step === 7) {
     page = (
       <MattersPage
         onHome={goHome}
         onSelect={(choice) => {
-          setActiveConversation(null);
-          setEntryContext({ activity: 'Move towards what matters', selection: choice });
-          setInitialThought(choice === 'Not sure yet'
-            ? "I'm not sure what I'd like more of in my life yet."
-            : `I'd like a little more ${choice.toLowerCase()} in my life.`);
-          setConversationMode('core');
-          setStep(4);
+          setDiscoveryChoice(choice);
+          setStep(12);
         }}
         auth={auth}
         onSignIn={openAuth}
@@ -1359,7 +1364,7 @@ const App = () => {
   return (
     <>
       <NavigationContext.Provider value={{ canGoBack: pageHistory.length > 1, goBack }}>
-      {page}
+      <Suspense fallback={<main className="page"><section className="discovery-content"><p role="status">Finding a place to begin…</p></section></main>}>{page}</Suspense>
       <MainMenu onHome={goHome} onArchive={openArchive} auth={auth} onSignIn={openAuth} />
       {archiveOpen && <Archive key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onClose={closeArchive} />}
       {authOpen && (

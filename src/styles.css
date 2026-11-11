@@ -2418,3 +2418,43 @@ button {
 .intro-daily-quote blockquote { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(1.75rem, 3.6vw, 3rem); font-weight: 500; line-height: 1.2; text-wrap: balance; }
 .intro-daily-quote figcaption { margin-top: .9rem; font-size: 1rem; color: #65735e; }
 .intro-daily-quote a { color: inherit; text-decoration-color: #aab798; text-underline-offset: .2rem; }
+
+.discovery-content { width: min(44rem, calc(100% - 2.5rem)); margin: 0 auto; padding: 5rem 0 4rem; color: #304b36; }
+.discovery-eyebrow { display: flex; align-items: center; justify-content: center; gap: .5rem; margin: 0 0 1rem; font-size: .85rem; letter-spacing: .08em; text-transform: uppercase; }
+.discovery-eyebrow svg { width: 1.2rem; height: 1.2rem; }
+.discovery-content h1 { margin: 0; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(2.2rem, 4.5vw, 3.2rem); line-height: 1.08; font-weight: 600; text-wrap: balance; }
+.discovery-intro { margin: 1rem 0 1.75rem; line-height: 1.6; color: #65735e; }
+.discovery-content h2 { margin: 0 0 .8rem; font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.65rem; font-weight: 600; }
+.discovery-starting-points, .discovery-alternatives { display: grid; gap: .7rem; }
+.discovery-starting-points > button, .discovery-alternatives > button { display: flex; align-items: center; gap: .9rem; width: 100%; padding: 1rem; border: 1px solid #bdc7ae88; border-radius: 1rem; background: #fffdf6d9; color: inherit; text-align: left; font: inherit; cursor: pointer; box-shadow: 0 3px 12px #40583f08; }
+.discovery-starting-points button > span:nth-child(2), .discovery-alternatives button > span { flex: 1; min-width: 0; }
+.discovery-content button strong { display: block; font-size: 1rem; font-weight: 600; }
+.discovery-content button small, .discovery-remember small { display: block; margin-top: .3rem; font-size: .85rem; line-height: 1.45; color: #65735e; }
+.discovery-choice-icon { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: #eaf0dc; color: #6e8557; flex-shrink: 0; }
+.discovery-content button svg { width: 1.2rem; height: 1.2rem; flex-shrink: 0; }
+.discovery-starting-points > button:hover, .discovery-alternatives > button:hover { background: #eef2df; }
+.discovery-recommendation, .discovery-experience { padding: 1.5rem; border: 1px solid #c7d1af; border-radius: 1.5rem; background: linear-gradient(135deg, #f9fae9ed, #ebf0d7e6); }
+.discovery-label { display: flex; align-items: center; gap: .5rem; font-size: .8rem; color: #667b50; margin: 0 0 .85rem; }
+.discovery-label svg { width: 1.1rem; height: 1.1rem; }
+.discovery-recommendation > p, .discovery-experience li { line-height: 1.6; }
+.discovery-primary { display: inline-flex; align-items: center; justify-content: center; gap: .6rem; padding: .75rem 1.2rem; border: 0; border-radius: 999px; background: #647e50; color: #fffdf5; font: inherit; cursor: pointer; }
+.discovery-alternatives { margin-top: 1.5rem; }
+.discovery-alternatives h2 { font-size: 1.35rem; }
+.discovery-remember { display: flex; align-items: flex-start; gap: .6rem; margin-top: 1.25rem; font-size: .85rem; cursor: pointer; }
+.discovery-remember input { accent-color: #647e50; margin-top: .15rem; }
+.discovery-save-status { font-size: .8rem; }
+.discovery-experience ol { margin: 1rem 0; padding-left: 1.5rem; }
+.discovery-experience li { padding-left: .4rem; margin: .85rem 0; }
+.discovery-permission { color: #65735e; font-size: .85rem; line-height: 1.5; }
+.discovery-text-button { margin: .6rem 0 0 .5rem; padding: .6rem; border: 0; background: transparent; color: #40583f; font: inherit; text-decoration: underline; cursor: pointer; }
+.discovery-chat { margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid #b7c2a588; }
+.discovery-chat label { display: block; font-size: .9rem; margin-bottom: .65rem; color: #65735e; }
+.discovery-chat > div { display: flex; align-items: center; gap: .5rem; border: 1px solid #bdc7ae; border-radius: 999px; padding: .4rem .5rem .4rem 1rem; background: #fffdf7e6; }
+.discovery-chat input { flex: 1; min-width: 0; padding: .5rem 0; border: 0; outline: 0; background: transparent; color: inherit; font: inherit; }
+.discovery-chat > div:focus-within { outline: 2px solid #647e50; outline-offset: 2px; }
+.discovery-chat button { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 0; border-radius: 50%; background: #647e50; color: white; cursor: pointer; }
+.discovery-chat button:disabled { opacity: .4; cursor: default; }
+.discovery-content button:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
+.discovery-memory { padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #cbd3b2; border-radius: 1rem; background: #f6f7e1dd; }
+.discovery-memory p { margin: 0 0 .6rem; font-size: .9rem; line-height: 1.5; }
+.discovery-memory button { padding: .4rem .6rem; margin-right: .4rem; border: 0; border-radius: .4rem; background: #e6edda; color: inherit; cursor: pointer; }

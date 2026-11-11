@@ -7,6 +7,7 @@ import { useVoiceOwnership } from './useVoiceOwnership';
 import { useVoicePreference } from './useVoicePreference';
 import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
 import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
+import { discoveryInstructions } from './meaningDiscovery';
 import willowVariant from './willowVariant.json';
 import {
   buildConversationSummary,
@@ -226,6 +227,7 @@ export const BreakSupport = ({
               `${isCoreConversation ? CORE_CONVERSATION_PROMPT : BREAK_SUPPORT_PROMPT}\n\n` +
               (isGuidedConversation ? `${GUIDED_CONVERSATION_INSTRUCTIONS}\n\n` : '') +
               `${PROACTIVE_GUIDANCE_INSTRUCTIONS}\n\n` +
+              `${discoveryInstructions(entryContext?.discovery ?? savedConversation?.summary?.discovery)}\n\n` +
               (isCoreConversation ? `${PHASE_ASSESSMENT_INSTRUCTIONS}\n\n` : '') +
               (previousReply ? `Avoid reusing wording from your previous reply: "${previousReply}".\n\n` : '') +
               `User input: ${trimmed}`,
@@ -318,6 +320,7 @@ export const BreakSupport = ({
         ...buildConversationSummary(messages, phaseAssessment),
         ...(savedConversation?.summary?.activity ? {
           activity: savedConversation.summary.activity, selection: savedConversation.summary.selection,
+          ...(savedConversation.summary.discovery ? { discovery: savedConversation.summary.discovery } : {}),
         } : entryContext ?? {}),
         ...(takeaway ? { takeaway } : {}),
       };
