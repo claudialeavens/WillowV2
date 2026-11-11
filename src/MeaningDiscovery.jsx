@@ -27,7 +27,7 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
     <section className="discovery-content" aria-labelledby="discovery-heading">
       <p className="discovery-eyebrow"><Leaf aria-hidden="true" /> Nourish &amp; Flourish</p>
       <h1 id="discovery-heading">{active ? active.title : intent ? 'Here’s a gentle place to begin.' : path.heading}</h1>
-      <p className="discovery-intro">{active ? active.gain : intent ? `You’re looking to ${intent.title.charAt(0).toLowerCase() + intent.title.slice(1)}. Let’s try something small that fits.` : path.intro}</p>
+      <p className="discovery-intro">{active ? active.gain : intent ? `You chose “${intent.title}”. Let’s try something small that fits.` : path.intro}</p>
       {!intent && !loading && preference?.reason === choice && !dismissed && <aside className="discovery-memory">
         <p>You asked Willow to remember: <strong>{preference.text}</strong></p>
         <div><button type="button" onClick={() => {
