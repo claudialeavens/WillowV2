@@ -399,7 +399,7 @@ const LandingWelcomeMessage = ({ userId, conversation }) => {
 <header className="intro-heading">
           {dailyQuote ? <figure className="intro-daily-quote">
             <blockquote>“{dailyQuote.text}”</blockquote>
-            <figcaption>— <a href={dailyQuote.source} target="_blank" rel="noopener noreferrer">{dailyQuote.author}</a></figcaption>
+            <figcaption>— {dailyQuote.author}</figcaption>
           </figure> : <>
           <h2>A little clarity can change a lot.</h2>
           <p>Whatever’s on your mind, Willow helps you work through what’s holding you back and move toward what helps you thrive.</p>
