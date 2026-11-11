@@ -535,11 +535,13 @@ const IntroPage = ({
           </form>
           {voiceStatus && <p className="intro-voice-status" role="status">{voiceStatus}</p>}
           <nav className="intro-quick-actions" aria-label="Quick practices">
+            <section className="intro-rest-group" aria-labelledby="intro-rest-heading">
+              <h3 className="intro-group-heading" id="intro-rest-heading">Reset &amp; Reground</h3>
+              <div className="intro-rest-actions">
             {[
               { href: '#take-a-break', onClick: onBreak, Icon: Leaf, title: 'Take a break', caption: 'A moment for you' },
               { href: '#clearing', onClick: onClearing, Icon: Cloud, title: <>Clear my<br />mind</>, caption: 'Make sense of things' },
               { href: '#grounding', onClick: onGrounding, Icon: Heart, title: <>Find my<br />balance</>, caption: 'Feel more grounded' },
-              { href: '#take-a-step', onClick: onTakeStep, Icon: Sparkles, title: <>Surprise me<br />with meaning</>, caption: 'A fresh perspective' },
             ].map(({ href, onClick, Icon, title, caption, className }) => (
               <a key={href} className={className} href={href} onClick={(event) => { event.preventDefault(); onClick(); }}>
                 <span className="intro-action-icon"><Icon aria-hidden="true" /></span>
@@ -547,6 +549,16 @@ const IntroPage = ({
                 <small>{caption}</small>
               </a>
             ))}
+              </div>
+            </section>
+            <section className="intro-nourish-group" aria-labelledby="intro-nourish-heading">
+              <h3 className="intro-group-heading" id="intro-nourish-heading">Nourish &amp; Flourish</h3>
+              <a className="intro-meaning-card" href="#take-a-step" onClick={(event) => { event.preventDefault(); onTakeStep(); }}>
+                <span className="intro-action-icon"><Sparkles aria-hidden="true" /></span>
+                <strong>Surprise me<br />with meaning</strong>
+                <small>A fresh perspective</small>
+              </a>
+            </section>
           </nav>
           {resumeConversation && (
             <button className="resume-conversation-link" type="button" onClick={onResumeConversation}>
