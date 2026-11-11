@@ -2426,7 +2426,7 @@ button {
 .discovery-intro { margin: 1rem 0 1.75rem; line-height: 1.6; color: #65735e; }
 .discovery-content h2 { margin: 0 0 .8rem; font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.65rem; font-weight: 600; }
 .discovery-starting-points, .discovery-alternatives { display: grid; gap: .7rem; }
-.discovery-starting-points > button, .discovery-alternatives > button { display: flex; align-items: center; gap: .9rem; width: 100%; padding: 1rem; border: 1px solid #bdc7ae88; border-radius: 1rem; background: #fffdf6d9; color: inherit; text-align: left; font: inherit; cursor: pointer; box-shadow: 0 3px 12px #40583f08; }
+.discovery-starting-points > button, .discovery-alternatives > button, .discovery-other { display: flex; align-items: center; gap: .9rem; width: 100%; padding: 1rem; border: 1px solid #bdc7ae88; border-radius: 1rem; background: #fffdf6d9; color: inherit; text-align: left; font: inherit; cursor: pointer; box-shadow: 0 3px 12px #40583f08; }
 .discovery-starting-points button > span:nth-child(2), .discovery-alternatives button > span { flex: 1; min-width: 0; }
 .discovery-content button strong { display: block; font-size: 1rem; font-weight: 600; }
 .discovery-content button small, .discovery-remember small { display: block; margin-top: .3rem; font-size: .85rem; line-height: 1.45; color: #65735e; }
@@ -2462,9 +2462,9 @@ button {
 .discovery-recommendation + .discovery-recommendation { margin-top: 1rem; }
 .discovery-recommendation + .discovery-text-button { margin-top: 1rem; }
 
-.discovery-other { padding: 1.25rem; border: 1px solid #c7d1af; border-radius: 1.25rem; background: #fffdf6e8; }
-.discovery-other label { display: block; font-weight: 600; }
+.discovery-starting-points > .discovery-other { display: block; cursor: default; }
+.discovery-other-toggle { display: flex; align-items: center; gap: .9rem; width: 100%; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; font: inherit; cursor: pointer; }
 .discovery-other textarea { display: block; box-sizing: border-box; width: 100%; margin-top: .6rem; padding: .8rem; border: 1px solid #b7c1aa; border-radius: .8rem; font: inherit; color: #304b36; background: #fffdf8; resize: vertical; }
-.discovery-other p { font-size: .85rem; line-height: 1.5; color: #65735e; }
+.discovery-other form > .discovery-primary { margin-top: .8rem; }
 .discovery-other textarea:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
 .discovery-other button:disabled { opacity: .5; cursor: default; }
