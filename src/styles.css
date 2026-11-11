@@ -2403,10 +2403,7 @@ button {
 .intro-group-heading::before, .intro-group-heading::after { content: ''; height: 1px; flex: 1; background: #aab79899; }
 .intro-nourish-group { border-left: 1px solid #aab79888; padding-left: 2rem; }
 .intro-quick-actions a + a::before { display: none; }
-.intro-quick-actions .intro-meaning-card { min-height: calc(100% - 2.2rem); justify-content: center; padding: .9rem .75rem; border-radius: 1.75rem; background: linear-gradient(135deg, #fff1d6c9, #ffedc7b3); }
-.intro-meaning-card .intro-action-icon { background: transparent; color: #a47d22; }
-.intro-quick-actions .intro-meaning-card:hover { background: #f9e6bbd9; }
-.intro-quick-actions .intro-meaning-card:hover .intro-action-icon { background: transparent; }
+.intro-quick-actions .intro-meaning-card { padding: 0 .75rem; }
 @media (max-width: 600px) {
   .intro-quick-actions { grid-template-columns: 1fr; gap: 1.5rem; }
   .intro-nourish-group { padding-left: 0; border-left: 0; }
