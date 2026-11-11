@@ -85,7 +85,7 @@ export const discoveryFollowUp = (choice, intentIndex, needIndex = null) => {
   const first = NEED_QUESTIONS[intent.primary];
   return needIndex === null ? first : FIT_QUESTIONS[first.options[needIndex]?.activityId] ?? null;
 };
-export const tailoredActivity = (choice, intentIndex, needIndex, fitIndex) => {
+const matchedActivity = (choice, intentIndex, needIndex, fitIndex) => {
   if (needIndex === null || fitIndex === null) return null;
   const first = discoveryFollowUp(choice, intentIndex);
   const need = first?.options[needIndex];
@@ -93,4 +93,44 @@ export const tailoredActivity = (choice, intentIndex, needIndex, fitIndex) => {
   if (!fit) return null;
   const base = DISCOVERY_ACTIVITIES[need.activityId];
   return { ...base, id: need.activityId, title: fit.title, gain: fit.caption, steps: [fit.firstStep, ...base.steps.slice(1)], fitIndex };
+};
+
+// Hopes shape the finish as well as the activity, without adding another intake.
+export const sessionOutcomeQuestion = (choice, intentIndex, needIndex, fitIndex) => {
+  const match = matchedActivity(choice, intentIndex, needIndex, fitIndex);
+  if (!match) return null;
+  return { question: `As we explore “${match.title}”, what would you most hope to get from this time?`, options: [
+    { title: 'Understand what I need more clearly', caption: 'A useful insight, without needing to solve everything', key: 'clarity' },
+    { title: 'Feel a little more settled or supported', caption: 'Some room to breathe, rather than another task', key: 'ease' },
+    { title: 'Find a small way forward', caption: 'Something realistic I can take into my day', key: 'action' },
+  ] };
+};
+const TAKEAWAYS = {
+  clarity: detail('What would make that clarity useful to you when we finish?', [
+    ['A sentence that names what matters', 'Something in my own words I can return to', 'Finish with “What matters to me here is…” Use your own words; a tentative answer is enough.'],
+    ['A clearer sense of what fits me', 'Recognise one preference, without committing', 'Finish by naming one thing that fits you and one expectation you can set aside for now.'],
+    ['One question worth taking with me', 'A direction to explore, without forcing an answer', 'Write one question this experience leaves you curious to explore. You do not have to answer it today.'],
+  ]),
+  ease: detail('What would feeling a little more supported look like by the end?', [
+    ['A little less pressure', 'Permission to leave something unfinished', 'Name one pressure you can put down for now. Leave yourself a kind sentence that gives you permission to pause.'],
+    ['Feeling heard and understood', 'Words that reflect what I am experiencing', 'Put what you wish someone understood into one or two sentences. Let those words stand without needing to fix anything.'],
+    ['Something comforting to return to', 'A small reminder for a harder moment', 'Choose one comforting detail or phrase from this experience and write it as a reminder you can return to.'],
+  ]),
+  action: detail('What kind of way forward would you like to leave with?', [
+    ['One thing I can do today', 'A small action, with a time or place that fits', 'Choose one small action from what you noticed. Write when or where it could fit today, with room to adapt.'],
+    ['An idea to try without committing', 'An experiment rather than a new obligation', 'Turn what you noticed into one low-pressure experiment. Write what you would like to learn from trying it, rather than a target to meet.'],
+    ['A request or conversation starter', 'A few words to help me reach out', 'Draft one sentence asking for the support or shared time that would help you take this further. You can keep it as a draft.'],
+  ]),
+};
+export const sessionTakeawayQuestion = (choice, intentIndex, needIndex, fitIndex, outcomeIndex) => {
+  const outcome = sessionOutcomeQuestion(choice, intentIndex, needIndex, fitIndex)?.options[outcomeIndex];
+  return outcome ? TAKEAWAYS[outcome.key] : null;
+};
+export const tailoredActivity = (choice, intentIndex, needIndex, fitIndex, outcomeIndex = null, takeawayIndex = null) => {
+  if (outcomeIndex === null || takeawayIndex === null) return null;
+  const match = matchedActivity(choice, intentIndex, needIndex, fitIndex);
+  const outcome = sessionOutcomeQuestion(choice, intentIndex, needIndex, fitIndex)?.options[outcomeIndex];
+  const takeaway = sessionTakeawayQuestion(choice, intentIndex, needIndex, fitIndex, outcomeIndex)?.options[takeawayIndex];
+  if (!match || !outcome || !takeaway) return null;
+  return { ...match, gain: `${match.gain}. We’ll focus on helping you ${outcome.title.toLowerCase()}, with ${takeaway.title.toLowerCase()} to take away.`, steps: [match.steps[0], match.steps[1], takeaway.firstStep], hopedOutcome: outcome.title, desiredTakeaway: takeaway.title };
 };
