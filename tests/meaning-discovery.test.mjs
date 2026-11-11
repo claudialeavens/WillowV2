@@ -1,42 +1,54 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { DISCOVERY_PATHS, DISCOVERY_ACTIVITIES, TURNER_FACTORS, recommendedActivities, discoveryInstructions } from '../src/meaningDiscovery.js';
+import { DISCOVERY_PATHS, TURNER_FACTORS, discoveryInstructions } from '../src/meaningDiscovery.js';
+import { discoveryFollowUp, tailoredActivity } from '../src/discoveryQuestions.js';
 
-test('all six entry choices have relatable starting points and exactly three suggestions', () => {
+test('all six paths offer two answer-dependent follow-up questions', () => {
   assert.equal(Object.keys(DISCOVERY_PATHS).length, 6);
   for (const [choice, path] of Object.entries(DISCOVERY_PATHS)) {
-    assert.ok(path.heading && path.intro);
-    assert.ok(path.intents.length >= 3 && path.intents.length <= 4);
     path.intents.forEach((intent, index) => {
-      const suggestions = recommendedActivities(choice, index);
-      assert.equal(suggestions.length, 3, `${choice}: ${intent.title}`);
-      assert.equal(suggestions[0].id, intent.primary);
-      assert.equal(new Set(suggestions.map((item) => item.id)).size, 3);
+      const first = discoveryFollowUp(choice, index);
+      assert.ok(first.question && first.options.length === 3, `${choice}: ${intent.title}`);
+      first.options.forEach((answer, needIndex) => {
+        const second = discoveryFollowUp(choice, index, needIndex);
+        assert.ok(second.question && second.options.length === 3, answer.title);
+        second.options.forEach((_, fitIndex) => {
+          const result = tailoredActivity(choice, index, needIndex, fitIndex);
+          assert.ok(result.title && result.gain && result.minutes);
+          assert.ok(TURNER_FACTORS.includes(result.factor));
+          assert.equal(result.steps.length, 3);
+        });
+      });
     });
   }
 });
-test('every pursuit has useful steps, a duration, a benefit, and a Turner factor', () => {
-  for (const item of Object.values(DISCOVERY_ACTIVITIES)) {
-    assert.ok(TURNER_FACTORS.includes(item.factor));
-    assert.ok(item.minutes >= 2 && item.minutes <= 5);
-    assert.equal(item.steps.length, 3);
-    assert.ok(item.title && item.gain && item.type);
-  }
+test('no activity is recommended until both additional questions are answered', () => {
+  assert.equal(tailoredActivity('Meaning & purpose', 0, null, null), null);
+  assert.equal(tailoredActivity('Meaning & purpose', 0, 0, null), null);
+  assert.equal(tailoredActivity('Meaning & purpose', 0, null, 0), null);
 });
-test('chat carries the chosen need and activity forward without another intake', () => {
-  const context = { need: 'Meaning & purpose', intent: 'Find a sense of direction', activityId: 'intuition', stage: 'reflect' };
-  const instructions = discoveryInstructions(context);
-  assert.match(instructions, /Find a sense of direction/);
-  assert.match(instructions, /Listen for your own yes/);
-  assert.match(instructions, /Following your intuition/);
-  assert.match(instructions, /at most one or two/);
+test('changing the first answer changes the second question and matching activity', () => {
+  const first = discoveryFollowUp('Meaning & purpose', 0, 0);
+  const different = discoveryFollowUp('Meaning & purpose', 0, 1);
+  assert.notEqual(first.question, different.question);
+  assert.notEqual(tailoredActivity('Meaning & purpose', 0, 0, 0).id, tailoredActivity('Meaning & purpose', 0, 1, 0).id);
+});
+test('changing the second answer tailors the activity title and actual first step', () => {
+  const first = tailoredActivity('Meaning & purpose', 0, 0, 0);
+  const different = tailoredActivity('Meaning & purpose', 0, 0, 1);
+  assert.notEqual(first.title, different.title);
+  assert.notEqual(first.steps[0], different.steps[0]);
+  assert.equal(first.factor, different.factor);
+});
+test('chat receives both answers and tailored steps without repeating discovery', () => {
+  const result = tailoredActivity('Meaning & purpose', 0, 0, 1);
+  const instructions = discoveryInstructions({ need: 'Meaning & purpose', answers: ['Remembering what has felt fulfilling', 'Something I used to enjoy'], activityId: result.id, activityTitle: result.title, activitySteps: result.steps });
+  assert.match(instructions, /already answered both/);
+  assert.ok(instructions.includes(result.steps[0]));
   assert.match(instructions, /never as treatments, cures, or guarantees/);
   assert.equal(discoveryInstructions(null), '');
 });
-test('suggestions offer different ways to engage rather than a single repeated exercise', () => {
-  for (const [choice, path] of Object.entries(DISCOVERY_PATHS)) {
-    const firsts = path.intents.map((_, index) => recommendedActivities(choice, index)[0].id);
-    assert.ok(new Set(firsts).size >= 2);
-    path.intents.forEach((_, index) => assert.ok(new Set(recommendedActivities(choice, index).map((item) => item.type)).size >= 2));
-  }
+test('chat mid-discovery only asks the remaining number of follow-up questions', () => {
+  assert.match(discoveryInstructions({ need: 'Peace of mind', answers: [] }), /at most 2 more/);
+  assert.match(discoveryInstructions({ need: 'Peace of mind', answers: ['Less mental noise'] }), /at most 1 more/);
 });
