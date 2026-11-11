@@ -2384,3 +2384,15 @@ button {
 .tracking-selection button.tracking-option:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; }
 .tracking-selection .tracking-option-arrow { display: grid; place-items: center; flex: 0 0 2.25rem; width: 2.25rem; height: 2.25rem; border-radius: 50%; border: 1px solid #b7c891; background: #eef2d8; color: #526e36; }
 .tracking-option-arrow svg { width: 1.25rem; height: 1.25rem; }
+
+.intro-input-tools { display: flex; align-items: center; gap: .35rem; }
+.intro-thought-field .intro-audio-button { width: 2.5rem; height: 2.5rem; flex-shrink: 0; background: transparent; color: #69745f; }
+.intro-thought-field .intro-audio-button[aria-pressed="true"] { background: #e4ebd6; color: #40583f; }
+.intro-thought-field .intro-audio-button:hover { background: #e4ebd6; transform: none; }
+.intro-thought > .intro-voice-status { margin: 0; color: #53604f; font-size: .85rem; line-height: 1.4; }
+@media (max-width: 480px) {
+  .intro-thought-field { gap: .25rem; padding-left: .85rem; }
+  .intro-input-tools { gap: .1rem; }
+  .intro-thought-field .intro-audio-button { width: 2rem; height: 2rem; }
+  .intro-input-tools button[type="submit"] { width: 2.5rem; height: 2.5rem; }
+}

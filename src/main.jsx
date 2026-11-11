@@ -17,6 +17,8 @@ import {
   Sprout,
   Home,
   Menu,
+  Mic,
+  MicOff,
   Info,
   ShieldCheck,
   Leaf,
@@ -27,10 +29,12 @@ import {
   User,
   Users,
   Volume2,
+  VolumeX,
   X,
 } from 'lucide-react';
 import { useAuth } from './useAuth';
 import { useTrackingRecord } from './useTrackingRecord';
+import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAudioModes';
 import { habitGoals, saveHabitGoal, shortGoalTitle, toggleGoalDay } from './habitGoals';
 import { SPEAKER_VOICES, useVoicePreference } from './useVoicePreference';
 import { getVoicePlaybackRate } from './textToSpeech';
@@ -401,11 +405,91 @@ const IntroPage = ({
   onSignIn,
 }) => {
   const [thought, setThought] = useState('');
+  const { speaker } = useAudioModes();
+  const recognitionRef = useRef(null);
+  const [listening, setListening] = useState(false);
+  const [voiceStatus, setVoiceStatus] = useState('');
+  const stopDictation = useCallback(() => {
+    const recognition = recognitionRef.current;
+    recognitionRef.current = null;
+    if (recognition) {
+      recognition.onresult = null;
+      recognition.onend = null;
+      recognition.onerror = null;
+      recognition.abort();
+    }
+    setListening(false);
+  }, []);
+  useEffect(() => {
+    const pauseWhenHidden = () => {
+      if (document.hidden && recognitionRef.current) {
+        stopDictation();
+        setMicrophoneEnabled(false);
+      }
+    };
+    document.addEventListener('visibilitychange', pauseWhenHidden);
+    return () => {
+      document.removeEventListener('visibilitychange', pauseWhenHidden);
+      stopDictation();
+    };
+  }, [stopDictation]);
+
+  const toggleDictation = () => {
+    if (recognitionRef.current) {
+      stopDictation();
+      setMicrophoneEnabled(false);
+      setVoiceStatus('Microphone off. You can edit your message before sending.');
+      return;
+    }
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      setVoiceStatus('Voice input isn’t supported in this browser. You can type your message instead.');
+      return;
+    }
+    const recognition = new Recognition();
+    const startingThought = thought.trim();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = navigator.language || 'en-US';
+    recognitionRef.current = recognition;
+    recognition.onresult = (event) => {
+      if (recognitionRef.current !== recognition) return;
+      const transcript = Array.from(event.results, (result) => result[0].transcript).join(' ').trim();
+      setThought([startingThought, transcript].filter(Boolean).join(' '));
+    };
+    recognition.onend = () => {
+      if (recognitionRef.current !== recognition) return;
+      recognitionRef.current = null;
+      setListening(false);
+      setMicrophoneEnabled(false);
+      setVoiceStatus('Microphone off. You can edit your message before sending.');
+    };
+    recognition.onerror = (event) => {
+      stopDictation();
+      setMicrophoneEnabled(false);
+      setVoiceStatus(event.error === 'not-allowed' || event.error === 'service-not-allowed'
+        ? 'Microphone access was blocked. Allow it in your browser settings, or type your message.'
+        : 'Voice input stopped. Try the microphone again, or type your message.');
+    };
+    try {
+      recognition.start();
+      setListening(true);
+      setMicrophoneEnabled(true);
+      setVoiceStatus('Listening… Speak your thought, then use the arrow to send.');
+    } catch {
+      stopDictation();
+      setMicrophoneEnabled(false);
+      setVoiceStatus('Voice input couldn’t start. Try again, or type your message.');
+    }
+  };
 
   const submitThought = (event) => {
     event.preventDefault();
     const trimmedThought = thought.trim();
-    if (trimmedThought) onThoughtSubmit(trimmedThought);
+    if (trimmedThought) {
+      stopDictation();
+      onThoughtSubmit(trimmedThought);
+    }
   };
 
   return (
@@ -430,14 +514,26 @@ const IntroPage = ({
             <input
               type="text"
               value={thought}
-              onChange={(event) => setThought(event.target.value)}
+              onChange={(event) => {
+                if (recognitionRef.current) { stopDictation(); setMicrophoneEnabled(false); setVoiceStatus('Microphone off while you edit.'); }
+                setThought(event.target.value);
+              }}
               placeholder="What’s on your mind?"
               aria-label="What’s on your mind?"
             />
+            <div className="intro-input-tools">
+              <button type="button" className="intro-audio-button" onClick={toggleDictation} aria-pressed={listening} aria-label={listening ? 'Stop microphone' : 'Use microphone to dictate your message'} title={listening ? 'Stop microphone' : 'Dictate your message'}>
+                {listening ? <Mic aria-hidden="true" /> : <MicOff aria-hidden="true" />}
+              </button>
+              <button type="button" className="intro-audio-button" onClick={() => { setSpeakerEnabled(!speaker); setVoiceStatus(speaker ? 'Spoken replies off.' : 'Willow will read its replies aloud after you send your message.'); }} aria-pressed={speaker} aria-label={speaker ? 'Turn spoken replies off' : 'Turn spoken replies on'} title={speaker ? 'Turn spoken replies off' : 'Hear Willow’s replies'}>
+                {speaker ? <Volume2 aria-hidden="true" /> : <VolumeX aria-hidden="true" />}
+              </button>
             <button type="submit" disabled={!thought.trim()} aria-label="Share what’s on your mind">
               <ArrowRight aria-hidden="true" />
             </button>
+            </div>
           </form>
+          {voiceStatus && <p className="intro-voice-status" role="status">{voiceStatus}</p>}
           <nav className="intro-quick-actions" aria-label="Quick practices">
             {[
               { href: '#take-a-break', onClick: onBreak, Icon: Leaf, title: 'Take a break', caption: 'A moment for you' },
