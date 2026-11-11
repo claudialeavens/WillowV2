@@ -30,7 +30,7 @@ export const DISCOVERY_PATHS = {
 };
 export const discoveryInstructions = (context) => {
   if (!context) return '';
-  const chosen = DISCOVERY_ACTIVITIES[context.activityId];
+  const chosen = DISCOVERY_ACTIVITIES[context.activityId] ?? (context.activityTitle && Array.isArray(context.activitySteps) ? { title: context.activityTitle, steps: context.activitySteps, factor: context.activityFactor } : null);
   const questionsAnswered = (context.answers ?? []).length;
   const pacing = questionsAnswered >= 4
     ? 'The person has already answered all four follow-up questions. Do not repeat them or start another intake. If no approach has been selected, offer three closely matched approaches: reflective, experiential, and conversational. Use the supplied approaches when available. Once selected, guide that approach rather than listing more options.'

@@ -2,10 +2,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Heart, Home, Leaf, Sparkles } from 'lucide-react';
 import { DISCOVERY_PATHS } from './meaningDiscovery';
 import { discoveryFollowUp, sessionOutcomeQuestion, sessionTakeawayQuestion, tailoredApproaches } from './discoveryQuestions';
+import { DiscoveryOther } from './DiscoveryOther';
+import { CustomMeaningDiscovery } from './CustomMeaningDiscovery';
 import { useTrackingRecord } from './useTrackingRecord';
 
 export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => {
   const path = DISCOVERY_PATHS[choice] ?? DISCOVERY_PATHS['Not sure yet'];
+  const [customDraft, setCustomDraft] = useState(null);
+  const [customAnswers, setCustomAnswers] = useState(null);
   const [intentIndex, setIntentIndex] = useState(null);
   const [active, setActive] = useState(null);
   const [needIndex, setNeedIndex] = useState(null);
@@ -48,6 +52,20 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
   };
   const chat = (message) => onChat(message, { need: choice, intent: intent?.title ?? null, answers: [need?.title, fit?.title, outcome?.title, takeaway?.title].filter(Boolean), hopedOutcome: outcome?.title ?? null, desiredTakeaway: takeaway?.title ?? null, approaches: approaches.map(({ id, approach, title, steps }) => ({ id, approach, title, steps })), approach: active?.approach ?? null, activityId: active?.id ?? null, activityTitle: active?.title ?? null, activitySteps: active?.steps ?? null, stage: active ? 'reflect' : recommendation ? 'orient' : 'discover' });
 
+  const customStage = outcome ? 4 : fit ? 3 : need ? 2 : intent ? 1 : 0;
+  const customInitialValue = customDraft?.stage === customStage ? customDraft.text : '';
+  const continueCustom = (answer) => {
+    setCustomDraft({ stage: customStage, text: answer });
+    const previous = [
+      { question: 'What feels closest today?', answer: intent?.title },
+      { question: firstQuestion?.question, answer: need?.title },
+      { question: secondQuestion?.question, answer: fit?.title },
+      { question: thirdQuestion?.question, answer: outcome?.title },
+    ].filter(item => item.answer);
+    setCustomAnswers([...previous, { question: intent ? question.question : 'What feels closest today?', answer }]);
+  };
+  if (customAnswers) return <CustomMeaningDiscovery choice={choice} initialAnswers={customAnswers} onBack={() => setCustomAnswers(null)} onHome={onHome} onChat={onChat} />;
+
   return <main className="page discovery-page">
     <nav className="tracking-navigation" aria-label="Page navigation">
       <button className="home-button back-button" type="button" aria-label="Go back" onClick={goBack}><ArrowLeft aria-hidden="true" /></button>
@@ -66,9 +84,10 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
       </aside>}
       {!intent && <div className="discovery-starting-points" role="group" aria-label="What brings you here today?">
         <h2>What feels closest today?</h2>
-        {path.intents.map((item, index) => <button key={item.title} type="button" onClick={() => selectIntent(index)}>
+        {path.intents.slice(0, 3).map((item, index) => <button key={item.title} type="button" onClick={() => selectIntent(index)}>
           <span className="discovery-choice-icon"><Heart aria-hidden="true" /></span><span><strong>{item.title}</strong><small>{item.caption}</small></span><ChevronRight aria-hidden="true" />
         </button>)}
+        <DiscoveryOther initialValue={customInitialValue} onSubmit={continueCustom} />
       </div>}
       {intent && !takeaway && <div className="discovery-starting-points" role="group" aria-labelledby="discovery-follow-up-heading">
         <p className="discovery-label">A little closer · {outcome ? '4' : fit ? '3' : need ? '2' : '1'} of 4</p>
@@ -79,6 +98,7 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
           else if (need) setFitIndex(index);
           else { setNeedIndex(index); setFitIndex(null); }
         }}><span className="discovery-choice-icon"><Leaf aria-hidden="true" /></span><span><strong>{item.title}</strong><small>{item.caption}</small></span><ChevronRight aria-hidden="true" /></button>)}
+        <DiscoveryOther key={`other-${needIndex}-${fitIndex}-${outcomeIndex}`} initialValue={customInitialValue} onSubmit={continueCustom} />
       </div>}
       {recommendation && !active && <>
         {approaches.map((suggestion) => <article className="discovery-recommendation" key={suggestion.approach}>
