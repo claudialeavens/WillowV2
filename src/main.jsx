@@ -170,8 +170,8 @@ const AccountButton = ({ auth, onSignIn }) => {
       <summary aria-label="Open account menu"><User className="signed-in-person" aria-hidden="true" /></summary>
       <div className="account-popover">
         <p>{auth.user.email}</p>
-        {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
         {checkInOpen && <AccountNourishingIntention key={`nourishing:${auth.user.id}`} userId={auth.user.id} />}
+        {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
         {checkInOpen && <AccountReminders key={`reminders:${auth.user.id}`} userId={auth.user.id} />}
         <div className="account-history-note">
           <strong>Your saved conversations</strong>
