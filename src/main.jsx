@@ -741,6 +741,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
 const TRACKING_OPTIONS = [
   { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
   { title: 'Wellbeing intention', detail: 'e.g., better sleep, more energy, emotional balance', Icon: Heart },
+  { title: 'Supporting what matters', detail: 'e.g., connection, joy, meaning and purpose', Icon: Compass },
 ];
 
 const TrackingNavigation = ({ onBack, onHome }) => (
@@ -1310,6 +1311,10 @@ const App = () => {
         onBack={goBack}
         onHome={goHome}
         onContinue={(selection) => {
+          if (selection === 'Supporting what matters') {
+            setStep(7);
+            return;
+          }
           if (selection === 'A daily habit') {
             setStep(9);
             return;
