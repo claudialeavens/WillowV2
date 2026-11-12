@@ -9,6 +9,8 @@ import {
   CalendarCheck,
   Check,
   ChevronRight,
+  ChevronDown,
+  MessageCircle,
   Cloud,
   Compass,
   Heart,
@@ -69,9 +71,9 @@ const AccountDailyCheckIn = ({ userId }) => {
   }, [today]);
   const dateKey = habitDateKey(today);
 
-  return <section className="account-check-in" aria-label="Daily goal check-in">
-    <strong>Today’s check-in</strong>
-    <p className="account-check-in-date">{today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</p>
+  return <details className="account-card account-check-in" open>
+    <summary className="account-card-heading"><span className="account-card-icon"><CalendarCheck aria-hidden="true" /></span><strong>Today’s check-in</strong><span className="account-card-date">{today.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
+    <div className="account-card-body">
     {loading ? <p role="status">Loading your goals…</p> : habit && habitGoals(habit).length > 0 ? (
       <>
         <div className="account-check-in-goals">
@@ -83,29 +85,31 @@ const AccountDailyCheckIn = ({ userId }) => {
         <p className="account-check-in-status" role="status">{status}</p>
       </>
     ) : <p>Add goals in Keep me on track to check in here.</p>}
-  </section>;
+    </div>
+  </details>;
 };
 
 const AccountNourishingIntention = ({ userId }) => {
   const { value: intention, loading } = useTrackingRecord('wellbeing', userId, null, `willow-wellbeing-reminder:${userId}`);
   if (loading || !intention?.text?.trim()) return null;
 
-  return <section className="account-nourishing" aria-label="Nourishing what matters">
-    <strong>Nourishing what matters</strong>
-    <p title={intention.text}>{intention.text}</p>
-  </section>;
+  return <details className="account-card account-nourishing">
+    <summary className="account-card-heading"><span className="account-card-icon"><Sprout aria-hidden="true" /></span><span className="account-card-copy"><strong>Nourishing what matters</strong><span className="account-card-preview">{intention.text}</span></span><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
+    <div className="account-card-body"><p>{intention.text}</p>{intention.reason && <p className="account-intention-reason">{intention.reason}</p>}</div>
+  </details>;
 };
 
 const AccountReminders = ({ userId }) => {
   const { value: reminders, update: setReminders, loading, status } = useTrackingRecord('reminders', userId, [], `willow-custom-reminders:${userId}`);
   const [draft, setDraft] = useState(null);
-  return <section className="account-reminders" aria-label="My reminders">
-    <strong>My reminders</strong>
+  return <details className="account-card account-reminders" open>
+    <summary className="account-card-heading"><span className="account-card-icon"><Bell aria-hidden="true" /></span><strong>My reminders</strong><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
+    <div className="account-card-body">
     {loading ? <p role="status">Loading your reminders…</p> : <>
       {!reminders.length && !draft && <p>Add a reminder, then click its name whenever you need it.</p>}
       <div className="account-reminder-list">
         {reminders.map((reminder) => <details key={reminder.id} className="account-reminder">
-          <summary><Bell aria-hidden="true" /><span>{reminder.title}</span></summary>
+          <summary><Bell aria-hidden="true" /><span>{reminder.title}</span><ChevronRight className="account-reminder-chevron" aria-hidden="true" /></summary>
           <p className="account-reminder-message">{reminder.message}</p>
           <div className="account-reminder-actions">
             <button type="button" onClick={() => setDraft({ ...reminder })} aria-label={`Edit reminder: ${reminder.title}`}>Edit</button>
@@ -128,7 +132,8 @@ const AccountReminders = ({ userId }) => {
       </form> : <button className="account-reminder-add" type="button" onClick={() => setDraft({ id: crypto.randomUUID(), title: '', message: '' })}>+ Add reminder</button>}
     </>}
     {!loading && <p className="account-check-in-status" role="status">{status}</p>}
-  </section>;
+    </div>
+  </details>;
 };
 
 const AccountButton = ({ auth, onSignIn }) => {
@@ -166,17 +171,17 @@ const AccountButton = ({ auth, onSignIn }) => {
   }
 
   return (
-    <details className="account-menu" ref={menuRef} onToggle={(event) => setCheckInOpen(event.currentTarget.open)}>
+    <details className="account-menu" ref={menuRef} onToggle={(event) => { if (event.target === event.currentTarget) setCheckInOpen(event.currentTarget.open); }}>
       <summary aria-label="Open account menu"><User className="signed-in-person" aria-hidden="true" /></summary>
       <div className="account-popover">
-        <p>{auth.user.email}</p>
+        <p className="account-email">{auth.user.email}</p>
         {checkInOpen && <AccountNourishingIntention key={`nourishing:${auth.user.id}`} userId={auth.user.id} />}
         {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
         {checkInOpen && <AccountReminders key={`reminders:${auth.user.id}`} userId={auth.user.id} />}
-        <div className="account-history-note">
-          <strong>Your saved conversations</strong>
-          <p>Sign in with this account on any device to continue where you left off.</p>
-        </div>
+        <details className="account-card account-history-note" open>
+          <summary className="account-card-heading"><span className="account-card-icon"><MessageCircle aria-hidden="true" /></span><strong>Your saved conversations</strong><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
+          <div className="account-card-body"><p>Sign in with this account on any device to continue where you left off.</p></div>
+        </details>
         <button className="account-signout" type="button" onClick={auth.signOut}>
           <LogOut aria-hidden="true" />
           Sign out

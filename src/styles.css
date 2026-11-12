@@ -2471,3 +2471,47 @@ button {
 .discovery-other form > .discovery-primary { margin-top: .8rem; }
 .discovery-other textarea:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
 .discovery-other button:disabled { opacity: .5; cursor: default; }
+
+/* Profile cards follow the soft, spacious account-menu design. */
+.account-popover { width: min(29rem, calc(100vw - 1.5rem)); padding: 1rem; border-radius: 1.6rem; background: radial-gradient(ellipse at top right, #e4eddb99, transparent 45%), #fbf8faf5; box-shadow: 0 16px 55px #35423626; color: #182238; }
+.account-popover .account-email { padding: .35rem .4rem 1.2rem; border: 0; font-size: .9rem; color: #292d32; }
+.account-popover .account-card { margin: 0 0 .8rem; padding: .9rem; border: 1px solid #eae5e9; border-radius: 1.25rem; background: #fffdfdcc; box-shadow: 0 3px 12px #40304808; }
+.account-card-heading { display: flex; align-items: center; gap: .8rem; list-style: none; cursor: pointer; min-height: 2.8rem; }
+.account-card-heading::-webkit-details-marker { display: none; }
+.account-card-heading strong { flex: 1; color: #182238; font-size: 1rem; line-height: 1.3; font-weight: 700; }
+.account-card-icon { display: grid; place-items: center; flex: 0 0 2.8rem; height: 2.8rem; border-radius: 1rem; color: #367125; background: #e5f0db; }
+.account-card-icon svg { width: 1.65rem; height: 1.65rem; stroke-width: 1.7; }
+.account-reminders .account-card-icon { color: #694077; background: #eee1ef; }
+.account-history-note .account-card-icon { color: #245879; background: #dceff7; }
+.account-card-copy { flex: 1; min-width: 0; }
+.account-card-copy strong { display: block; }
+.account-card-preview { display: block; margin-top: .25rem; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: .9rem; color: #606b77; }
+.account-card-chevron { flex: 0 0 1.15rem; width: 1.15rem; height: 1.15rem; margin-left: auto; }
+.account-card[open] > summary .account-card-chevron { transform: rotate(180deg); }
+.account-card-date { flex-shrink: 0; font-size: .8rem; color: #606b77; }
+.account-card-body { margin: .65rem 0 0 3.6rem; }
+.account-popover .account-card-body p { margin: .4rem 0; padding: 0; border: 0; white-space: normal; overflow-wrap: anywhere; font-size: .88rem; line-height: 1.5; font-weight: 400; color: #606b77; }
+.account-popover .account-nourishing .account-card-body p { display: block; overflow: visible; white-space: pre-wrap; }
+.account-popover .account-card-body .account-intention-reason { color: #77816c; font-style: italic; }
+.account-check-in-goals { gap: 0; }
+.account-check-in-goals label { min-height: 2.6rem; padding: .45rem 0; border-top: 1px solid #e8e4eb; border-radius: 0; }
+.account-check-in-goals input { width: 1.3rem; height: 1.3rem; accent-color: #83a843; }
+.account-check-in-goals span { font-size: .95rem; color: #29313b; }
+.account-popover .account-check-in-status { font-size: .72rem; font-style: italic; }
+.account-reminder { border-radius: 1.2rem; background: #fffafc; box-shadow: 0 2px 5px #40304808; }
+.account-reminder summary { font-size: .9rem; color: #29313b; }
+.account-reminder summary .account-reminder-chevron { margin-left: auto; }
+.account-reminder[open] summary .account-reminder-chevron { transform: rotate(90deg); }
+.account-popover .account-reminder-add { width: auto; border: 0; padding: .35rem 0; background: transparent; color: #70417c; font-size: .95rem; }
+.account-popover .account-signout { margin-top: 1rem; padding: 1rem .4rem .2rem; border-top: 1px solid #d8d2dc; color: #70417c; font-size: 1rem; }
+.account-popover .account-signout svg { width: 1.4rem; height: 1.4rem; }
+.account-card-heading:focus-visible { outline: 2px solid #617f4c; outline-offset: 5px; border-radius: .6rem; }
+@media (max-width: 420px) {
+  .account-popover { padding: .7rem; }
+  .account-popover .account-card { padding: .75rem; }
+  .account-card-heading { gap: .55rem; flex-wrap: wrap; }
+  .account-card-heading strong { font-size: .9rem; }
+  .account-card-body { margin-left: 0; }
+  .account-card-icon { flex-basis: 2.3rem; height: 2.3rem; border-radius: .8rem; }
+  .account-card-date { font-size: .7rem; }
+}
