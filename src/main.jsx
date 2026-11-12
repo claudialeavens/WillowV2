@@ -86,6 +86,16 @@ const AccountDailyCheckIn = ({ userId }) => {
   </section>;
 };
 
+const AccountNourishingIntention = ({ userId }) => {
+  const { value: intention, loading } = useTrackingRecord('wellbeing', userId, null, `willow-wellbeing-reminder:${userId}`);
+  if (loading || !intention?.text?.trim()) return null;
+
+  return <section className="account-nourishing" aria-label="Nourishing what matters">
+    <strong>Nourishing what matters</strong>
+    <p title={intention.text}>{intention.text}</p>
+  </section>;
+};
+
 const AccountReminders = ({ userId }) => {
   const { value: reminders, update: setReminders, loading, status } = useTrackingRecord('reminders', userId, [], `willow-custom-reminders:${userId}`);
   const [draft, setDraft] = useState(null);
@@ -161,6 +171,7 @@ const AccountButton = ({ auth, onSignIn }) => {
       <div className="account-popover">
         <p>{auth.user.email}</p>
         {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
+        {checkInOpen && <AccountNourishingIntention key={`nourishing:${auth.user.id}`} userId={auth.user.id} />}
         {checkInOpen && <AccountReminders key={`reminders:${auth.user.id}`} userId={auth.user.id} />}
         <div className="account-history-note">
           <strong>Your saved conversations</strong>

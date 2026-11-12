@@ -2364,6 +2364,8 @@ button {
 
 .account-popover { max-height: calc(100svh - 5rem); overflow-y: auto; }
 .account-reminders { margin: .85rem 0; padding-bottom: .85rem; border-bottom: 1px solid #dce0ce; }
+.account-nourishing { margin: .85rem 0; padding-bottom: .85rem; border-bottom: 1px solid #dce0ce; }
+.account-popover .account-nourishing p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin: .5rem 0 0; padding: 0; border: 0; white-space: normal; overflow-wrap: anywhere; font-size: .85rem; line-height: 1.5; color: #40583f; }
 .account-reminder-list { display: grid; gap: .4rem; margin: .65rem 0; }
 .account-reminder { border: 1px solid #dce0ce; border-radius: .6rem; background: #fffdf599; }
 .account-reminder summary { display: flex; align-items: center; gap: .5rem; padding: .65rem; cursor: pointer; font-weight: 500; }
