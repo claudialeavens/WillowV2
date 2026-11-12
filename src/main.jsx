@@ -740,7 +740,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
 
 const TRACKING_OPTIONS = [
   { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
-  { title: 'My current wellbeing intention', detail: 'e.g., better sleep, more energy, emotional balance', Icon: Heart },
+  { title: 'Wellbeing intention', detail: 'e.g., better sleep, more energy, emotional balance', Icon: Heart },
 ];
 
 const TrackingNavigation = ({ onBack, onHome }) => (
@@ -800,14 +800,14 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
       <section className="tracking-content reminder-content" aria-labelledby="reminder-heading">
         <TrackingNavigation onBack={onBack} onHome={onHome} />
         <div className="habit-section-heading">
-          <h1 id="reminder-heading">My current wellbeing intention</h1>
+          <h1 id="reminder-heading">Wellbeing intention</h1>
           {!isEditing && <button type="button" onClick={() => setEditing(true)}>Edit</button>}
         </div>
         {isEditing ? (
           <>
             <p className="reminder-guidance">What would you like to nurture in your wellbeing? You might choose better sleep, more energy, emotional balance, or making space to rest.</p>
             <form className="habit-edit reminder-edit" onSubmit={saveReminder}>
-              <label htmlFor="reminder-text">My current wellbeing intention is…</label>
+              <label htmlFor="reminder-text">Wellbeing intention is…</label>
               <textarea id="reminder-text" name="reminder" defaultValue={reminder?.text ?? ''} placeholder="Make more space for restful sleep." required maxLength={1200} autoFocus />
               <label htmlFor="reminder-reason">Why does this matter to you? <span>(optional)</span></label>
               <textarea id="reminder-reason" name="reason" defaultValue={reminder?.reason ?? ''} placeholder="A few words to reconnect with your why." maxLength={1200} />
@@ -819,7 +819,7 @@ const PersonalReminderPage = ({ kind, userId, onBack, onHome }) => {
           <>
             <div className="habit-focus reminder-card"><Icon aria-hidden="true" /><div><h2>My {noun}</h2><p>{reminder.text}</p></div></div>
             {reminder.reason && <section className="reminder-reason"><h2 className="habit-section-title">Why it matters to me</h2><p>{reminder.reason}</p></section>}
-            <p className="reminder-return">Come back to Keep me on track → My current wellbeing intention whenever you’d like a reminder. You can update this as life changes.</p>
+            <p className="reminder-return">Come back to Keep me on track → Wellbeing intention whenever you’d like a reminder. You can update this as life changes.</p>
           </>
         )}
         <p className="reminder-storage" role="status">{status}</p>
