@@ -2511,7 +2511,7 @@ button {
   isolation: isolate;
   overflow: hidden;
   border-color: #9eb762;
-  background: linear-gradient(110deg, #fffef5 25%, #f2f5df 75%, #e5edcc);
+  background: radial-gradient(ellipse at bottom right, #c9ddbf99, transparent 65%), radial-gradient(ellipse at top left, #d5e3c399, transparent 55%), #f9f8e8;
   box-shadow: 0 4px 14px #78954029, 0 0 0 3px #f2f5dc80;
 }
 .account-nourishing::before {
@@ -2519,17 +2519,17 @@ button {
   position: absolute;
   z-index: -1;
   pointer-events: none;
-  top: -.8rem;
-  right: 1rem;
-  width: 8rem;
-  height: 7rem;
-  background: url('/images/willow-leaf-sprig.png') center / contain no-repeat;
-  opacity: .15;
-  transform: rotate(-15deg);
+  inset: 0 0 0 auto;
+  width: 65%;
+  background: url('/images/WillowGraphic%20copy.png') center 40% / 115% auto no-repeat;
+  opacity: .85;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 70%);
+  mask-image: linear-gradient(to right, transparent, #000 70%);
 }
-.account-nourishing .account-card-icon { background: #e7e9b9; color: #456b23; }
+.account-nourishing .account-card-heading { min-height: 5rem; }
+.account-nourishing .account-card-icon { background: #f5f5dd; color: #456b23; box-shadow: 0 3px 9px #536b2520; }
 .account-nourishing .account-card-copy { padding-left: .75rem; border-left: 1px solid #dce1b9; }
-.account-nourishing .account-card-heading strong { color: #263f1d; }
+.account-nourishing .account-card-heading strong { color: #304b24; font-family: Georgia, 'Times New Roman', serif; font-size: 1.45rem; line-height: 1.05; }
 .account-nourishing .account-card-preview { color: #626e4d; }
 .account-nourishing .account-card-chevron { color: #304b24; }
 .account-nourishing > summary:hover { filter: brightness(.97); }

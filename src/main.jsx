@@ -94,7 +94,7 @@ const AccountNourishingIntention = ({ userId }) => {
   if (loading || !intention?.text?.trim()) return null;
 
   return <details className="account-card account-nourishing">
-    <summary className="account-card-heading"><span className="account-card-icon"><Sprout aria-hidden="true" /></span><span className="account-card-copy"><strong>Nourishing what matters</strong><span className="account-card-preview">{intention.text}</span></span><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
+    <summary className="account-card-heading"><span className="account-card-icon"><Sprout aria-hidden="true" /></span><span className="account-card-copy"><strong>Nourishing<br />What Matters</strong><span className="account-card-preview">{intention.text}</span></span><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
     <div className="account-card-body"><p>{intention.text}</p>{intention.reason && <p className="account-intention-reason">{intention.reason}</p>}</div>
   </details>;
 };
