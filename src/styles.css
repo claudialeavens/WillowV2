@@ -2522,6 +2522,7 @@ button {
   inset: 0 0 0 auto;
   width: 65%;
   background: url('/images/WillowGraphic%20copy.png') right center / auto 100% no-repeat;
+  mix-blend-mode: multiply;
   opacity: .85;
   -webkit-mask-image: linear-gradient(to right, transparent, #000 70%);
   mask-image: linear-gradient(to right, transparent, #000 70%);
