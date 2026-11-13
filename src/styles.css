@@ -2550,11 +2550,15 @@ button {
 .matters-page .matters-question { margin: .75rem 0 .4rem; }
 .matters-wheel { position: relative; width: min(100%, 34rem); aspect-ratio: 1; margin: 0 auto 1.25rem; filter: drop-shadow(0 10px 12px #635e3424); }
 .matters-petals { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.matters-petal { fill: #f8e9cf; stroke: #fffdf4; stroke-width: 2.5; }
-.matters-petal-1 { fill: #dfe3ca; }
-.matters-petal-2 { fill: #f5e5bf; }
-.matters-petal-3 { fill: #f6e1bb; }
-.matters-petal-4 { fill: #eee1ca; }
+.matters-petal { fill: #faecd7; stroke: #fffdf4; stroke-width: 2.5; }
+.matters-petal-1 { fill: #e0e5ce; }
+.matters-petal-2 { fill: #ffedba; }
+.matters-petal-3 { fill: #e9dfe5; }
+.matters-petal-4 { fill: #f5dfcf; }
+.matters-petal-button:nth-of-type(2) svg { color: #536a32; }
+.matters-petal-button:nth-of-type(3) svg { color: #a77724; }
+.matters-petal-button:nth-of-type(4) svg { color: #755875; }
+.matters-petal-button:nth-of-type(5) svg { color: #925a2d; }
 .matters-petal-button { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: #263d2b; cursor: pointer; transform: rotate(var(--petal-angle)); clip-path: polygon(50% 50%, 25% 20%, 23% 10%, 30% 2%, 50% 0, 70% 2%, 77% 10%, 75% 20%); }
 .matters-petal-label { position: absolute; top: 9%; left: 34%; width: 32%; height: 24%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem; transform: rotate(var(--label-angle)); font-size: clamp(.85rem, 2.7vw, 1.25rem); font-weight: 500; line-height: 1.15; }
 .matters-petal-label > span { max-width: 8ch; }
