@@ -736,18 +736,24 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
     <section className="matters-content" aria-labelledby="matters-heading">
       <h1 id="matters-heading">Move towards<br />what matters</h1>
       <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
-      <div className="matters-options">
+      <div className="matters-wheel" role="group" aria-label="Explore what matters to you">
+        <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">
+          {[0, 72, 144, 216, 288].map((angle, index) => <path key={angle} className={`matters-petal matters-petal-${index}`} transform={`rotate(${angle} 250 250)`} d="M250 250 L139 99 Q116 70 146 45 Q250 -17 354 45 Q384 70 361 99 Z" />)}
+        </svg>
         {[
           { choice: 'Feeling connected', Icon: Users },
           { choice: 'Energy & vitality', Icon: Sprout },
-          { choice: 'Peace of mind', Icon: Leaf },
           { choice: 'Joy & enjoyment', Icon: Sun },
+          { choice: 'Peace of mind', Icon: Leaf },
           { choice: 'Meaning & purpose', Icon: Heart },
-          { choice: 'Not sure yet', Icon: Compass },
-        ].map(({ choice, Icon }) => (
-          <button key={choice} type="button" onClick={() => onSelect(choice)}><Icon aria-hidden="true" /><span>{choice}</span></button>
+        ].map(({ choice, Icon }, index) => (
+          <button className="matters-petal-button" style={{ '--petal-angle': `${index * 72}deg`, '--label-angle': `${-index * 72}deg` }} key={choice} type="button" onClick={() => onSelect(choice)}>
+            <span className="matters-petal-label"><Icon aria-hidden="true" /><span>{choice}</span></span>
+          </button>
         ))}
+        <div className="matters-wheel-center"><span>Nourishing<br />Your Whole<br />Self</span><Leaf aria-hidden="true" /></div>
       </div>
+      <button className="matters-unsure" type="button" onClick={() => onSelect('Not sure yet')}><Compass aria-hidden="true" />Not sure yet</button>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
   </main>

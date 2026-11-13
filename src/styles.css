@@ -2543,3 +2543,27 @@ button {
   .account-card-icon { flex-basis: 2.3rem; height: 2.3rem; border-radius: .8rem; }
   .account-card-date { font-size: .7rem; }
 }
+
+/* Five connected petals, with a quiet center for the whole self. */
+.matters-page .matters-content { width: min(42rem, calc(100% - 2rem)); padding-top: 6rem; padding-bottom: 4rem; align-items: center; }
+.matters-wheel { position: relative; width: min(100%, 34rem); aspect-ratio: 1; margin: .5rem auto 1.25rem; filter: drop-shadow(0 10px 12px #635e3424); }
+.matters-petals { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.matters-petal { fill: #f8e9cf; stroke: #fffdf4; stroke-width: 2.5; }
+.matters-petal-1 { fill: #dfe3ca; }
+.matters-petal-2 { fill: #f5e5bf; }
+.matters-petal-3 { fill: #f6e1bb; }
+.matters-petal-4 { fill: #eee1ca; }
+.matters-petal-button { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: #263d2b; cursor: pointer; transform: rotate(var(--petal-angle)); clip-path: polygon(50% 50%, 25% 20%, 23% 10%, 30% 2%, 50% 0, 70% 2%, 77% 10%, 75% 20%); }
+.matters-petal-label { position: absolute; top: 9%; left: 34%; width: 32%; height: 24%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem; transform: rotate(var(--label-angle)); font-size: clamp(.85rem, 2.7vw, 1.25rem); font-weight: 500; line-height: 1.15; }
+.matters-petal-label > span { max-width: 8ch; }
+.matters-petal-label svg { width: clamp(1.5rem, 5vw, 2.5rem); height: clamp(1.5rem, 5vw, 2.5rem); stroke-width: 1.4; flex-shrink: 0; }
+.matters-petal-button:hover { background: #ffffff30; }
+.matters-petal-button:focus-visible { background: #b0c38360; outline: none; }
+.matters-petal-button:focus-visible .matters-petal-label { text-decoration: underline; text-underline-offset: .2em; }
+.matters-wheel-center { position: absolute; inset: 33%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .3rem; border: 3px solid #fffdf1; border-radius: 50%; background: radial-gradient(circle, #fffdf4 40%, #f9e4b3); box-shadow: 0 0 15px #ffe7af; color: #344322; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.1rem, 3.6vw, 1.85rem); font-weight: 600; line-height: 1.02; pointer-events: none; }
+.matters-wheel-center svg { width: 1.35rem; height: 1.35rem; color: #6c7b35; }
+.matters-unsure { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .65rem 1.25rem; border: 1px solid #a5ae8b; border-radius: 999px; background: #fffdf5b3; font: inherit; color: #40583f; cursor: pointer; }
+.matters-unsure svg { width: 1.2rem; height: 1.2rem; }
+.matters-unsure:hover { background: #e7edda; }
+.matters-unsure:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
+@media (max-width: 380px) { .matters-page .matters-content { width: calc(100% - 1rem); } .matters-petal-label { font-size: .8rem; } .matters-wheel-center { font-size: 1.1rem; } }
