@@ -2506,6 +2506,33 @@ button {
 .account-popover .account-signout { margin-top: 1rem; padding: 1rem .4rem .2rem; border-top: 1px solid #d8d2dc; color: #70417c; font-size: 1rem; }
 .account-popover .account-signout svg { width: 1.4rem; height: 1.4rem; }
 .account-card-heading:focus-visible { outline: 2px solid #617f4c; outline-offset: 5px; border-radius: .6rem; }
+.account-popover .account-nourishing {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: #9eb762;
+  background: linear-gradient(110deg, #fffef5 25%, #f2f5df 75%, #e5edcc);
+  box-shadow: 0 4px 14px #78954029, 0 0 0 3px #f2f5dc80;
+}
+.account-nourishing::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  top: -.8rem;
+  right: 1rem;
+  width: 8rem;
+  height: 7rem;
+  background: url('/images/willow-leaf-sprig.png') center / contain no-repeat;
+  opacity: .15;
+  transform: rotate(-15deg);
+}
+.account-nourishing .account-card-icon { background: #e7e9b9; color: #456b23; }
+.account-nourishing .account-card-copy { padding-left: .75rem; border-left: 1px solid #dce1b9; }
+.account-nourishing .account-card-heading strong { color: #263f1d; }
+.account-nourishing .account-card-preview { color: #626e4d; }
+.account-nourishing .account-card-chevron { color: #304b24; }
+.account-nourishing > summary:hover { filter: brightness(.97); }
 @media (max-width: 420px) {
   .account-popover { padding: .7rem; }
   .account-popover .account-card { padding: .75rem; }
