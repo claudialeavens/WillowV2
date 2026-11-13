@@ -2561,7 +2561,7 @@ button {
 .matters-petal-button:focus-visible { background: #b0c38360; outline: none; }
 .matters-petal-button:focus-visible .matters-petal-label { text-decoration: underline; text-underline-offset: .2em; }
 .matters-wheel-center { position: absolute; inset: 33%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .3rem; border: 3px solid #fffdf1; border-radius: 50%; background: radial-gradient(circle, #fffdf4 40%, #f9e4b3); box-shadow: 0 0 15px #ffe7af; color: #344322; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.1rem, 3.6vw, 1.85rem); font-weight: 600; line-height: 1.02; pointer-events: none; }
-.matters-wheel-center svg { width: 1.35rem; height: 1.35rem; color: #6c7b35; }
+.matters-wheel-center svg { position: absolute; top: 10%; width: 1.35rem; height: 1.35rem; color: #6c7b35; }
 .matters-unsure { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .65rem 1.25rem; border: 1px solid #a5ae8b; border-radius: 999px; background: #fffdf5b3; font: inherit; color: #40583f; cursor: pointer; }
 .matters-unsure svg { width: 1.2rem; height: 1.2rem; }
 .matters-unsure:hover { background: #e7edda; }

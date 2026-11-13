@@ -751,7 +751,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
             <span className="matters-petal-label"><Icon aria-hidden="true" /><span>{choice}</span></span>
           </button>
         ))}
-        <div className="matters-wheel-center"><span>Nourishing<br />Your Whole<br />Self</span><Leaf aria-hidden="true" /></div>
+        <div className="matters-wheel-center"><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></div>
       </div>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
