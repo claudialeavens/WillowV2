@@ -2569,3 +2569,16 @@ button {
 .matters-unsure:hover { background: #e7edda; }
 .matters-unsure:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
 @media (max-width: 380px) { .matters-page .matters-content { width: calc(100% - 1rem); } .matters-petal-label { font-size: .8rem; } .matters-wheel-center { font-size: 1.1rem; } }
+
+button.matters-wheel-center { padding: 0; cursor: pointer; pointer-events: auto; }
+button.matters-wheel-center:hover { box-shadow: 0 0 20px #f7cf78; }
+button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-offset: 4px; }
+.whole-self-dialog { width: min(36rem, calc(100vw - 2rem)); max-height: calc(100svh - 3rem); padding: 0; border: 1px solid #c6cfad; border-radius: 1.5rem; background: #fffdf5; color: #304b36; box-shadow: 0 24px 80px #203b2b40; }
+.whole-self-dialog::backdrop { background: #203b2b66; backdrop-filter: blur(4px); }
+.whole-self-dialog-content { position: relative; padding: 2.5rem 2rem 2rem; }
+.whole-self-dialog h2 { margin: .75rem 0 1rem; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 2rem; line-height: 1.1; }
+.whole-self-dialog p { margin: 0; font-size: 1rem; line-height: 1.75; }
+.whole-self-dialog-leaf { color: #789650; width: 2rem; height: 2rem; }
+.whole-self-close { position: absolute; top: .75rem; right: .75rem; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: .5rem; border: 0; border-radius: 50%; background: #eaf0dd; color: #40583f; cursor: pointer; }
+.whole-self-close:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
+@media (max-width: 420px) { .whole-self-dialog-content { padding: 2.5rem 1.25rem 1.5rem; } }

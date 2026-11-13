@@ -729,7 +729,9 @@ const GroundingPage = ({ onHome, onSelect, auth, onSignIn }) => (
   </main>
 );
 
-const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
+const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
+  const wholeSelfDialog = useRef(null);
+  return (
   <main className="page matters-page">
     <AccountButton auth={auth} onSignIn={onSignIn} />
     <HomeButton onHome={onHome} />
@@ -751,12 +753,21 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
             <span className="matters-petal-label"><Icon aria-hidden="true" /><span>{choice}</span></span>
           </button>
         ))}
-        <div className="matters-wheel-center"><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></div>
+        <button type="button" className="matters-wheel-center" aria-haspopup="dialog" onClick={() => wholeSelfDialog.current?.showModal()}><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></button>
       </div>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
+    <dialog ref={wholeSelfDialog} className="whole-self-dialog" aria-labelledby="whole-self-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
+      <div className="whole-self-dialog-content">
+        <button type="button" className="whole-self-close" aria-label="Close Nourishing Your Whole Self" onClick={() => wholeSelfDialog.current?.close()} autoFocus><X aria-hidden="true" /></button>
+        <Leaf className="whole-self-dialog-leaf" aria-hidden="true" />
+        <h2 id="whole-self-heading">Nourishing Your Whole Self</h2>
+        <p>Health is more than caring for the body. It's also about nurturing the connections, experiences, and choices that help us thrive. Inspired by Kelly Turner's ten healing factors, Willow helps you discover and strengthen what supports your wellbeing—from nourishing your body and finding peace of mind to cultivating joy, connection, and purpose. Through the selections on this page you are supported in these elements through , small, meaningful steps that can enrich one another, helping you build a life that feels healthier, fuller, and more your own.</p>
+      </div>
+    </dialog>
   </main>
-);
+  );
+};
 
 const TRACKING_OPTIONS = [
   { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
