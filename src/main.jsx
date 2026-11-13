@@ -735,7 +735,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
     <HomeButton onHome={onHome} />
     <section className="matters-content" aria-labelledby="matters-heading">
       <h1 id="matters-heading">Move towards<br />what matters</h1>
-      <p className="matters-question">What would you like a little more of in your life?</p>
+      <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
       <div className="matters-options">
         {[
           { choice: 'Feeling connected', Icon: Users },
@@ -749,7 +749,6 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
         ))}
       </div>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
-      <p className="matters-note">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
     </section>
   </main>
 );
