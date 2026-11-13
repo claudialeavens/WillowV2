@@ -753,7 +753,6 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
         ))}
         <div className="matters-wheel-center"><span>Nourishing<br />Your Whole<br />Self</span><Leaf aria-hidden="true" /></div>
       </div>
-      <button className="matters-unsure" type="button" onClick={() => onSelect('Not sure yet')}><Compass aria-hidden="true" />Not sure yet</button>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
   </main>
