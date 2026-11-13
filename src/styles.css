@@ -2582,3 +2582,11 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .whole-self-close { position: absolute; top: .75rem; right: .75rem; display: grid; place-items: center; width: 2.5rem; height: 2.5rem; padding: .5rem; border: 0; border-radius: 50%; background: #eaf0dd; color: #40583f; cursor: pointer; }
 .whole-self-close:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
 @media (max-width: 420px) { .whole-self-dialog-content { padding: 2.5rem 1.25rem 1.5rem; } }
+
+.tracking-content.tracking-selection {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 5rem;
+}

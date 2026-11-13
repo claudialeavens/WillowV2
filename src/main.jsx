@@ -770,8 +770,8 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
 };
 
 const TRACKING_OPTIONS = [
-  { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
   { title: 'Nourishing what matters', detail: 'e.g., connection, joy, meaning and purpose', Icon: Heart },
+  { title: 'A daily habit', detail: 'e.g., movement, meditation', Icon: Leaf },
 ];
 
 const TrackingNavigation = ({ onBack, onHome }) => (
