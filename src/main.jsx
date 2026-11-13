@@ -734,7 +734,7 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => (
     <AccountButton auth={auth} onSignIn={onSignIn} />
     <HomeButton onHome={onHome} />
     <section className="matters-content" aria-labelledby="matters-heading">
-      <h1 id="matters-heading">Move towards<br />what matters</h1>
+      <h1 id="matters-heading">Move towards what matters</h1>
       <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
       <div className="matters-wheel" role="group" aria-label="Explore what matters to you">
         <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">

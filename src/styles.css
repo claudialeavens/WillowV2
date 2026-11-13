@@ -2545,8 +2545,10 @@ button {
 }
 
 /* Five connected petals, with a quiet center for the whole self. */
-.matters-page .matters-content { width: min(42rem, calc(100% - 2rem)); padding-top: 6rem; padding-bottom: 4rem; align-items: center; }
-.matters-wheel { position: relative; width: min(100%, 34rem); aspect-ratio: 1; margin: .5rem auto 1.25rem; filter: drop-shadow(0 10px 12px #635e3424); }
+.matters-page .matters-content { width: min(42rem, calc(100% - 2rem)); padding-top: 5rem; padding-bottom: 4rem; align-items: center; }
+.matters-page .matters-content h1 { font-size: clamp(1.4rem, 5.5vw, 3.3rem); white-space: nowrap; }
+.matters-page .matters-question { margin: .75rem 0 .4rem; }
+.matters-wheel { position: relative; width: min(100%, 34rem); aspect-ratio: 1; margin: 0 auto 1.25rem; filter: drop-shadow(0 10px 12px #635e3424); }
 .matters-petals { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .matters-petal { fill: #f8e9cf; stroke: #fffdf4; stroke-width: 2.5; }
 .matters-petal-1 { fill: #dfe3ca; }
