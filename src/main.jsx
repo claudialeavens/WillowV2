@@ -64,7 +64,7 @@ const HOME_ACTIONS = [
   'Follow What Matters',
 ];
 
-const AccountDailyCheckIn = ({ userId }) => {
+const AccountDailyCheckIn = ({ userId, onOpenWeek }) => {
   const { value: habit, update: setHabit, loading, status } = useTrackingRecord('habit', userId, null, `willow-daily-habit:${userId}`);
   const [today, setToday] = useState(() => new Date());
   useEffect(() => {
@@ -89,6 +89,7 @@ const AccountDailyCheckIn = ({ userId }) => {
         <p className="account-check-in-status" role="status">{status}</p>
       </>
     ) : <p>Add goals in Keep me on track to check in here.</p>}
+    <button type="button" className="account-week-view" onClick={onOpenWeek}><CalendarCheck aria-hidden="true" /><span>View or edit week</span><ChevronRight aria-hidden="true" /></button>
     </div>
   </details>;
 };
@@ -141,6 +142,7 @@ const AccountReminders = ({ userId }) => {
 };
 
 const AccountButton = ({ auth, onSignIn }) => {
+  const { openWeek } = React.useContext(NavigationContext);
   const menuRef = useRef(null);
   const [checkInOpen, setCheckInOpen] = useState(false);
 
@@ -180,7 +182,7 @@ const AccountButton = ({ auth, onSignIn }) => {
       <div className="account-popover">
         <p className="account-email">{auth.user.email}</p>
         {checkInOpen && <AccountNourishingIntention key={`nourishing:${auth.user.id}`} userId={auth.user.id} />}
-        {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} />}
+        {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} onOpenWeek={() => { if (menuRef.current) menuRef.current.open = false; openWeek(); }} />}
         {checkInOpen && <AccountReminders key={`reminders:${auth.user.id}`} userId={auth.user.id} />}
         <details className="account-card account-history-note" open>
           <summary className="account-card-heading"><span className="account-card-icon"><MessageCircle aria-hidden="true" /></span><strong>Your saved conversations</strong><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
@@ -331,7 +333,7 @@ const MainMenu = ({ onHome, onArchive, auth, onSignIn }) => {
   </>;
 };
 
-const NavigationContext = React.createContext({ canGoBack: false, goBack: () => {} });
+const NavigationContext = React.createContext({ canGoBack: false, goBack: () => {}, openWeek: () => {} });
 
 const HomeButton = ({ onHome }) => {
   const { canGoBack, goBack } = React.useContext(NavigationContext);
@@ -1436,7 +1438,7 @@ const App = () => {
 
   return (
     <>
-      <NavigationContext.Provider value={{ canGoBack: pageHistory.length > 1, goBack }}>
+      <NavigationContext.Provider value={{ canGoBack: pageHistory.length > 1, goBack, openWeek: () => setStep(9) }}>
       <Suspense fallback={<main className="page"><section className="discovery-content"><p role="status">Finding a place to begin…</p></section></main>}>{page}</Suspense>
       <MainMenu onHome={goHome} onArchive={openArchive} auth={auth} onSignIn={openAuth} />
       {archiveOpen && <Archive key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onClose={closeArchive} />}
