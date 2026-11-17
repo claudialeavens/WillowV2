@@ -31,3 +31,22 @@ test('every daily quote belongs to the calm, clarity, and wellbeing collection',
     assert.ok(LANDING_QUOTES.filter((quote) => quote.themes.includes(theme)).length >= 2);
   }
 });
+
+test('each new day excludes the last displayed quote across every topic change', () => {
+  const topics = ['goal', 'rest', 'family', 'confidence', 'accept', 'grow'];
+  for (const before of topics) for (const after of topics) {
+    const history = (takeaway) => ({ ...conversation, summary: { takeaway } });
+    const previous = selectDailyQuote(history(before), '2026-11-16', 'account-a');
+    const next = selectDailyQuote(history(after), '2026-11-17', 'account-a', previous);
+    assert.notEqual(next.quoteId, previous.quoteId, `${before} → ${after}`);
+    assert.ok(LANDING_QUOTES.find((quote) => quote.id === next.quoteId).themes.includes(next.theme));
+  }
+});
+
+test('returning after several days still gives a different relevant quote', () => {
+  const previous = selectDailyQuote(conversation, '2026-11-11', 'account-a');
+  for (let day = 12; day <= 30; day++) {
+    const next = selectDailyQuote(conversation, `2026-11-${day}`, 'account-a', previous);
+    assert.notEqual(next.quoteId, previous.quoteId);
+  }
+});

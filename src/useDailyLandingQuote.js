@@ -11,11 +11,18 @@ export const useDailyLandingQuote = (userId, conversation) => {
     tomorrow.setHours(24, 0, 0, 0);
     const timer = setTimeout(refreshDay, Math.max(1, tomorrow.getTime() - Date.now()));
     window.addEventListener('focus', refreshDay);
-    return () => { clearTimeout(timer); window.removeEventListener('focus', refreshDay); };
+    window.addEventListener('pageshow', refreshDay);
+    document.addEventListener('visibilitychange', refreshDay);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('focus', refreshDay);
+      window.removeEventListener('pageshow', refreshDay);
+      document.removeEventListener('visibilitychange', refreshDay);
+    };
   }, [day]);
   useEffect(() => {
     if (!userId || loading || (saved?.day === day && LANDING_QUOTES.some((quote) => quote.id === saved.quoteId))) return;
-    const selection = selectDailyQuote(conversation, day, userId);
+    const selection = selectDailyQuote(conversation, day, userId, saved);
     if (selection) update(selection);
   }, [userId, conversation, day, saved, loading, update]);
   if (!userId || loading || saved?.day !== day || conversation?.user_id !== userId) return null;

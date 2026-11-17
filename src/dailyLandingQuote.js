@@ -34,10 +34,11 @@ export const closingTheme = (conversation) => {
   return theme;
 };
 export const localDay = (date = new Date()) => `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-export const selectDailyQuote = (conversation, day, userId) => {
+export const selectDailyQuote = (conversation, day, userId, previous = null) => {
   if (!userId || conversation?.user_id !== userId || !(conversation.messages ?? []).some((message) => message.role === 'user')) return null;
   const theme = closingTheme(conversation);
-  const pool = LANDING_QUOTES.filter((quote) => quote.themes.includes(theme));
+  const previousQuoteId = previous?.day < day ? previous.quoteId : null;
+  const pool = LANDING_QUOTES.filter((quote) => quote.themes.includes(theme) && quote.id !== previousQuoteId);
   const dayNumber = Math.floor(Date.parse(`${day}T00:00:00Z`) / 86400000);
   const offset = [...userId].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   return { day, theme, quoteId: pool[(dayNumber + offset) % pool.length].id };
