@@ -9,6 +9,7 @@ import { setMicrophoneEnabled, setSpeakerEnabled, useAudioModes } from './useAud
 import { getResearchMessage, TURNER_THEMES_SOURCE } from './researchMessages';
 import { discoveryInstructions } from './meaningDiscovery';
 import willowVariant from './willowVariant.json';
+import { managingLifeInstructions } from './managingLife';
 import {
   buildConversationSummary,
   createConversationId,
@@ -228,6 +229,7 @@ export const BreakSupport = ({
               (isGuidedConversation ? `${GUIDED_CONVERSATION_INSTRUCTIONS}\n\n` : '') +
               `${PROACTIVE_GUIDANCE_INSTRUCTIONS}\n\n` +
               `${discoveryInstructions(entryContext?.discovery ?? savedConversation?.summary?.discovery)}\n\n` +
+              `${managingLifeInstructions(entryContext ?? savedConversation?.summary)}\n\n` +
               (isCoreConversation ? `${PHASE_ASSESSMENT_INSTRUCTIONS}\n\n` : '') +
               (previousReply ? `Avoid reusing wording from your previous reply: "${previousReply}".\n\n` : '') +
               `User input: ${trimmed}`,

@@ -6,6 +6,9 @@ import {
   Archive as ArchiveIcon,
   ArrowRight,
   Bell,
+  Brain,
+  Footprints,
+  Timer,
   CalendarCheck,
   Check,
   ChevronRight,
@@ -730,9 +733,8 @@ const GroundingPage = ({ onHome, onSelect, auth, onSignIn }) => (
   </main>
 );
 
-const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
+const MattersPage = ({ onHome, onSelect, onManagingLife, auth, onSignIn }) => {
   const wholeSelfDialog = useRef(null);
-  const managingLifeDialog = useRef(null);
   return (
   <main className="page matters-page">
     <AccountButton auth={auth} onSignIn={onSignIn} />
@@ -757,21 +759,13 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
         ))}
         <button type="button" className="matters-wheel-center" aria-haspopup="dialog" onClick={() => wholeSelfDialog.current?.showModal()}><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></button>
       </div>
-      <button type="button" className="managing-life-button" aria-haspopup="dialog" onClick={() => managingLifeDialog.current?.showModal()}>
+      <button type="button" className="managing-life-button" onClick={onManagingLife}>
         <ListChecks aria-hidden="true" />
         <span><strong>Managing life</strong><span>— taking care of what needs to get done.</span></span>
         <ChevronRight aria-hidden="true" />
       </button>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
-    <dialog ref={managingLifeDialog} className="whole-self-dialog" aria-labelledby="managing-life-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
-      <div className="whole-self-dialog-content">
-        <button type="button" className="whole-self-close" aria-label="Close Managing life" onClick={() => managingLifeDialog.current?.close()} autoFocus><X aria-hidden="true" /></button>
-        <ListChecks className="whole-self-dialog-leaf" aria-hidden="true" />
-        <h2 id="managing-life-heading">Managing life</h2>
-        <p>Sometimes what you need most is simply to get organized, finish your work, make appointments, clear your inbox or get things off your mind. Accomplishing these things can itself contribute significantly to wellbeing.</p>
-      </div>
-    </dialog>
     <dialog ref={wholeSelfDialog} className="whole-self-dialog" aria-labelledby="whole-self-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       <div className="whole-self-dialog-content">
         <button type="button" className="whole-self-close" aria-label="Close Nourishing Your Whole Self" onClick={() => wholeSelfDialog.current?.close()} autoFocus><X aria-hidden="true" /></button>
@@ -783,6 +777,35 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
   </main>
   );
 };
+
+const MANAGING_LIFE_OPTIONS = [
+  { title: 'Clear my mind', detail: 'Get everything out of my head.', Icon: Brain },
+  { title: 'Get organized', detail: 'Sort through what needs to get done.', Icon: ListChecks },
+  { title: 'Decide what to tackle first', detail: 'Find clarity among competing demands.', Icon: Compass },
+  { title: 'Get started', detail: 'Move past procrastination or feeling stuck.', Icon: Footprints },
+  { title: 'Stay focused', detail: 'Make progress without getting distracted.', Icon: Timer },
+];
+
+const ManagingLifePage = ({ onHome, onBack, onSelect, auth, onSignIn }) => (
+  <main className="page managing-life-page">
+    <AccountButton auth={auth} onSignIn={onSignIn} />
+    <TrackingNavigation onBack={onBack} onHome={onHome} />
+    <section className="managing-life-content" aria-labelledby="managing-life-heading">
+      <h1 id="managing-life-heading">Take care of what needs doing</h1>
+      <p className="managing-life-intro">Sometimes what you need most is simply to get organized, finish your work, make appointments, clear your inbox or get things off your mind. Accomplishing these things can itself contribute significantly to wellbeing.</p>
+      <h2>What would help you right now?</h2>
+      <div className="managing-life-options">
+        {MANAGING_LIFE_OPTIONS.map(({ title, detail, Icon }) => (
+          <button type="button" key={title} onClick={() => onSelect(title)}>
+            <Icon aria-hidden="true" />
+            <span><strong>{title}</strong><small>{detail}</small></span>
+            <ChevronRight aria-hidden="true" />
+          </button>
+        ))}
+      </div>
+    </section>
+  </main>
+);
 
 const TRACKING_OPTIONS = [
   { title: 'Nourishing what matters', detail: 'e.g., connection, joy, meaning and purpose', Icon: Heart },
@@ -1376,9 +1399,18 @@ const App = () => {
       setConversationMode('core');
       setStep(4);
     }} />;
+  } else if (step === 13) {
+    page = <ManagingLifePage onHome={goHome} onBack={goBack} auth={auth} onSignIn={openAuth} onSelect={(choice) => {
+      setActiveConversation(null);
+      setEntryContext({ activity: 'Managing life', selection: choice });
+      setInitialThought(choice);
+      setConversationMode('core');
+      setStep(4);
+    }} />;
   } else if (step === 7) {
     page = (
       <MattersPage
+        onManagingLife={() => setStep(13)}
         onHome={goHome}
         onSelect={(choice) => {
           setDiscoveryChoice(choice);

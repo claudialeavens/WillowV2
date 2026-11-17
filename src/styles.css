@@ -2602,3 +2602,20 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   padding-top: 5rem;
   padding-bottom: calc(5rem + clamp(2rem, 4.4vw, 3.5rem) * 4.48);
 }
+
+.managing-life-content { width: min(48rem, calc(100% - 2rem)); margin: 6rem auto 3rem; padding: clamp(1.25rem, 4vw, 2rem); border: 1px solid #deded4; border-radius: 1.5rem; background: #faf9f3; color: #34523b; }
+.managing-life-content h1 { margin: 0; text-align: center; font-size: clamp(1.5rem, 4vw, 2rem); line-height: 1.25; }
+.managing-life-intro { margin: 1.5rem 0 0; padding-bottom: 2rem; border-bottom: 1px solid #d9dfd0; text-align: center; font-size: 1.1rem; line-height: 1.7; color: #64705f; }
+.managing-life-content h2 { margin: 2rem 0 1.5rem; text-align: center; font-size: 1.25rem; }
+.managing-life-options { display: grid; gap: 1rem; }
+.managing-life-options button { display: flex; align-items: center; gap: 1rem; width: 100%; padding: 1.25rem 1rem; border: 0; border-radius: 1rem; background: #e9ecdf; font: inherit; text-align: left; cursor: pointer; color: #17241b; }
+.managing-life-options button:nth-child(2) { background: #eee9db; }
+.managing-life-options button:nth-child(3) { background: #e9e4ef; }
+.managing-life-options button:nth-child(4) { background: #f6e5d9; }
+.managing-life-options button:nth-child(5) { background: #dfe9df; }
+.managing-life-options button > svg { width: 1.4rem; height: 1.4rem; flex-shrink: 0; color: #4c684a; }
+.managing-life-options button > span { flex: 1; min-width: 0; }
+.managing-life-options strong { display: block; font-size: 1.1rem; line-height: 1.35; }
+.managing-life-options small { display: block; margin-top: .5rem; font-size: 1rem; line-height: 1.4; color: #626d60; }
+.managing-life-options button:hover { filter: brightness(.97); }
+.managing-life-options button:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; }
