@@ -15,6 +15,7 @@ import {
   Compass,
   Heart,
   Lightbulb,
+  ListChecks,
   Sparkles,
   Sprout,
   Home,
@@ -731,6 +732,7 @@ const GroundingPage = ({ onHome, onSelect, auth, onSignIn }) => (
 
 const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
   const wholeSelfDialog = useRef(null);
+  const managingLifeDialog = useRef(null);
   return (
   <main className="page matters-page">
     <AccountButton auth={auth} onSignIn={onSignIn} />
@@ -755,8 +757,21 @@ const MattersPage = ({ onHome, onSelect, auth, onSignIn }) => {
         ))}
         <button type="button" className="matters-wheel-center" aria-haspopup="dialog" onClick={() => wholeSelfDialog.current?.showModal()}><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></button>
       </div>
+      <button type="button" className="managing-life-button" aria-haspopup="dialog" onClick={() => managingLifeDialog.current?.showModal()}>
+        <ListChecks aria-hidden="true" />
+        <span><strong>Managing life</strong><span>— taking care of what needs to get done.</span></span>
+        <ChevronRight aria-hidden="true" />
+      </button>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
+    <dialog ref={managingLifeDialog} className="whole-self-dialog" aria-labelledby="managing-life-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
+      <div className="whole-self-dialog-content">
+        <button type="button" className="whole-self-close" aria-label="Close Managing life" onClick={() => managingLifeDialog.current?.close()} autoFocus><X aria-hidden="true" /></button>
+        <ListChecks className="whole-self-dialog-leaf" aria-hidden="true" />
+        <h2 id="managing-life-heading">Managing life</h2>
+        <p>Sometimes what you need most is simply to get organized, finish your work, make appointments, clear your inbox or get things off your mind. Accomplishing these things can itself contribute significantly to wellbeing.</p>
+      </div>
+    </dialog>
     <dialog ref={wholeSelfDialog} className="whole-self-dialog" aria-labelledby="whole-self-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       <div className="whole-self-dialog-content">
         <button type="button" className="whole-self-close" aria-label="Close Nourishing Your Whole Self" onClick={() => wholeSelfDialog.current?.close()} autoFocus><X aria-hidden="true" /></button>

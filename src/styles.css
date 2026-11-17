@@ -2572,6 +2572,13 @@ button {
 .matters-unsure svg { width: 1.2rem; height: 1.2rem; }
 .matters-unsure:hover { background: #e7edda; }
 .matters-unsure:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
+.managing-life-button { display: flex; align-items: center; gap: 1rem; width: 100%; padding: 1.25rem; border: 0; border-radius: 1.25rem; background: #e9ece3; color: #304b36; font: inherit; text-align: left; cursor: pointer; }
+.managing-life-button > svg { width: 1.5rem; height: 1.5rem; flex-shrink: 0; color: #536c56; }
+.managing-life-button > span { flex: 1; min-width: 0; }
+.managing-life-button strong { display: block; margin-bottom: .35rem; font-size: 1.1rem; }
+.managing-life-button > span > span { display: block; color: #607565; line-height: 1.5; }
+.managing-life-button:hover { background: #dfe6d7; }
+.managing-life-button:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
 @media (max-width: 380px) { .matters-page .matters-content { width: calc(100% - 1rem); } .matters-petal-label { font-size: .8rem; } .matters-wheel-center { font-size: 1.1rem; } }
 
 button.matters-wheel-center { padding: 0; cursor: pointer; pointer-events: auto; }
