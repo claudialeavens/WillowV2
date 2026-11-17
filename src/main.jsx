@@ -744,7 +744,7 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, auth, onSignIn }) => {
       <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
       <div className="matters-wheel" role="group" aria-label="Explore what matters to you">
         <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">
-          {[0, 72, 144, 216, 288].map((angle, index) => <path key={angle} className={`matters-petal matters-petal-${index}`} transform={`rotate(${angle} 250 250)`} d="M250 250 L139 99 Q116 70 146 45 Q250 -17 354 45 Q384 70 361 99 Z" />)}
+          {[0, 60, 120, 180, 240, 300].map((angle, index) => <path key={angle} className={`matters-petal matters-petal-${index}`} transform={`rotate(${angle} 250 250)`} d="M250 250 L155 94 Q126 50 172 25 Q250 -8 328 25 Q374 50 345 94 Z" />)}
         </svg>
         {[
           { choice: 'Feeling connected', Icon: Users },
@@ -752,18 +752,14 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, auth, onSignIn }) => {
           { choice: 'Joy & enjoyment', Icon: Sun },
           { choice: 'Peace of mind', Icon: Leaf },
           { choice: 'Meaning & purpose', Icon: Heart },
+          { choice: 'Managing everyday life', Icon: ListChecks },
         ].map(({ choice, Icon }, index) => (
-          <button className="matters-petal-button" style={{ '--petal-angle': `${index * 72}deg`, '--label-angle': `${-index * 72}deg` }} key={choice} type="button" onClick={() => onSelect(choice)}>
+          <button className="matters-petal-button" style={{ '--petal-angle': `${index * 60}deg`, '--label-angle': `${-index * 60}deg` }} key={choice} type="button" onClick={() => choice === 'Managing everyday life' ? onManagingLife() : onSelect(choice)}>
             <span className="matters-petal-label"><Icon aria-hidden="true" /><span>{choice}</span></span>
           </button>
         ))}
         <button type="button" className="matters-wheel-center" aria-haspopup="dialog" onClick={() => wholeSelfDialog.current?.showModal()}><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></button>
       </div>
-      <button type="button" className="managing-life-button" onClick={onManagingLife}>
-        <ListChecks aria-hidden="true" />
-        <span><strong>Managing life</strong><span>— taking care of what needs to get done.</span></span>
-        <ChevronRight aria-hidden="true" />
-      </button>
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
     <dialog ref={wholeSelfDialog} className="whole-self-dialog" aria-labelledby="whole-self-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>

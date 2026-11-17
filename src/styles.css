@@ -2555,11 +2555,13 @@ button {
 .matters-petal-2 { fill: #ffedba; }
 .matters-petal-3 { fill: #e9dfe5; }
 .matters-petal-4 { fill: #f5dfcf; }
+.matters-petal-5 { fill: #cde7ef; }
+.matters-petal-button:nth-of-type(6) svg { color: #36758a; }
 .matters-petal-button:nth-of-type(2) svg { color: #536a32; }
 .matters-petal-button:nth-of-type(3) svg { color: #a77724; }
 .matters-petal-button:nth-of-type(4) svg { color: #755875; }
 .matters-petal-button:nth-of-type(5) svg { color: #925a2d; }
-.matters-petal-button { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: #263d2b; cursor: pointer; transform: rotate(var(--petal-angle)); clip-path: polygon(50% 50%, 25% 20%, 23% 10%, 30% 2%, 50% 0, 70% 2%, 77% 10%, 75% 20%); }
+.matters-petal-button { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; color: #263d2b; cursor: pointer; transform: rotate(var(--petal-angle)); clip-path: polygon(50% 50%, 31% 19%, 25% 10%, 34% 2%, 50% 0, 66% 2%, 75% 10%, 69% 19%); }
 .matters-petal-label { position: absolute; top: 9%; left: 34%; width: 32%; height: 24%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .35rem; transform: rotate(var(--label-angle)); font-size: clamp(.85rem, 2.7vw, 1.25rem); font-weight: 500; line-height: 1.15; }
 .matters-petal-label > span { max-width: 8ch; }
 .matters-petal-label svg { width: clamp(1.5rem, 5vw, 2.5rem); height: clamp(1.5rem, 5vw, 2.5rem); stroke-width: 1.4; flex-shrink: 0; }
@@ -2572,13 +2574,6 @@ button {
 .matters-unsure svg { width: 1.2rem; height: 1.2rem; }
 .matters-unsure:hover { background: #e7edda; }
 .matters-unsure:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
-.managing-life-button { display: flex; align-items: center; gap: 1rem; width: 100%; padding: 1.25rem; border: 0; border-radius: 1.25rem; background: #e9ece3; color: #304b36; font: inherit; text-align: left; cursor: pointer; }
-.managing-life-button > svg { width: 1.5rem; height: 1.5rem; flex-shrink: 0; color: #536c56; }
-.managing-life-button > span { flex: 1; min-width: 0; }
-.managing-life-button strong { display: block; margin-bottom: .35rem; font-size: 1.1rem; }
-.managing-life-button > span > span { display: block; color: #607565; line-height: 1.5; }
-.managing-life-button:hover { background: #dfe6d7; }
-.managing-life-button:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
 @media (max-width: 380px) { .matters-page .matters-content { width: calc(100% - 1rem); } .matters-petal-label { font-size: .8rem; } .matters-wheel-center { font-size: 1.1rem; } }
 
 button.matters-wheel-center { padding: 0; cursor: pointer; pointer-events: auto; }
