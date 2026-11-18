@@ -4,10 +4,12 @@ import { getArchive, getLocalArchive } from './conversationStore';
 import { archiveRecommendations, classifyPetal, PETAL_NAMES } from './petalRecommendations';
 import { useTrackingRecord } from './useTrackingRecord';
 import { habitGoals } from './habitGoals';
+import { reviewArchivePetals } from './archivePetalReview';
 
 const ICONS = [Users, Sprout, Sun, Leaf, Heart, ListChecks];
 export const MyPetals = ({ userId, flower, onContinue }) => {
   const [archive, setArchive] = useState(() => ({ records: getLocalArchive(userId), loading: true, synced: false }));
+  const [review, setReview] = useState({ items: null, state: 'loading', progress: '' });
   const [editing, setEditing] = useState(false);
   const [selected, setSelected] = useState(null);
   const dialog = useRef(null);
@@ -20,6 +22,17 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
     void getArchive(userId).then(result => { if (active) setArchive({ ...result, loading: false }); }).catch(() => { if (active) setArchive(current => ({ ...current, loading: false })); });
     return () => { active = false; };
   }, [userId]);
+  useEffect(() => {
+    if (archive.loading) return undefined;
+    const controller = new AbortController();
+    setReview({ items: null, state: 'loading', progress: '' });
+    void reviewArchivePetals(archive.records, userId, {
+      signal: controller.signal,
+      onProgress: (done, total) => { if (!controller.signal.aborted) setReview(current => ({ ...current, progress: `${done} of ${total} conversations reviewed` })); },
+    }).then(result => { if (!controller.signal.aborted) setReview({ items: result.items, state: result.complete ? 'complete' : 'partial', progress: '' }); })
+      .catch(() => { if (!controller.signal.aborted) setReview({ items: null, state: 'partial', progress: '' }); });
+    return () => controller.abort();
+  }, [archive.records, archive.loading, userId]);
   useEffect(() => { if (selected) dialog.current?.showModal(); }, [selected]);
   const savedItems = [
     ...(direction?.text ? [{ id: `direction:${direction.text}`, text: direction.text, petal: classifyPetal(direction.text, direction.reason), sourceTitle: 'Your saved direction', role: 'saved' }] : []),
@@ -27,23 +40,24 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
     ...(habit ? habitGoals(habit) : []).map(goal => ({ id: `habit:${goal.id}:${goal.title}`, text: goal.title, petal: classifyPetal(goal.title), sourceTitle: 'Your saved habit goal', role: 'saved' })),
   ];
   const archiveItems = useMemo(() => archiveRecommendations(archive.records, userId), [archive.records, userId]);
-  const recommendations = [...savedItems, ...archiveItems];
+  const recommendations = review.items ?? archiveItems;
   const dismissed = preferences?.dismissed ?? [];
   const visible = recommendations.filter(item => !dismissed.includes(item.id));
   return <>
-    <p className="my-petals-status" role="status">{archive.loading ? 'Looking through your saved conversations…' : `${visible.length} recommendations from your saved focus, preferences and conversations.`}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>
+    <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : `${visible.length} action items from your archived conversations.`}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>
     <div className="my-petals-garden">
       <div className="my-petals-flower">{flower}</div>
       {PETAL_NAMES.map((petal, index) => {
         const Icon = ICONS[index];
         const items = visible.filter(item => item.petal === petal);
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
-          <h2 id={`petal-recommendations-${index}`}><Icon aria-hidden="true" />{petal}</h2>
-          {items.length ? <ul>{items.map(item => <li key={item.id}><button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>{editing && <button type="button" className="petal-hide" aria-label={`Hide recommendation: ${item.text}`} onClick={() => savePreferences(current => ({ dismissed: [...(current?.dismissed ?? []), item.id] }))}><X aria-hidden="true" /></button>}</li>)}</ul> : <p>No saved recommendations here yet.</p>}
+          <h2 className="sr-only" id={`petal-recommendations-${index}`}><Icon aria-hidden="true" />{petal}</h2>
+          <ul>{items.map(item => <li key={item.id}><button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>{editing && <button type="button" className="petal-hide" aria-label={`Hide recommendation: ${item.text}`} onClick={() => savePreferences(current => ({ dismissed: [...(current?.dismissed ?? []), item.id] }))}><X aria-hidden="true" /></button>}</li>)}</ul>
         </section>;
       })}
     </div>
-    <div className="my-petals-edit"><button type="button" aria-pressed={editing} disabled={editsLoading} onClick={() => setEditing(!editing)}>{editing ? 'Done editing' : 'Edit recommendations'}</button>{editing && dismissed.length > 0 && <button type="button" onClick={() => savePreferences({ dismissed: [] })}>Restore hidden recommendations</button>}{editing && <p role="status">{editStatus}</p>}</div>
+    <div className="my-petals-edit"><button type="button" aria-pressed={editing} disabled={editsLoading} onClick={() => setEditing(!editing)}>{editing ? 'Done editing' : 'Edit action items'}</button>{editing && dismissed.length > 0 && <button type="button" onClick={() => savePreferences({ dismissed: [] })}>Restore hidden action items</button>}{editing && <p role="status">{editStatus}</p>}</div>
+    {savedItems.length > 0 && <details className="petal-saved-focus"><summary>Your saved focus &amp; preferences</summary>{savedItems.map(item => <button type="button" key={item.id} onClick={() => setSelected(item)}><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>)}</details>}
     <dialog ref={dialog} className="whole-self-dialog petal-source-dialog" aria-labelledby="petal-source-heading" onClose={() => setSelected(null)} onClick={event => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       {selected && <div className="whole-self-dialog-content"><button type="button" className="whole-self-close" aria-label="Close recommendation" onClick={() => dialog.current?.close()} autoFocus><X aria-hidden="true" /></button><h2 id="petal-source-heading">{selected.petal}</h2><p>{selected.text}</p><p className="petal-source-label">{selected.role === 'assistant' ? 'Suggested by Willow' : selected.role === 'user' ? 'From your words' : selected.role === 'takeaway' ? 'From a conversation takeaway' : 'Saved by you'} · {selected.sourceTitle}</p>{selected.record && <details className="petal-source-conversation"><summary>Review source conversation</summary>{selected.record.summary?.takeaway && <p>{selected.record.summary.takeaway}</p>}{selected.record.messages?.filter(message => ['user', 'assistant'].includes(message.role)).map((message, index) => <div key={index}><strong>{message.role === 'user' ? 'You' : 'Willow'}</strong><p>{message.content}</p></div>)}</details>}<button type="button" className="tracking-continue" onClick={() => { dialog.current?.close(); onContinue(selected); }}>Work on this with Willow <ChevronRight aria-hidden="true" /></button></div>}
     </dialog>
