@@ -4,7 +4,7 @@ import { getArchive } from './conversationStore';
 import { reviewArchivePetals } from './archivePetalReview';
 import { useTrackingRecord } from './useTrackingRecord';
 import { nextPetalAction, inspirePetalAction } from './petalInspiration';
-import { customPetalActions } from './customPetalActions';
+import { customPetalActions, applyPetalEdits } from './customPetalActions';
 import { streamWillowMessage } from './openAIService';
 import { PetalBotanical } from './PetalBotanical';
 import { botanicalDesign, reserveBotanicalSeed } from './petalBotanicalDesign';
@@ -29,7 +29,7 @@ export const AccountPetalInspiration = ({ userId }) => {
   useEffect(() => {
     if (!items || loading || chosen.current) return;
     chosen.current = true;
-    const visible = [...items, ...customPetalActions(preferences)].filter(item => !(preferences?.dismissed ?? []).includes(item.id));
+    const visible = applyPetalEdits([...items, ...customPetalActions(preferences)], preferences).filter(item => !(preferences?.dismissed ?? []).includes(item.id));
     const key = `willow-menu-petal-rotation-v1:${userId}`;
     let previousId = null;
     try { previousId = sessionStorage.getItem(key); } catch { /* Rotation still starts with the first item. */ }

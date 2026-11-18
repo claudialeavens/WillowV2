@@ -249,3 +249,14 @@ test('custom petal items save across devices and remain intact when items are hi
   await second.finishSaves();
   assert.deepEqual(user.metadata.willow_tracking_petalRecommendations.custom, custom);
 });
+
+test('action-item text edits restore on another device', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }).update({ dismissed: [], edits: { 'archive:one': 'Reply to important emails' } });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  assert.equal(second.render('petalRecommendations', 'user-a', { dismissed: [] }).value.edits['archive:one'], 'Reply to important emails');
+});

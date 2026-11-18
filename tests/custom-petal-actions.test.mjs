@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addCustomPetalAction, customPetalActions } from '../src/customPetalActions.js';
+import { addCustomPetalAction, customPetalActions, editPetalAction, applyPetalEdits } from '../src/customPetalActions.js';
 test('adds a custom item to its chosen petal while preserving existing items and hidden IDs',()=>{
  const before={dismissed:['archive:one'],custom:[{id:'existing',petal:'Feeling connected',text:'Call Mum'}]};
  const after=addCustomPetalAction(before,'Meaning & purpose','  Reflect on my priorities  ','custom:two');
@@ -16,4 +16,23 @@ test('rejects empty or oversized text and invalid petals',()=>{
  assert.equal(addCustomPetalAction(before,'Peace of mind','a'.repeat(501),'one'),before);
  assert.equal(addCustomPetalAction(before,'unknown','Read a book','one'),before);
  assert.deepEqual(customPetalActions(before),[]);
+});
+
+test('edits archived and custom text without changing the original source or hidden state',()=>{
+ const original={id:'archive:one',text:'Reply to emails.',petal:'Managing everyday life',record:{title:'Original conversation'}};
+ const before={dismissed:['hidden'],custom:[{id:'custom:one',petal:'Feeling connected',text:'Call Mum'}]};
+ const after=editPetalAction(before,original.id,'  Reply to important emails  ');
+ const edited=applyPetalEdits([original],after)[0];
+ assert.equal(edited.text,'Reply to important emails');
+ assert.equal(edited.originalText,'Reply to emails.');
+ assert.equal(original.text,'Reply to emails.');
+ assert.equal(edited.record,original.record);
+ assert.deepEqual(after.dismissed,before.dismissed);
+ assert.deepEqual(after.custom,before.custom);
+ assert.equal(applyPetalEdits(customPetalActions(editPetalAction(after,'custom:one','Call Mum on Sunday')),editPetalAction(after,'custom:one','Call Mum on Sunday'))[0].text,'Call Mum on Sunday');
+});
+test('rejects blank and oversized edits',()=>{
+ const before={dismissed:[]};
+ assert.equal(editPetalAction(before,'one','   '),before);
+ assert.equal(editPetalAction(before,'one','a'.repeat(501)),before);
 });
