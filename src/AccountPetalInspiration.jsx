@@ -67,7 +67,7 @@ export const AccountPetalInspiration = ({ userId }) => {
   const design = botanicalDesign(selected?.petal, artSeed ?? 'loading');
   const Icon = ICONS[selected?.petal] ?? Sprout;
   return <details className="account-card account-nourishing account-petal-inspiration" style={{ '--petal-card-hue': design.hue }}>
-    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">My petal – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><ChevronRight className="account-card-chevron" aria-hidden="true" /></summary>
+    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><ChevronRight className="account-card-chevron" aria-hidden="true" /></summary>
     <div className="account-card-body">{selected ? <><p>{selected.petal}</p><p>{selected.text}</p></> : <p>{items === null || loading ? 'Loading your petal action items…' : 'Action items from your archived conversations will appear here when you have some saved.'}</p>}</div>
   </details>;
 };
