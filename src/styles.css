@@ -2547,10 +2547,25 @@ button {
   .account-card-date { font-size: .7rem; }
 }
 
-/* Five connected petals, with a quiet center for the whole self. */
+/* Six connected petals, with a quiet center for the whole self. */
 .matters-page .matters-content { width: min(42rem, calc(100% - 2rem)); padding-top: 5rem; padding-bottom: 4rem; align-items: center; }
 .matters-page .matters-content h1 { font-size: clamp(1.4rem, 5.5vw, 3.3rem); white-space: nowrap; }
 .matters-page .matters-question { margin: .75rem 0 .4rem; }
+.petal-view-toggle { display: flex; width: min(100%, 30rem); padding: .25rem; margin: .65rem 0 1rem; border: 1px solid #fffdf5; border-radius: 999px; background: #faf6ec; box-shadow: 0 4px 12px #635e3424; }
+.petal-view-toggle button { display: flex; flex: 1; align-items: center; justify-content: center; gap: .6rem; min-height: 2.6rem; padding: .5rem .75rem; border: 0; border-radius: 999px; background: transparent; color: #304b36; font: inherit; font-weight: 500; cursor: pointer; }
+.petal-view-toggle button[aria-pressed="true"] { background: #74845b; color: #fffdf5; }
+.petal-view-toggle button:hover { box-shadow: inset 0 0 0 1px #74845b; }
+.petal-view-toggle button:focus-visible { outline: 2px solid #40583f; outline-offset: 3px; }
+.petal-view-toggle svg { width: 1.4rem; height: 1.4rem; flex-shrink: 0; stroke-width: 1.6; }
+.my-petals-summary { width: min(100%, 30rem); margin-bottom: 1rem; }
+.my-petals-summary p { margin: 0; font-size: .95rem; line-height: 1.5; color: #536c4d; }
+.my-petals-summary button { display: flex; align-items: center; gap: .75rem; width: 100%; padding: 1rem; border: 1px solid #d4ddc8; border-radius: 1rem; background: #f7f6e9; color: #304b36; font: inherit; text-align: left; cursor: pointer; }
+.my-petals-summary button > span { flex: 1; }
+.my-petals-summary strong, .my-petals-summary small { display: block; }
+.my-petals-summary small { margin-top: .3rem; font-size: .95rem; line-height: 1.4; }
+.my-petals-summary svg { width: 1.4rem; height: 1.4rem; flex-shrink: 0; }
+.my-petals-summary button:hover { background: #e9efdf; }
+.my-petals-summary button:focus-visible { outline: 2px solid #40583f; outline-offset: 3px; }
 .matters-wheel { position: relative; width: min(100%, 34rem); aspect-ratio: 1; margin: 0 auto 1.25rem; filter: drop-shadow(0 10px 12px #635e3424); }
 .matters-petals { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .matters-petal { fill: #faecd7; stroke: #fffdf4; stroke-width: 2.5; }
