@@ -49,6 +49,7 @@ import { setVoicePreviewActive } from './voicePreviewState';
 import { BreakSupport } from './BreakSupport';
 import { getLatestConversation, recordActivity } from './conversationStore';
 import { Archive } from './Archive';
+import { MyPetals } from './MyPetals';
 import './styles.css';
 
 const AuthModal = lazy(() =>
@@ -735,25 +736,11 @@ const GroundingPage = ({ onHome, onSelect, auth, onSignIn }) => (
   </main>
 );
 
-const MattersPage = ({ onHome, onSelect, onManagingLife, auth, onSignIn }) => {
+const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth, onSignIn }) => {
   const wholeSelfDialog = useRef(null);
   const [petalView, setPetalView] = useState('mine');
-  const { value: savedPetal, loading: petalsLoading } = useTrackingRecord('discoveryPreference', auth.user?.id, null, `willow-discovery-preference:${auth.user?.id ?? 'guest'}`);
-  return (
-  <main className="page matters-page">
-    <AccountButton auth={auth} onSignIn={onSignIn} />
-    <HomeButton onHome={onHome} />
-    <section className="matters-content" aria-labelledby="matters-heading">
-      <h1 id="matters-heading">Move towards what matters</h1>
-      <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
-      <div className="petal-view-toggle" role="group" aria-label="Petal view">
-        <button type="button" aria-pressed={petalView === 'mine'} onClick={() => setPetalView('mine')}><User aria-hidden="true" />My petals</button>
-        <button type="button" aria-pressed={petalView === 'explore'} onClick={() => setPetalView('explore')}><Leaf aria-hidden="true" />Explore petals</button>
-      </div>
-      {petalView === 'mine' && <div className="my-petals-summary" aria-live="polite">
-        {petalsLoading ? <p role="status">Loading your petals…</p> : savedPetal?.text && savedPetal?.reason ? <button type="button" onClick={() => onSelect(savedPetal.reason)}><Sprout aria-hidden="true" /><span><strong>{savedPetal.reason}</strong><small>{savedPetal.text}</small></span><ChevronRight aria-hidden="true" /></button> : <p>Choose a petal to begin. You can save a direction as you explore.</p>}
-      </div>}
-      <div className="matters-wheel" role="group" aria-label="Explore what matters to you">
+  const flower = (
+    <div className="matters-wheel" role="group" aria-label="Explore what matters to you">
         <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">
           {[0, 60, 120, 180, 240, 300].map((angle, index) => <path key={angle} className={`matters-petal matters-petal-${index}`} transform={`rotate(${angle} 250 250)`} d="M250 250 L155 94 Q126 50 172 25 Q250 -8 328 25 Q374 50 345 94 Z" />)}
         </svg>
@@ -771,6 +758,19 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, auth, onSignIn }) => {
         ))}
         <button type="button" className="matters-wheel-center" aria-haspopup="dialog" onClick={() => wholeSelfDialog.current?.showModal()}><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></button>
       </div>
+  );
+  return (
+  <main className={`page matters-page ${petalView === 'mine' ? 'my-petals-page' : ''}`}>
+    <AccountButton auth={auth} onSignIn={onSignIn} />
+    <HomeButton onHome={onHome} />
+    <section className="matters-content" aria-labelledby="matters-heading">
+      <h1 id="matters-heading">Move towards what matters</h1>
+      <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
+      <div className="petal-view-toggle" role="group" aria-label="Petal view">
+        <button type="button" aria-pressed={petalView === 'mine'} onClick={() => setPetalView('mine')}><User aria-hidden="true" />My petals</button>
+        <button type="button" aria-pressed={petalView === 'explore'} onClick={() => setPetalView('explore')}><Leaf aria-hidden="true" />Explore petals</button>
+      </div>
+      {petalView === 'mine' ? <MyPetals key={auth.user?.id ?? 'guest'} userId={auth.user?.id} flower={flower} onContinue={onRecommendation} /> : flower}
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
     <dialog ref={wholeSelfDialog} className="whole-self-dialog" aria-labelledby="whole-self-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
@@ -1417,6 +1417,13 @@ const App = () => {
   } else if (step === 7) {
     page = (
       <MattersPage
+        onRecommendation={(item) => {
+          setActiveConversation(null);
+          setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, stage: 'orient' } });
+          setInitialThought(`I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
+          setConversationMode('core');
+          setStep(4);
+        }}
         onManagingLife={() => setStep(13)}
         onHome={goHome}
         onSelect={(choice) => {

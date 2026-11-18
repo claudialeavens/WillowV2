@@ -217,3 +217,17 @@ test('daily quote selection restores from the account with its original date and
   assert.equal(second.render('dailyQuote', 'user-a', null).value.quoteId, 'trust');
   assert.equal(second.render('dailyQuote', 'user-a', null).value.day, '2026-11-11');
 });
+
+test('hidden petal recommendations sync to another device and can be restored', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }).update({ dismissed: ['conversation:replytoemails'] });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  assert.equal(second.render('petalRecommendations', 'user-a', { dismissed: [] }).value.dismissed[0], 'conversation:replytoemails');
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }).update({ dismissed: [] });
+  await second.finishSaves();
+  assert.deepEqual(user.metadata.willow_tracking_petalRecommendations.dismissed, []);
+});

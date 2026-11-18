@@ -2557,15 +2557,6 @@ button {
 .petal-view-toggle button:hover { box-shadow: inset 0 0 0 1px #74845b; }
 .petal-view-toggle button:focus-visible { outline: 2px solid #40583f; outline-offset: 3px; }
 .petal-view-toggle svg { width: 1.4rem; height: 1.4rem; flex-shrink: 0; stroke-width: 1.6; }
-.my-petals-summary { width: min(100%, 30rem); margin-bottom: 1rem; }
-.my-petals-summary p { margin: 0; font-size: .95rem; line-height: 1.5; color: #536c4d; }
-.my-petals-summary button { display: flex; align-items: center; gap: .75rem; width: 100%; padding: 1rem; border: 1px solid #d4ddc8; border-radius: 1rem; background: #f7f6e9; color: #304b36; font: inherit; text-align: left; cursor: pointer; }
-.my-petals-summary button > span { flex: 1; }
-.my-petals-summary strong, .my-petals-summary small { display: block; }
-.my-petals-summary small { margin-top: .3rem; font-size: .95rem; line-height: 1.4; }
-.my-petals-summary svg { width: 1.4rem; height: 1.4rem; flex-shrink: 0; }
-.my-petals-summary button:hover { background: #e9efdf; }
-.my-petals-summary button:focus-visible { outline: 2px solid #40583f; outline-offset: 3px; }
 .matters-wheel { position: relative; width: min(100%, 34rem); aspect-ratio: 1; margin: 0 auto 1.25rem; filter: drop-shadow(0 10px 12px #635e3424); }
 .matters-petals { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
 .matters-petal { fill: #faecd7; stroke: #fffdf4; stroke-width: 2.5; }
@@ -2632,3 +2623,56 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .managing-life-options small { display: block; margin-top: .5rem; font-size: 1rem; line-height: 1.4; color: #626d60; }
 .managing-life-options button:hover { filter: brightness(.97); }
 .managing-life-options button:focus-visible { outline: 2px solid #536c4d; outline-offset: 4px; }
+
+.my-petals-page .matters-content { width: min(70rem, calc(100% - 2rem)); }
+.my-petals-status { max-width: 38rem; margin: 0 0 1rem; font-size: .85rem; line-height: 1.5; color: #536c4d; text-align: center; }
+.my-petals-garden { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 1.5fr) minmax(0, 1fr); grid-template-rows: auto minmax(9rem, auto) minmax(9rem, auto) auto; gap: 1rem; width: 100%; align-items: center; }
+.my-petals-flower { grid-area: 2 / 2 / 4 / 3; position: relative; }
+.my-petals-flower .matters-wheel { margin: 0; }
+.my-petals-flower .matters-petal-label { font-size: clamp(.8rem, 1.5vw, 1.15rem); }
+.my-petals-flower .matters-petal-label svg { width: 1.6rem; height: 1.6rem; }
+.my-petals-flower .matters-wheel-center { font-size: clamp(1rem, 2.1vw, 1.6rem); }
+.petal-recommendations { position: relative; border: 1px solid var(--petal-border); background: var(--petal-background); border-radius: 1.1rem; box-shadow: 0 5px 12px #635e341a; text-align: left; padding: .75rem; min-width: 0; }
+.petal-recommendations-0 { grid-area: 1 / 2; --petal-background: #fff5e6ed; --petal-border: #eac397; }
+.petal-recommendations-1 { grid-area: 2 / 3; --petal-background: #eef4e4ed; --petal-border: #b7ce97; }
+.petal-recommendations-2 { grid-area: 3 / 3; --petal-background: #fff7dced; --petal-border: #ecd17c; }
+.petal-recommendations-3 { grid-area: 4 / 2; --petal-background: #f0e8f2ed; --petal-border: #d1b9d8; }
+.petal-recommendations-4 { grid-area: 3 / 1; --petal-background: #fff0e2ed; --petal-border: #efbf99; }
+.petal-recommendations-5 { grid-area: 2 / 1; --petal-background: #e5f3f8ed; --petal-border: #9bcdda; }
+.petal-recommendations h2 { display: flex; align-items: center; gap: .4rem; margin: 0 0 .4rem; font: inherit; font-size: .9rem; font-weight: 600; color: #40583f; }
+.petal-recommendations h2 svg { flex-shrink: 0; width: 1.2rem; height: 1.2rem; }
+.petal-recommendations > p { margin: .5rem 0; font-size: .85rem; color: #657260; line-height: 1.5; }
+.petal-recommendations ul { list-style: none; padding: 0; margin: 0; max-height: 14rem; overflow-y: auto; }
+.petal-recommendations li { display: flex; border-top: 1px solid var(--petal-border); }
+.petal-recommendation { display: flex; align-items: center; gap: .3rem; width: 100%; min-width: 0; min-height: 2.75rem; padding: .6rem .1rem; border: 0; background: transparent; color: #304b36; font: inherit; font-size: .9rem; line-height: 1.4; text-align: left; cursor: pointer; }
+.petal-recommendation span { flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+.petal-recommendation svg, .petal-hide svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+.petal-recommendation:hover { color: #172e20; text-decoration: underline; }
+.petal-recommendation:focus-visible, .petal-hide:focus-visible, .my-petals-edit button:focus-visible { outline: 2px solid #536c4d; outline-offset: -2px; }
+.petal-hide { align-self: center; padding: .5rem; border: 0; background: transparent; color: #536c4d; cursor: pointer; }
+.my-petals-edit { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 1.5rem; }
+.my-petals-edit button { padding: .65rem 1rem; border: 1px solid #c4cfb2; border-radius: 999px; background: #f7f5e9; color: #40583f; cursor: pointer; font: inherit; }
+.petal-source-dialog .petal-source-label { margin-top: 1rem; font-size: .85rem; color: #657260; }
+.petal-source-conversation { margin: 1.5rem 0; line-height: 1.5; }
+.petal-source-conversation summary { cursor: pointer; }
+.petal-source-conversation > div { padding: 1rem 0; border-bottom: 1px solid #d9dfd0; }
+.petal-source-conversation p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.petal-source-dialog .tracking-continue { margin-top: 1.5rem; }
+@media (max-width: 760px) {
+  .my-petals-garden { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; gap: .75rem; }
+  .my-petals-flower { grid-area: 1 / 1 / 2 / 3; width: min(100%, 26rem); justify-self: center; }
+  .my-petals-flower .matters-petal-label { font-size: clamp(.85rem, 2.7vw, 1.1rem); }
+  .my-petals-flower .matters-wheel-center { font-size: clamp(1.1rem, 3.6vw, 1.6rem); }
+  .petal-recommendations { grid-area: auto; align-self: stretch; }
+  .petal-recommendations ul { max-height: 17rem; }
+}
+@media (min-width: 761px) {
+  .petal-recommendations-0::after, .petal-recommendations-3::before { content: ''; position: absolute; width: 1px; height: 1rem; background: var(--petal-border); left: 50%; }
+  .petal-recommendations-0::after { top: 100%; }
+  .petal-recommendations-3::before { bottom: 100%; }
+  .petal-recommendations-1::before, .petal-recommendations-2::before, .petal-recommendations-4::after, .petal-recommendations-5::after { content: ''; position: absolute; width: 1rem; height: 1px; background: var(--petal-border); top: 50%; }
+  .petal-recommendations-1::before, .petal-recommendations-2::before { right: 100%; }
+  .petal-recommendations-4::after, .petal-recommendations-5::after { left: 100%; }
+}
+
+.my-petals-edit > p { width: 100%; margin: 0; text-align: center; color: #536c4d; font-size: .85rem; line-height: 1.5; }
