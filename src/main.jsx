@@ -588,7 +588,7 @@ const IntroPage = ({
               <a className="intro-meaning-card" href="#take-a-step" onClick={(event) => { event.preventDefault(); onTakeStep(); }}>
                 <span className="intro-action-icon"><Sparkles aria-hidden="true" /></span>
                 <strong>Surprise me<br />with meaning</strong>
-                <small>A fresh perspective</small>
+                <small>Nourish what matters</small>
               </a>
             </section>
           </nav>
