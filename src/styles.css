@@ -2629,6 +2629,9 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 
 .my-petals-page .matters-content { width: min(70rem, calc(100% - 2rem)); }
 .my-petals-status { max-width: 38rem; margin: 0 0 1rem; font-size: .85rem; line-height: 1.5; color: #536c4d; text-align: center; }
+.my-petals-page .matters-content > h1 { order: -3; }
+.my-petals-page .matters-question { order: -2; }
+.my-petals-page .my-petals-status { order: -1; margin: .25rem 0 .5rem; }
 .my-petals-garden { display: grid; grid-template-columns: minmax(0, 1fr) minmax(16rem, 1.5fr) minmax(0, 1fr); grid-template-rows: auto minmax(9rem, auto) minmax(9rem, auto) auto; gap: 1rem; width: 100%; align-items: center; }
 .my-petals-flower { grid-area: 2 / 2 / 4 / 3; position: relative; }
 .my-petals-flower .matters-wheel { margin: 0; }
