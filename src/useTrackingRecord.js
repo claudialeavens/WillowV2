@@ -17,7 +17,7 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
     : kind === 'reminders'
       ? Array.isArray(value) && value.every((item) => typeof item?.id === 'string' && typeof item?.title === 'string' && typeof item?.message === 'string')
       : kind === 'petalRecommendations'
-        ? Array.isArray(value?.dismissed) && value.dismissed.every(id => typeof id === 'string')
+        ? Array.isArray(value?.dismissed) && value.dismissed.every(id => typeof id === 'string') && (value.custom === undefined || (Array.isArray(value.custom) && value.custom.every(item => typeof item?.id === 'string' && typeof item?.text === 'string' && typeof item?.petal === 'string')))
       : kind === 'dailyQuote'
         ? value === null || (typeof value?.day === 'string' && typeof value?.quoteId === 'string' && typeof value?.theme === 'string')
         : value === null || (typeof value?.text === 'string' && typeof value?.reason === 'string');

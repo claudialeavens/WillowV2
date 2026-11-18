@@ -231,3 +231,21 @@ test('hidden petal recommendations sync to another device and can be restored', 
   await second.finishSaves();
   assert.deepEqual(user.metadata.willow_tracking_petalRecommendations.dismissed, []);
 });
+
+test('custom petal items save across devices and remain intact when items are hidden or restored', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  const custom = [{ id: 'custom:one', petal: 'Meaning & purpose', text: 'Reflect on my priorities' }];
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }).update({ dismissed: [], custom });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  assert.equal(second.render('petalRecommendations', 'user-a', { dismissed: [] }).value.custom[0].text, 'Reflect on my priorities');
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }).update(current => ({ ...current, dismissed: ['custom:one'] }));
+  await second.finishSaves();
+  assert.deepEqual(user.metadata.willow_tracking_petalRecommendations.custom, custom);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }).update(current => ({ ...current, dismissed: [] }));
+  await second.finishSaves();
+  assert.deepEqual(user.metadata.willow_tracking_petalRecommendations.custom, custom);
+});

@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Users, Sprout, Sun, Leaf, Heart, ListChecks, ChevronRight, X, SquarePen, Check } from 'lucide-react';
-import { getArchive, getLocalArchive } from './conversationStore';
+import { Users, Sprout, Sun, Leaf, Heart, ListChecks, ChevronRight, X, SquarePen, Check, Plus } from 'lucide-react';
+import { getArchive, getLocalArchive, createConversationId } from './conversationStore';
 import { archiveRecommendations, PETAL_NAMES } from './petalRecommendations';
 import { useTrackingRecord } from './useTrackingRecord';
 import { reviewArchivePetals } from './archivePetalReview';
+import { addCustomPetalAction, customPetalActions } from './customPetalActions';
 
 const ICONS = [Users, Sprout, Sun, Leaf, Heart, ListChecks];
 export const MyPetals = ({ userId, flower, onContinue }) => {
   const [archive, setArchive] = useState(() => ({ records: getLocalArchive(userId), loading: true, synced: false }));
   const [review, setReview] = useState({ items: null, state: 'loading', progress: '' });
   const [editing, setEditing] = useState(null);
+  const [draft, setDraft] = useState(null);
   const [selected, setSelected] = useState(null);
   const dialog = useRef(null);
   const { value: preferences, update: savePreferences, status: editStatus, loading: editsLoading } = useTrackingRecord('petalRecommendations', userId, { dismissed: [] }, `willow-petal-recommendations:${userId ?? 'guest'}`);
@@ -31,11 +33,11 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
   }, [archive.records, archive.loading, userId]);
   useEffect(() => { if (selected) dialog.current?.showModal(); }, [selected]);
   const archiveItems = useMemo(() => archiveRecommendations(archive.records, userId), [archive.records, userId]);
-  const recommendations = review.items ?? archiveItems;
+  const recommendations = [...(review.items ?? archiveItems), ...customPetalActions(preferences)];
   const dismissed = preferences?.dismissed ?? [];
   const visible = recommendations.filter(item => !dismissed.includes(item.id));
   return <>
-    <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : `${visible.length} action items from your archived conversations.`}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>
+    <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : `${visible.length} action items${preferences?.custom?.length ? ' from your conversations and custom additions' : ' from your archived conversations'}.`}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>
     <div className="my-petals-garden">
       <div className="my-petals-flower">{flower}</div>
       {PETAL_NAMES.map((petal, index) => {
@@ -43,11 +45,21 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
         const items = visible.filter(item => item.petal === petal);
         const isEditing = editing === petal;
         const hiddenIds = recommendations.filter(item => item.petal === petal && dismissed.includes(item.id)).map(item => item.id);
-        if (items.length === 0 && !isEditing) return null;
+        const adding = draft?.petal === petal;
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
-          <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><button type="button" className="petal-edit-button" aria-label={`${isEditing ? 'Done editing' : 'Edit action items for'} ${petal}`} title={isEditing ? 'Done editing' : 'Edit action items'} aria-pressed={isEditing} disabled={editsLoading} onClick={() => setEditing(isEditing ? null : petal)}>{isEditing ? <Check aria-hidden="true" /> : <SquarePen aria-hidden="true" />}</button></div>
-          <ul>{items.map(item => <li key={item.id}><button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>{isEditing && <button type="button" className="petal-hide" aria-label={`Hide recommendation: ${item.text}`} onClick={() => savePreferences(current => ({ dismissed: [...(current?.dismissed ?? []), item.id] }))}><X aria-hidden="true" /></button>}</li>)}</ul>
-          {isEditing && <div className="petal-box-edit-status">{hiddenIds.length > 0 && <button type="button" onClick={() => savePreferences(current => ({ dismissed: (current?.dismissed ?? []).filter(id => !hiddenIds.includes(id)) }))}>Restore hidden items</button>}<p role="status">{editStatus}</p></div>}
+          <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls">{isEditing && items.length > 0 && <button type="button" className="petal-edit-button" aria-label={`Add action item to ${petal}`} title="Add action item" disabled={editsLoading} onClick={() => setDraft({ petal, text: '' })}><Plus aria-hidden="true" /></button>}{(items.length > 0 || isEditing) && <button type="button" className="petal-edit-button" aria-label={`${isEditing ? 'Done editing' : 'Edit action items for'} ${petal}`} title={isEditing ? 'Done editing' : 'Edit action items'} aria-pressed={isEditing} disabled={editsLoading} onClick={() => { setEditing(isEditing ? null : petal); setDraft(null); }}>{isEditing ? <Check aria-hidden="true" /> : <SquarePen aria-hidden="true" />}</button>}</span></div>
+          <ul>{items.map(item => <li key={item.id}><button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>{isEditing && <button type="button" className="petal-hide" aria-label={`Hide recommendation: ${item.text}`} onClick={() => savePreferences(current => ({ ...current, dismissed: [...(current?.dismissed ?? []), item.id] }))}><X aria-hidden="true" /></button>}</li>)}</ul>
+          {adding ? <form className="petal-add-form" onSubmit={event => {
+            event.preventDefault();
+            if (!draft.text.trim()) return;
+            const id = `custom:${createConversationId()}`;
+            savePreferences(current => addCustomPetalAction(current, petal, draft.text, id));
+            setDraft(null);
+          }}>
+            <label>New action item<textarea aria-label={`New action item for ${petal}`} value={draft.text} onChange={event => setDraft({ petal, text: event.target.value })} maxLength={500} required autoFocus /></label>
+            <div><button type="submit" disabled={!draft.text.trim() || editsLoading}>Add</button><button type="button" onClick={() => setDraft(null)}>Cancel</button></div>
+          </form> : items.length === 0 && <button type="button" className="petal-add-empty" disabled={editsLoading} onClick={() => { setEditing(petal); setDraft({ petal, text: '' }); }}><Plus aria-hidden="true" />Add action item</button>}
+          {isEditing && <div className="petal-box-edit-status">{hiddenIds.length > 0 && <button type="button" onClick={() => savePreferences(current => ({ ...current, dismissed: (current?.dismissed ?? []).filter(id => !hiddenIds.includes(id)) }))}>Restore hidden items</button>}<p role="status">{editStatus}</p></div>}
         </section>;
       })}
     </div>

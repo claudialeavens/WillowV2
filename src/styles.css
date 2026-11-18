@@ -2715,3 +2715,16 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .account-petal-inspiration .account-card-icon { flex-basis: 2.5rem; height: 3rem; }
   .account-petal-inspiration .petal-card-badge { font-size: .58rem; }
 }
+
+.petal-edit-controls { display: inline-flex; align-items: center; flex-shrink: 0; gap: .2rem; }
+.petal-add-empty { display: flex; align-items: center; gap: .4rem; width: 100%; margin-top: .5rem; padding: .55rem .25rem; border: 0; border-radius: .5rem; background: transparent; color: #40583f; font: inherit; font-size: .9rem; cursor: pointer; text-align: left; }
+.petal-add-empty svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+.petal-add-empty:hover { background: #ffffff88; }
+.petal-add-empty:focus-visible, .petal-add-form button:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+.petal-add-form { padding-top: .6rem; border-top: 1px solid var(--petal-border); }
+.petal-add-form label { display: block; font-size: .85rem; color: #40583f; }
+.petal-add-form textarea { display: block; width: 100%; min-height: 5rem; box-sizing: border-box; margin-top: .4rem; padding: .5rem; border: 1px solid var(--petal-border); border-radius: .5rem; background: #fffdf7; color: #304b36; font: inherit; resize: vertical; }
+.petal-add-form textarea:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+.petal-add-form > div { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .5rem; }
+.petal-add-form button { padding: .4rem .6rem; border: 1px solid var(--petal-border); border-radius: .5rem; background: #ffffff99; color: #40583f; font: inherit; font-size: .85rem; cursor: pointer; }
+.petal-add-form button:disabled, .petal-add-empty:disabled { opacity: .5; cursor: default; }
