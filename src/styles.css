@@ -2694,3 +2694,24 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-box-edit-status p { margin: .5rem 0 0; font-size: .75rem; line-height: 1.4; color: #536c4d; }
 
 .account-nourishing .account-card-preview { white-space: normal; text-overflow: clip; line-height: 1.45; }
+
+/* Message-led botanical invitation in the account menu. */
+.account-popover .account-petal-inspiration { border-color: hsl(var(--petal-card-hue) 35% 66%); background: radial-gradient(ellipse at right, hsl(var(--petal-card-hue) 46% 87% / .85), transparent 70%), hsl(var(--petal-card-hue) 46% 97%); box-shadow: 0 5px 15px #4b56351f; }
+.account-petal-inspiration::before { display: none; }
+.petal-card-botanical { position: absolute; z-index: -1; pointer-events: none; right: 0; top: 0; width: 44%; height: 100%; }
+.account-petal-inspiration .account-card-heading { position: relative; isolation: isolate; flex-wrap: nowrap; align-items: center; min-height: 6rem; gap: .75rem; }
+.account-petal-inspiration .account-card-icon { flex-basis: 3rem; height: 3.5rem; border-radius: 1.2rem; background: hsl(var(--petal-card-hue) 55% 95% / .92); color: hsl(var(--petal-card-hue) 33% 30%); box-shadow: 0 3px 12px #50603610; }
+.account-petal-inspiration .account-card-icon svg { width: 2rem; height: 2rem; }
+.account-petal-inspiration .account-card-copy { padding-left: .65rem; padding-right: 1rem; border: 0; }
+.account-petal-inspiration .petal-card-badge { display: inline-block; margin-bottom: .4rem; padding: .2rem .55rem; border-radius: 999px; background: hsl(var(--petal-card-hue) 35% 85% / .8); color: #34503a; font-size: .62rem; font-weight: 700; letter-spacing: .05em; line-height: 1.4; text-transform: uppercase; }
+.account-petal-inspiration .account-card-heading strong { font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.15rem, 4.5vw, 1.6rem); line-height: 1.12; overflow-wrap: anywhere; color: #2d482c; }
+.account-petal-inspiration .account-card-preview { margin-top: .35rem; padding: .1rem .2rem .1rem 0; background: #fffdf12b; color: #405b3c; font-size: .9rem; line-height: 1.4; }
+.account-petal-inspiration .account-card-chevron { color: #365535; filter: drop-shadow(0 0 3px #fff); }
+.account-petal-inspiration[open] > summary .account-card-chevron { transform: rotate(90deg); }
+.account-petal-inspiration .account-card-body { padding: .5rem; margin: .75rem 0 0; border-radius: .6rem; background: #fffdf3db; }
+@media (max-width: 420px) {
+  .account-petal-inspiration .account-card-heading { gap: .4rem; }
+  .account-petal-inspiration .account-card-copy { padding-left: .25rem; padding-right: .25rem; }
+  .account-petal-inspiration .account-card-icon { flex-basis: 2.5rem; height: 3rem; }
+  .account-petal-inspiration .petal-card-badge { font-size: .58rem; }
+}
