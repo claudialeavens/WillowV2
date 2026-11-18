@@ -738,7 +738,7 @@ const GroundingPage = ({ onHome, onSelect, auth, onSignIn }) => (
 
 const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth, onSignIn }) => {
   const wholeSelfDialog = useRef(null);
-  const [petalView, setPetalView] = useState('mine');
+  const [petalView, setPetalView] = useState('explore');
   const flower = (
     <div className={`matters-wheel${petalView === 'explore' ? ' matters-wheel-explore' : ''}`} role="group" aria-label="Explore what matters to you">
         <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">
@@ -767,8 +767,8 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth,
       <h1 id="matters-heading">Move towards what matters</h1>
       <p className="matters-question">Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</p>
       <div className="petal-view-toggle" role="group" aria-label="Petal view">
-        <button type="button" aria-pressed={petalView === 'mine'} onClick={() => setPetalView('mine')}><User aria-hidden="true" />My petals</button>
         <button type="button" aria-pressed={petalView === 'explore'} onClick={() => setPetalView('explore')}><Leaf aria-hidden="true" />Explore petals</button>
+        <button type="button" aria-pressed={petalView === 'mine'} onClick={() => setPetalView('mine')}><User aria-hidden="true" />My petals</button>
       </div>
       {petalView === 'mine' ? <MyPetals key={auth.user?.id ?? 'guest'} userId={auth.user?.id} flower={flower} onContinue={onRecommendation} /> : flower}
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
