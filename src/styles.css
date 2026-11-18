@@ -2651,10 +2651,8 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-recommendation span { flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .petal-recommendation svg, .petal-hide svg { width: 1rem; height: 1rem; flex-shrink: 0; }
 .petal-recommendation:hover { color: #172e20; text-decoration: underline; }
-.petal-recommendation:focus-visible, .petal-hide:focus-visible, .my-petals-edit button:focus-visible { outline: 2px solid #536c4d; outline-offset: -2px; }
+.petal-recommendation:focus-visible, .petal-hide:focus-visible, .petal-edit-button:focus-visible, .petal-box-edit-status button:focus-visible { outline: 2px solid #536c4d; outline-offset: -2px; }
 .petal-hide { align-self: center; padding: .5rem; border: 0; background: transparent; color: #536c4d; cursor: pointer; }
-.my-petals-edit { display: flex; flex-wrap: wrap; justify-content: center; gap: .75rem; margin-top: 1.5rem; }
-.my-petals-edit button { padding: .65rem 1rem; border: 1px solid #c4cfb2; border-radius: 999px; background: #f7f5e9; color: #40583f; cursor: pointer; font: inherit; }
 .petal-source-dialog .petal-source-label { margin-top: 1rem; font-size: .85rem; color: #657260; }
 .petal-source-conversation { margin: 1.5rem 0; line-height: 1.5; }
 .petal-source-conversation summary { cursor: pointer; }
@@ -2678,7 +2676,14 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .petal-recommendations-4::after, .petal-recommendations-5::after { left: 100%; }
 }
 
-.my-petals-edit > p { width: 100%; margin: 0; text-align: center; color: #536c4d; font-size: .85rem; line-height: 1.5; }
 
-.petal-recommendations:has(ul:empty) { min-height: 3rem; box-shadow: none; background: transparent; border-style: dashed; opacity: .45; }
+.petal-recommendations:has(ul:empty) { min-height: 3rem; box-shadow: none; background: transparent; border-style: dashed; }
 .petal-recommendation .petal-item-icon { width: 1.3rem; height: 1.3rem; margin-right: .3rem; flex-shrink: 0; }
+
+.petal-box-controls { display: flex; justify-content: flex-end; }
+.petal-edit-button { display: grid; place-items: center; width: 2rem; height: 2rem; padding: .35rem; border: 0; border-radius: .5rem; background: transparent; color: #40583f; cursor: pointer; }
+.petal-edit-button svg { width: 1.25rem; height: 1.25rem; }
+.petal-edit-button:hover, .petal-edit-button[aria-pressed="true"] { background: #ffffff99; }
+.petal-edit-button:disabled { opacity: .5; cursor: default; }
+.petal-box-edit-status button { margin-top: .5rem; padding: .4rem .5rem; border: 1px solid var(--petal-border); border-radius: .5rem; background: #ffffff88; color: #40583f; font: inherit; font-size: .8rem; cursor: pointer; }
+.petal-box-edit-status p { margin: .5rem 0 0; font-size: .75rem; line-height: 1.4; color: #536c4d; }
