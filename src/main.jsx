@@ -756,7 +756,7 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth,
     <HomeButton onHome={onHome} />
     <section className="matters-content" aria-labelledby="matters-heading">
       <h1 id="matters-heading">Move towards what matters</h1>
-      <p className="matters-question">{petalView === 'mine' ? 'Return to what resonated with you.' : <>Explore what feels right for you.<br />Follow your curiosity, wherever it leads you.</>}</p>
+      <p className="matters-question">{petalView === 'mine' ? 'Return to what resonated with you.' : <>Explore what feels right for you today.<br />Follow your curiosity, wherever it leads you.</>}</p>
       <div className="petal-view-toggle" role="group" aria-label="Petal view">
         <button type="button" aria-pressed={petalView === 'explore'} onClick={() => setPetalView('explore')}><Leaf aria-hidden="true" />Explore petals</button>
         <button type="button" aria-pressed={petalView === 'mine'} onClick={() => setPetalView('mine')}><User aria-hidden="true" />My petals</button>
