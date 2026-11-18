@@ -46,6 +46,10 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
         const isEditing = editing === petal;
         const hiddenIds = recommendations.filter(item => item.petal === petal && dismissed.includes(item.id)).map(item => item.id);
         const adding = draft?.petal === petal;
+        const cancelAdd = () => {
+          setDraft(null);
+          setEditing(null);
+        };
         const saveAction = () => {
           if (!adding || !draft.text.trim() || editsLoading) return;
           const id = `custom:${createConversationId()}`;
@@ -53,15 +57,15 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
           setDraft(null);
         };
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
-          <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls">{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => adding ? saveAction() : setDraft({ petal, text: '' })}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{!adding && (items.length > 0 || isEditing) && <button type="button" className="petal-edit-button" aria-label={`${isEditing ? 'Done editing' : 'Edit action items for'} ${petal}`} title={isEditing ? 'Done editing' : 'Edit action items'} aria-pressed={isEditing} disabled={editsLoading} onClick={() => { setEditing(isEditing ? null : petal); setDraft(null); }}>{isEditing ? <Check aria-hidden="true" /> : <SquarePen aria-hidden="true" />}</button>}</span></div>
+          <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls">{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => adding ? saveAction() : setDraft({ petal, text: '' })}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{adding && <button type="button" className="petal-edit-button" aria-label={`Cancel new action item for ${petal}`} title="Cancel action item" onClick={cancelAdd}><X aria-hidden="true" /></button>}{!adding && items.length > 0 && <button type="button" className="petal-edit-button" aria-label={`${isEditing ? 'Done editing' : 'Edit action items for'} ${petal}`} title={isEditing ? 'Done editing' : 'Edit action items'} aria-pressed={isEditing} disabled={editsLoading} onClick={() => { setEditing(isEditing ? null : petal); setDraft(null); }}>{isEditing ? <Check aria-hidden="true" /> : <SquarePen aria-hidden="true" />}</button>}</span></div>
           <ul>{items.map(item => <li key={item.id}><button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>{isEditing && <button type="button" className="petal-hide" aria-label={`Hide recommendation: ${item.text}`} onClick={() => savePreferences(current => ({ ...current, dismissed: [...(current?.dismissed ?? []), item.id] }))}><X aria-hidden="true" /></button>}</li>)}</ul>
           {adding ? <form className="petal-add-form" onSubmit={event => {
             event.preventDefault();
             saveAction();
           }}>
             <label>New action item<textarea aria-label={`New action item for ${petal}`} value={draft.text} onChange={event => setDraft({ petal, text: event.target.value })} maxLength={500} required autoFocus /></label>
-            <div><button type="submit" disabled={!draft.text.trim() || editsLoading}>Add</button><button type="button" onClick={() => setDraft(null)}>Cancel</button></div>
-          </form> : items.length === 0 && <button type="button" className="petal-add-empty" disabled={editsLoading} onClick={() => { setEditing(petal); setDraft({ petal, text: '' }); }}><Plus aria-hidden="true" />Add action item</button>}
+            <div><button type="submit" disabled={!draft.text.trim() || editsLoading}>Add</button><button type="button" onClick={cancelAdd}>Cancel</button></div>
+          </form> : items.length === 0 && <button type="button" className="petal-add-empty" disabled={editsLoading} onClick={() => setDraft({ petal, text: '' })}><Plus aria-hidden="true" />Add action item</button>}
           {isEditing && <div className="petal-box-edit-status">{hiddenIds.length > 0 && <button type="button" onClick={() => savePreferences(current => ({ ...current, dismissed: (current?.dismissed ?? []).filter(id => !hiddenIds.includes(id)) }))}>Restore hidden items</button>}<p role="status">{editStatus}</p></div>}
         </section>;
       })}
