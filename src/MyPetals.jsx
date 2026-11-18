@@ -43,6 +43,7 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
         const items = visible.filter(item => item.petal === petal);
         const isEditing = editing === petal;
         const hiddenIds = recommendations.filter(item => item.petal === petal && dismissed.includes(item.id)).map(item => item.id);
+        if (items.length === 0 && !isEditing) return null;
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
           <h2 className="sr-only" id={`petal-recommendations-${index}`}><Icon aria-hidden="true" />{petal}</h2>
           <div className="petal-box-controls"><button type="button" className="petal-edit-button" aria-label={`${isEditing ? 'Done editing' : 'Edit action items for'} ${petal}`} title={isEditing ? 'Done editing' : 'Edit action items'} aria-pressed={isEditing} disabled={editsLoading} onClick={() => setEditing(isEditing ? null : petal)}>{isEditing ? <Check aria-hidden="true" /> : <SquarePen aria-hidden="true" />}</button></div>
