@@ -2692,3 +2692,5 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-edit-button:disabled { opacity: .5; cursor: default; }
 .petal-box-edit-status button { margin-top: .5rem; padding: .4rem .5rem; border: 1px solid var(--petal-border); border-radius: .5rem; background: #ffffff88; color: #40583f; font: inherit; font-size: .8rem; cursor: pointer; }
 .petal-box-edit-status p { margin: .5rem 0 0; font-size: .75rem; line-height: 1.4; color: #536c4d; }
+
+.account-nourishing .account-card-preview { white-space: normal; text-overflow: clip; line-height: 1.45; }

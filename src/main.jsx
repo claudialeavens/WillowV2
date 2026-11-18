@@ -50,6 +50,7 @@ import { BreakSupport } from './BreakSupport';
 import { getLatestConversation, recordActivity } from './conversationStore';
 import { Archive } from './Archive';
 import { MyPetals } from './MyPetals';
+import { AccountPetalInspiration } from './AccountPetalInspiration';
 import './styles.css';
 
 const AuthModal = lazy(() =>
@@ -92,16 +93,6 @@ const AccountDailyCheckIn = ({ userId, onOpenWeek }) => {
     ) : <p>Add goals in Keep me on track to check in here.</p>}
     <button type="button" className="account-week-view" onClick={onOpenWeek}><CalendarCheck aria-hidden="true" /><span>View or edit week</span><ChevronRight aria-hidden="true" /></button>
     </div>
-  </details>;
-};
-
-const AccountNourishingIntention = ({ userId }) => {
-  const { value: intention, loading } = useTrackingRecord('wellbeing', userId, null, `willow-wellbeing-reminder:${userId}`);
-  if (loading || !intention?.text?.trim()) return null;
-
-  return <details className="account-card account-nourishing">
-    <summary className="account-card-heading"><span className="account-card-icon"><Sprout aria-hidden="true" /></span><span className="account-card-copy"><strong>Nourishing<br />What Matters</strong><span className="account-card-preview">{intention.text}</span></span><ChevronDown className="account-card-chevron" aria-hidden="true" /></summary>
-    <div className="account-card-body"><p>{intention.text}</p>{intention.reason && <p className="account-intention-reason">{intention.reason}</p>}</div>
   </details>;
 };
 
@@ -182,7 +173,7 @@ const AccountButton = ({ auth, onSignIn }) => {
       <summary aria-label="Open account menu"><User className="signed-in-person" aria-hidden="true" /></summary>
       <div className="account-popover">
         <p className="account-email">{auth.user.email}</p>
-        {checkInOpen && <AccountNourishingIntention key={`nourishing:${auth.user.id}`} userId={auth.user.id} />}
+        {checkInOpen && <AccountPetalInspiration key={`nourishing:${auth.user.id}`} userId={auth.user.id} />}
         {checkInOpen && <AccountDailyCheckIn key={auth.user.id} userId={auth.user.id} onOpenWeek={() => { if (menuRef.current) menuRef.current.open = false; openWeek(); }} />}
         {checkInOpen && <AccountReminders key={`reminders:${auth.user.id}`} userId={auth.user.id} />}
         <details className="account-card account-history-note" open>
