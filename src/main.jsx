@@ -740,7 +740,7 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth,
   const wholeSelfDialog = useRef(null);
   const [petalView, setPetalView] = useState('mine');
   const flower = (
-    <div className="matters-wheel" role="group" aria-label="Explore what matters to you">
+    <div className={`matters-wheel${petalView === 'explore' ? ' matters-wheel-explore' : ''}`} role="group" aria-label="Explore what matters to you">
         <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">
           {[0, 60, 120, 180, 240, 300].map((angle, index) => <path key={angle} className={`matters-petal matters-petal-${index}`} transform={`rotate(${angle} 250 250)`} d="M250 250 L155 94 Q126 50 172 25 Q250 -8 328 25 Q374 50 345 94 Z" />)}
         </svg>
@@ -753,7 +753,7 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth,
           { choice: 'Managing everyday life', Icon: ListChecks },
         ].map(({ choice, Icon }, index) => (
           <button className="matters-petal-button" style={{ '--petal-angle': `${index * 60}deg`, '--label-angle': `${-index * 60}deg` }} key={choice} type="button" onClick={() => choice === 'Managing everyday life' ? onManagingLife() : onSelect(choice)}>
-            <span className="matters-petal-label"><Icon aria-hidden="true" /><span>{choice}</span></span>
+            <span className="matters-petal-label"><Icon aria-hidden="true" /><span>{choice}</span>{petalView === 'explore' && <span className="matters-petal-explore">Explore <ChevronRight aria-hidden="true" /></span>}</span>
           </button>
         ))}
         <button type="button" className="matters-wheel-center" aria-haspopup="dialog" onClick={() => wholeSelfDialog.current?.showModal()}><Leaf aria-hidden="true" /><span>Nourishing<br />Your Whole<br />Self</span></button>
