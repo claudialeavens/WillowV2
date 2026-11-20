@@ -15,3 +15,10 @@ export function inspirePetalAction(item) {
   if (!item) return 'Your saved action items will appear here.';
   return `${ENCOURAGEMENT[item.petal] ?? 'Take one small step for yourself'}: ${item.text}`;
 }
+export function selectMenuPetalAction(items, previousId, rotation) {
+  if (rotation?.paused) {
+    const pinned = items.find(item => item.id === rotation.itemId);
+    if (pinned) return pinned;
+  }
+  return nextPetalAction(items, previousId);
+}

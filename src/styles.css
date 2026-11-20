@@ -2734,3 +2734,9 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-item-controls .petal-hide:hover { background: #ffffff99; }
 .petal-item-edit-form { flex: 1; min-width: 0; width: 100%; padding: .5rem 0; border-top: 0; }
 .petal-item-edit-form button svg { display: block; width: 1rem; height: 1rem; }
+
+.account-popover .account-petal-inspiration .petal-rotation-toggle { position: absolute; top: -.2rem; right: -.2rem; z-index: 2; display: grid; place-items: center; width: 2rem; height: 2rem; padding: .4rem; border: 1px solid hsl(var(--petal-card-hue) 30% 74%); border-radius: 50%; background: #fffdf3e8; color: #40583f; cursor: pointer; }
+.account-popover .account-petal-inspiration .petal-rotation-toggle:hover:not(:disabled), .account-popover .account-petal-inspiration .petal-rotation-toggle[aria-pressed="true"] { background: hsl(var(--petal-card-hue) 40% 88%); }
+.account-popover .account-petal-inspiration .petal-rotation-toggle:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+.account-popover .account-petal-inspiration .petal-rotation-toggle svg { width: 1.1rem; height: 1.1rem; }
+.account-petal-inspiration .petal-card-badge { max-width: calc(100% - 1rem); }

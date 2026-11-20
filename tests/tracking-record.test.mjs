@@ -260,3 +260,22 @@ test('action-item text edits restore on another device', async () => {
   second.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
   assert.equal(second.render('petalRecommendations', 'user-a', { dismissed: [] }).value.edits['archive:one'], 'Reply to important emails');
 });
+
+test('petal rotation pause and pinned item persist across devices until resumed', async () => {
+  const user = account();
+  const initial = { paused: false, itemId: null };
+  const first = device(user);
+  first.render('petalRotation', 'user-a', initial); await settle();
+  first.render('petalRotation', 'user-a', initial).update({ paused: true, itemId: 'archive:one' });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('petalRotation', 'user-a', initial); await settle();
+  assert.equal(second.render('petalRotation', 'user-a', initial).value.paused, true);
+  assert.equal(second.render('petalRotation', 'user-a', initial).value.itemId, 'archive:one');
+  second.render('petalRotation', 'user-a', initial).update(initial);
+  await second.finishSaves();
+  const third = device(user);
+  third.render('petalRotation', 'user-a', initial); await settle();
+  assert.equal(third.render('petalRotation', 'user-a', initial).value.paused, false);
+  assert.equal(third.render('petalRotation', 'user-a', initial).value.itemId, null);
+});
