@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { nextPetalAction, inspirePetalAction, selectMenuPetalAction, togglePetalPin } from '../src/petalInspiration.js';
+import { nextPetalAction, previousPetalAction, inspirePetalAction, selectMenuPetalAction, togglePetalPin } from '../src/petalInspiration.js';
 const items = [{id:'one',text:'Call Mum.',petal:'Feeling connected'},{id:'two',text:'Reply to emails.',petal:'Managing everyday life'},{id:'three',text:'Take a walk.',petal:'Energy & vitality'}];
 test('rotates through every action before repeating',()=>{
  let previous=null;
@@ -36,4 +36,11 @@ test('pinning a different action replaces the previous pin and unpinning resumes
  assert.deepEqual(second,{paused:true,itemId:'two'});
  assert.equal(selectMenuPetalAction(items,'three',second).id,'two');
  assert.deepEqual(togglePetalPin(second,'two'),{paused:false,itemId:null});
+});
+
+test('previous arrow reverses next and wraps back to the last item',()=>{
+ assert.equal(previousPetalAction(items,nextPetalAction(items,'one').id).id,'one');
+ assert.equal(previousPetalAction(items,'one').id,'three');
+ assert.equal(previousPetalAction([items[0]],'one').id,'one');
+ assert.equal(previousPetalAction([],null),null);
 });

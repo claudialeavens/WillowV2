@@ -27,3 +27,9 @@ export function togglePetalPin(rotation, itemId) {
     ? { paused: false, itemId: null }
     : { paused: true, itemId };
 }
+
+export function previousPetalAction(items, currentId) {
+  if (!items.length) return null;
+  const current = items.findIndex(item => item.id === currentId);
+  return items[(current - 1 + items.length) % items.length];
+}

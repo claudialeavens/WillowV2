@@ -2753,3 +2753,6 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .account-popover .account-petal-inspiration .petal-next-action { display: grid; place-items: center; width: 2rem; height: 2.5rem; padding: .4rem; flex: 0 0 2rem; border: 0; border-radius: .6rem; background: #fffdf3a6; color: #365535; }
 .account-popover .account-petal-inspiration .petal-next-action svg { width: 1.2rem; height: 1.2rem; }
 .account-popover .account-petal-inspiration .petal-next-action:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+
+.petal-browse-actions { display: inline-flex; align-items: center; flex-shrink: 0; gap: .1rem; }
+.account-popover .account-petal-inspiration .petal-browse-actions .petal-next-action { width: 1.7rem; flex-basis: 1.7rem; padding: .25rem; }

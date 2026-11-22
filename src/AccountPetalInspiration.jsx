@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Sprout, Users, Sun, Leaf, Heart, ListChecks, ChevronRight } from 'lucide-react';
+import { Sprout, Users, Sun, Leaf, Heart, ListChecks, ChevronRight, ChevronLeft } from 'lucide-react';
 import { getArchive } from './conversationStore';
 import { reviewArchivePetals } from './archivePetalReview';
 import { useTrackingRecord } from './useTrackingRecord';
-import { nextPetalAction, inspirePetalAction, selectMenuPetalAction } from './petalInspiration';
+import { nextPetalAction, previousPetalAction, inspirePetalAction, selectMenuPetalAction } from './petalInspiration';
 import { customPetalActions, applyPetalEdits } from './customPetalActions';
 import { streamWillowMessage } from './openAIService';
 import { PetalBotanical } from './PetalBotanical';
@@ -78,16 +78,16 @@ export const AccountPetalInspiration = ({ userId }) => {
     return () => controller.abort();
   }, [selected, userId]);
   const visibleItems = applyPetalEdits([...(items ?? []), ...customPetalActions(preferences)], preferences).filter(item => !(preferences?.dismissed ?? []).includes(item.id));
-  const nextAction = event => {
+  const browseAction = (event, direction) => {
     event.preventDefault();
     event.stopPropagation();
     if (rotation?.paused || rotationLoading || loading) return;
-    displayItem(nextPetalAction(visibleItems, selected?.id));
+    displayItem(direction === 'previous' ? previousPetalAction(visibleItems, selected?.id) : nextPetalAction(visibleItems, selected?.id));
   };
   const design = botanicalDesign(selected?.petal, artSeed ?? 'loading');
   const Icon = ICONS[selected?.petal] ?? Sprout;
   return <details className="account-card account-nourishing account-petal-inspiration" style={{ '--petal-card-hue': design.hue }}>
-    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><button type="button" className="petal-next-action" aria-label="Next My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Next action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={nextAction}><ChevronRight aria-hidden="true" /></button><PetalPinButton item={selected} className="petal-rotation-toggle" /></summary>
+    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><span className="petal-browse-actions"><button type="button" className="petal-next-action" aria-label="Previous My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Previous action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={event => browseAction(event, 'previous')}><ChevronLeft aria-hidden="true" /></button><button type="button" className="petal-next-action" aria-label="Next My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Next action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={event => browseAction(event, 'next')}><ChevronRight aria-hidden="true" /></button></span><PetalPinButton item={selected} className="petal-rotation-toggle" /></summary>
     <div className="account-card-body">{selected ? <><p>{selected.petal}</p><p>{selected.text}</p>{rotation?.paused && <><p>Pinned to your profile until you unpin it.</p><p role="status">{rotationStatus}</p></>}</> : <p>{items === null || loading ? 'Loading your petal action items…' : 'Action items from your archived conversations will appear here when you have some saved.'}</p>}</div>
   </details>;
 };
