@@ -51,6 +51,7 @@ import { getLatestConversation, recordActivity } from './conversationStore';
 import { Archive } from './Archive';
 import { MyPetals } from './MyPetals';
 import { AccountPetalInspiration } from './AccountPetalInspiration';
+import { PetalPinProvider } from './PetalPin';
 import './styles.css';
 
 const AuthModal = lazy(() =>
@@ -1445,6 +1446,7 @@ const App = () => {
 
   return (
     <>
+      <PetalPinProvider key={auth.user?.id ?? 'guest'} userId={auth.user?.id}>
       <NavigationContext.Provider value={{ canGoBack: pageHistory.length > 1, goBack, openWeek: () => setStep(9) }}>
       <Suspense fallback={<main className="page"><section className="discovery-content"><p role="status">Finding a place to begin…</p></section></main>}>{page}</Suspense>
       <MainMenu onHome={goHome} onArchive={openArchive} auth={auth} onSignIn={openAuth} />
@@ -1455,6 +1457,7 @@ const App = () => {
         </Suspense>
       )}
       </NavigationContext.Provider>
+      </PetalPinProvider>
     </>
   );
 };

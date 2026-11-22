@@ -2740,3 +2740,16 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .account-popover .account-petal-inspiration .petal-rotation-toggle:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
 .account-popover .account-petal-inspiration .petal-rotation-toggle svg { width: 1.1rem; height: 1.1rem; }
 .account-petal-inspiration .petal-card-badge { max-width: calc(100% - 1rem); }
+
+.petal-pin-button { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; flex-shrink: 0; padding: .45rem; border: 0; border-radius: .5rem; background: transparent; color: #405c48; font: inherit; cursor: pointer; }
+.petal-pin-button svg { width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
+.petal-pin-button[aria-pressed="true"] { background: #dfe9ce; color: #2e542d; }
+.petal-pin-button:hover:not(:disabled) { background: #e9efdf; }
+.petal-pin-button:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+.petal-pin-button:disabled { opacity: .45; cursor: default; }
+.petal-item-pin { align-self: center; }
+.petal-popup-pin { margin: 1rem 0; }
+.petal-popup-pin .petal-pin-button { padding: .6rem .8rem; border: 1px solid #c2cfb2; }
+.account-popover .account-petal-inspiration .petal-next-action { display: grid; place-items: center; width: 2rem; height: 2.5rem; padding: .4rem; flex: 0 0 2rem; border: 0; border-radius: .6rem; background: #fffdf3a6; color: #365535; }
+.account-popover .account-petal-inspiration .petal-next-action svg { width: 1.2rem; height: 1.2rem; }
+.account-popover .account-petal-inspiration .petal-next-action:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }

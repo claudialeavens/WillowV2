@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { nextPetalAction, inspirePetalAction, selectMenuPetalAction } from '../src/petalInspiration.js';
+import { nextPetalAction, inspirePetalAction, selectMenuPetalAction, togglePetalPin } from '../src/petalInspiration.js';
 const items = [{id:'one',text:'Call Mum.',petal:'Feeling connected'},{id:'two',text:'Reply to emails.',petal:'Managing everyday life'},{id:'three',text:'Take a walk.',petal:'Energy & vitality'}];
 test('rotates through every action before repeating',()=>{
  let previous=null;
@@ -26,4 +26,14 @@ test('paused rotation keeps the pinned item regardless of the previous item or e
 test('hidden or removed pinned items are not resurfaced',()=>{
  assert.equal(selectMenuPetalAction(items.slice(1),'one',{paused:true,itemId:'one'}).id,'two');
  assert.equal(selectMenuPetalAction([],null,{paused:true,itemId:'one'}),null);
+});
+
+test('pinning a different action replaces the previous pin and unpinning resumes rotation',()=>{
+ const first=togglePetalPin({paused:false,itemId:null},'one');
+ assert.deepEqual(first,{paused:true,itemId:'one'});
+ assert.equal(selectMenuPetalAction(items,'two',first).id,'one');
+ const second=togglePetalPin(first,'two');
+ assert.deepEqual(second,{paused:true,itemId:'two'});
+ assert.equal(selectMenuPetalAction(items,'three',second).id,'two');
+ assert.deepEqual(togglePetalPin(second,'two'),{paused:false,itemId:null});
 });

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Sprout, Users, Sun, Leaf, Heart, ListChecks, ChevronRight, Pause, Play } from 'lucide-react';
+import { Sprout, Users, Sun, Leaf, Heart, ListChecks, ChevronRight } from 'lucide-react';
 import { getArchive } from './conversationStore';
 import { reviewArchivePetals } from './archivePetalReview';
 import { useTrackingRecord } from './useTrackingRecord';
@@ -8,6 +8,7 @@ import { customPetalActions, applyPetalEdits } from './customPetalActions';
 import { streamWillowMessage } from './openAIService';
 import { PetalBotanical } from './PetalBotanical';
 import { botanicalDesign, reserveBotanicalSeed } from './petalBotanicalDesign';
+import { PetalPinButton, usePetalPin } from './PetalPin';
 
 const ICONS = { 'Feeling connected': Users, 'Energy & vitality': Sprout, 'Joy & enjoyment': Sun, 'Peace of mind': Leaf, 'Meaning & purpose': Heart, 'Managing everyday life': ListChecks };
 
@@ -19,7 +20,7 @@ export const AccountPetalInspiration = ({ userId }) => {
   const [artSeed, setArtSeed] = useState(null);
   const chosen = useRef(false);
   const { value: preferences, loading } = useTrackingRecord('petalRecommendations', userId, { dismissed: [] }, `willow-petal-recommendations:${userId}`);
-  const { value: rotation, update: saveRotation, loading: rotationLoading, status: rotationStatus } = useTrackingRecord('petalRotation', userId, { paused: false, itemId: null }, `willow-petal-rotation:${userId}`);
+  const { rotation, saveRotation, rotationLoading, rotationStatus } = usePetalPin();
   const displayItem = useCallback(item => {
     if (item) {
       try { sessionStorage.setItem(`willow-menu-petal-rotation-v1:${userId}`, item.id); } catch { /* The selected card still works without storage. */ }
@@ -37,7 +38,14 @@ export const AccountPetalInspiration = ({ userId }) => {
     return () => controller.abort();
   }, [userId]);
   useEffect(() => {
-    if (!items || loading || rotationLoading || chosen.current) return;
+    if (!items || loading || rotationLoading) return;
+    if (chosen.current) {
+      if (rotation?.paused && rotation.itemId !== selected?.id) {
+        const pinned = applyPetalEdits([...items, ...customPetalActions(preferences)], preferences).find(item => item.id === rotation.itemId && !(preferences?.dismissed ?? []).includes(item.id));
+        if (pinned) displayItem(pinned);
+      }
+      return;
+    }
     chosen.current = true;
     const visible = applyPetalEdits([...items, ...customPetalActions(preferences)], preferences).filter(item => !(preferences?.dismissed ?? []).includes(item.id));
     const key = `willow-menu-petal-rotation-v1:${userId}`;
@@ -46,7 +54,7 @@ export const AccountPetalInspiration = ({ userId }) => {
     const item = selectMenuPetalAction(visible, previousId, rotation);
     displayItem(item);
     if (rotation?.paused && item && item.id !== rotation.itemId) saveRotation({ paused: true, itemId: item.id });
-  }, [items, loading, preferences, userId, rotationLoading, rotation, displayItem, saveRotation]);
+  }, [items, loading, preferences, userId, rotationLoading, rotation, displayItem, saveRotation, selected?.id]);
   useEffect(() => {
     if (!selected) return undefined;
     const controller = new AbortController();
@@ -69,20 +77,17 @@ export const AccountPetalInspiration = ({ userId }) => {
       }).catch(() => { /* Keep the encouraging version with the original action. */ });
     return () => controller.abort();
   }, [selected, userId]);
-  const toggleRotation = event => {
+  const visibleItems = applyPetalEdits([...(items ?? []), ...customPetalActions(preferences)], preferences).filter(item => !(preferences?.dismissed ?? []).includes(item.id));
+  const nextAction = event => {
     event.preventDefault();
     event.stopPropagation();
-    if (!selected || rotationLoading) return;
-    if (rotation?.paused) {
-      saveRotation({ paused: false, itemId: null });
-      const visible = applyPetalEdits([...(items ?? []), ...customPetalActions(preferences)], preferences).filter(item => !(preferences?.dismissed ?? []).includes(item.id));
-      displayItem(nextPetalAction(visible, selected.id));
-    } else saveRotation({ paused: true, itemId: selected.id });
+    if (rotation?.paused || rotationLoading || loading) return;
+    displayItem(nextPetalAction(visibleItems, selected?.id));
   };
   const design = botanicalDesign(selected?.petal, artSeed ?? 'loading');
   const Icon = ICONS[selected?.petal] ?? Sprout;
   return <details className="account-card account-nourishing account-petal-inspiration" style={{ '--petal-card-hue': design.hue }}>
-    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><ChevronRight className="account-card-chevron" aria-hidden="true" /><button type="button" className="petal-rotation-toggle" aria-label={rotation?.paused ? 'Resume My petals rotation' : 'Pause My petals rotation'} aria-pressed={!!rotation?.paused} title={rotation?.paused ? 'Resume rotating action items' : 'Keep this action item until you press play'} disabled={!selected || loading || rotationLoading} onClick={toggleRotation}>{rotation?.paused ? <Play aria-hidden="true" /> : <Pause aria-hidden="true" />}</button></summary>
-    <div className="account-card-body">{selected ? <><p>{selected.petal}</p><p>{selected.text}</p>{rotation?.paused && <><p>Rotation paused until you press play.</p><p role="status">{rotationStatus}</p></>}</> : <p>{items === null || loading ? 'Loading your petal action items…' : 'Action items from your archived conversations will appear here when you have some saved.'}</p>}</div>
+    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><button type="button" className="petal-next-action" aria-label="Next My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Next action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={nextAction}><ChevronRight aria-hidden="true" /></button><PetalPinButton item={selected} className="petal-rotation-toggle" /></summary>
+    <div className="account-card-body">{selected ? <><p>{selected.petal}</p><p>{selected.text}</p>{rotation?.paused && <><p>Pinned to your profile until you unpin it.</p><p role="status">{rotationStatus}</p></>}</> : <p>{items === null || loading ? 'Loading your petal action items…' : 'Action items from your archived conversations will appear here when you have some saved.'}</p>}</div>
   </details>;
 };

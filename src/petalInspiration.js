@@ -22,3 +22,8 @@ export function selectMenuPetalAction(items, previousId, rotation) {
   }
   return nextPetalAction(items, previousId);
 }
+export function togglePetalPin(rotation, itemId) {
+  return rotation?.paused && rotation.itemId === itemId
+    ? { paused: false, itemId: null }
+    : { paused: true, itemId };
+}
