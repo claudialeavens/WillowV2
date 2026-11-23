@@ -2783,3 +2783,6 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 
 .tagline::before, .tagline::after { content: ''; flex: 1 0 1.25rem; max-width: 3.5rem; height: 1px; background: #999b82; opacity: .75; }
 .tagline > span { min-width: 0; }
+
+/* Lower only the title, leaving the tagline and following content in place. */
+.intro-page .intro-hero > .willow-logo { transform: translateY(calc(clamp(1rem, 2.2vh, 1.35rem) / 2)); }
