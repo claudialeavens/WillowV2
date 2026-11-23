@@ -4,9 +4,10 @@ import { getArchive, getLocalArchive, createConversationId } from './conversatio
 import { archiveRecommendations, PETAL_NAMES } from './petalRecommendations';
 import { useTrackingRecord } from './useTrackingRecord';
 import { reviewArchivePetals } from './archivePetalReview';
-import { addCustomPetalAction, customPetalActions, editPetalAction, applyPetalEdits } from './customPetalActions';
+import { addCustomPetalAction, customPetalActions, editPetalAction, applyPetalEdits, actionCompletionCount, changeActionCompletion } from './customPetalActions';
 
 import { PetalPinButton } from './PetalPin';
+import { ActionCompletion } from './ActionCompletion';
 
 const ICONS = [Users, Sprout, Sun, Leaf, Heart, ListChecks];
 export const MyPetals = ({ userId, flower, onContinue }) => {
@@ -72,7 +73,9 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
               <label><span className="sr-only">Edit action item</span><textarea aria-label={`Edit action item: ${item.text}`} value={itemDraft.text} onChange={event => setItemDraft({ id: item.id, text: event.target.value })} maxLength={500} required autoFocus /></label>
               <div><button type="submit" aria-label="Save action item changes" title="Save changes" disabled={!itemDraft.text.trim() || editsLoading}><Check aria-hidden="true" /></button><button type="button" aria-label="Cancel action item changes" title="Cancel changes" onClick={() => setItemDraft(null)}><X aria-hidden="true" /></button></div>
             </form> : <>
-              <button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span><ChevronRight aria-hidden="true" /></button>
+              <button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span></button>
+              <ActionCompletion item={item} count={actionCompletionCount(preferences, item.id)} disabled={editsLoading} onChange={delta => savePreferences(current => changeActionCompletion(current, item.id, delta))} />
+              <button type="button" className="petal-expand-action" aria-label={`Open action item: ${item.text}`} title="Open action item" onClick={() => setSelected(item)}><ChevronRight aria-hidden="true" /></button>
               <PetalPinButton item={item} className="petal-item-pin" />
               {isEditing && <span className="petal-item-controls"><button type="button" className="petal-hide" aria-label={`Edit action item: ${item.text}`} title="Edit action item" disabled={editsLoading} onClick={() => { setDraft(null); setItemDraft({ id: item.id, text: item.text }); }}><SquarePen aria-hidden="true" /></button><button type="button" className="petal-hide" aria-label={`Hide recommendation: ${item.text}`} title="Remove action item" disabled={editsLoading} onClick={() => savePreferences(current => ({ ...current, dismissed: [...(current?.dismissed ?? []), item.id] }))}><X aria-hidden="true" /></button></span>}
             </>}

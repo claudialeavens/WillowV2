@@ -279,3 +279,17 @@ test('petal rotation pause and pinned item persist across devices until resumed'
   assert.equal(third.render('petalRotation', 'user-a', initial).value.paused, false);
   assert.equal(third.render('petalRotation', 'user-a', initial).value.itemId, null);
 });
+
+test('action completion counts restore on another device and support repeated completions', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }).update({ dismissed: [], completions: { 'archive:one': 3 } });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  assert.equal(second.render('petalRecommendations', 'user-a', { dismissed: [] }).value.completions['archive:one'], 3);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }).update(current => ({ ...current, completions: { ...current.completions, 'archive:one': 4 } }));
+  await second.finishSaves();
+  assert.equal(user.metadata.willow_tracking_petalRecommendations.completions['archive:one'], 4);
+});

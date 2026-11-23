@@ -17,7 +17,7 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
     : kind === 'reminders'
       ? Array.isArray(value) && value.every((item) => typeof item?.id === 'string' && typeof item?.title === 'string' && typeof item?.message === 'string')
       : kind === 'petalRecommendations'
-        ? Array.isArray(value?.dismissed) && value.dismissed.every(id => typeof id === 'string') && (value.custom === undefined || (Array.isArray(value.custom) && value.custom.every(item => typeof item?.id === 'string' && typeof item?.text === 'string' && typeof item?.petal === 'string'))) && (value.edits === undefined || (value.edits !== null && typeof value.edits === 'object' && !Array.isArray(value.edits) && Object.values(value.edits).every(text => typeof text === 'string')))
+        ? Array.isArray(value?.dismissed) && value.dismissed.every(id => typeof id === 'string') && (value.custom === undefined || (Array.isArray(value.custom) && value.custom.every(item => typeof item?.id === 'string' && typeof item?.text === 'string' && typeof item?.petal === 'string'))) && (value.edits === undefined || (value.edits !== null && typeof value.edits === 'object' && !Array.isArray(value.edits) && Object.values(value.edits).every(text => typeof text === 'string'))) && (value.completions === undefined || (value.completions !== null && typeof value.completions === 'object' && !Array.isArray(value.completions) && Object.values(value.completions).every(count => Number.isSafeInteger(count) && count >= 0)))
       : kind === 'petalRotation'
         ? typeof value?.paused === 'boolean' && (value.itemId === null || typeof value.itemId === 'string')
       : kind === 'dailyQuote'

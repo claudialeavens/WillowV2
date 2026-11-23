@@ -2756,3 +2756,18 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 
 .petal-browse-actions { display: inline-flex; align-items: center; flex-shrink: 0; gap: .1rem; }
 .account-popover .account-petal-inspiration .petal-browse-actions .petal-next-action { width: 1.7rem; flex-basis: 1.7rem; padding: .25rem; }
+
+.petal-complete-first, .petal-expand-action { display: grid; place-items: center; align-self: center; flex-shrink: 0; width: 1.75rem; height: 1.75rem; padding: .3rem; border: 0; border-radius: 50%; background: transparent; color: #526b4f; cursor: pointer; }
+.petal-complete-first { width: 1.55rem; height: 1.55rem; border: 1px solid #8b9c7e; background: #fffdf6aa; }
+.petal-complete-first svg, .petal-expand-action svg { width: 1rem; height: 1rem; }
+.petal-complete-first:hover:not(:disabled), .petal-expand-action:hover { background: #e2ebd5; }
+.petal-completion-pill { display: inline-flex; align-items: center; align-self: center; flex-shrink: 0; gap: .15rem; padding: .2rem; border-radius: 999px; background: #e8e8d6; color: #304b36; }
+.petal-completion-pill button { display: grid; place-items: center; width: 1.45rem; height: 1.45rem; padding: .15rem; border: 0; border-radius: 50%; background: #fffdf6; color: #59734c; cursor: pointer; }
+.petal-completion-pill button svg { width: .95rem; height: .95rem; }
+.petal-completion-pill > span { min-width: 1.2rem; text-align: center; font-size: .8rem; font-weight: 600; }
+.petal-complete-first:focus-visible, .petal-expand-action:focus-visible, .petal-completion-pill button:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+.petal-complete-first:disabled, .petal-completion-pill button:disabled { opacity: .45; cursor: default; }
+@media (max-width: 520px) {
+  .my-petals-garden { grid-template-columns: minmax(0, 1fr); }
+  .my-petals-flower { grid-area: 1 / 1 / 2 / 2; }
+}

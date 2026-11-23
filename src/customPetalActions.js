@@ -18,3 +18,12 @@ export function applyPetalEdits(items, preferences) {
     return typeof text === 'string' && text.trim() ? { ...item, originalText: item.text, text } : item;
   });
 }
+export function actionCompletionCount(preferences, id) {
+  const value = preferences?.completions?.[id];
+  return Number.isSafeInteger(value) && value >= 0 ? value : 0;
+}
+export function changeActionCompletion(preferences, id, delta) {
+  if (!Number.isSafeInteger(delta)) return preferences;
+  const count = Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, actionCompletionCount(preferences, id) + delta));
+  return { ...preferences, dismissed: preferences?.dismissed ?? [], completions: { ...(preferences?.completions ?? {}), [id]: count } };
+}
