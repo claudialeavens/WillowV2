@@ -2662,7 +2662,7 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-source-conversation > div { padding: 1rem 0; border-bottom: 1px solid #d9dfd0; }
 .petal-source-conversation p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .petal-source-dialog .tracking-continue { margin-top: 1.5rem; }
-@media (max-width: 760px) {
+@media (max-width: 1050px) {
   .my-petals-garden { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; gap: .75rem; }
   .my-petals-flower { grid-area: 1 / 1 / 2 / 3; width: min(100%, 26rem); justify-self: center; }
   .my-petals-flower .matters-petal-label { font-size: clamp(.85rem, 2.7vw, 1.1rem); }
@@ -2670,7 +2670,7 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .petal-recommendations { grid-area: auto; align-self: stretch; }
   .petal-recommendations ul { max-height: 17rem; }
 }
-@media (min-width: 761px) {
+@media (min-width: 1051px) {
   .petal-recommendations-0::after, .petal-recommendations-3::before { content: ''; position: absolute; width: 1px; height: 1rem; background: var(--petal-border); left: 50%; }
   .petal-recommendations-0::after { top: 100%; }
   .petal-recommendations-3::before { bottom: 100%; }
