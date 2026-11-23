@@ -60,7 +60,7 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
         };
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
           <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls">{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => { if (adding) saveAction(); else { setItemDraft(null); setDraft({ petal, text: '' }); } }}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{adding && <button type="button" className="petal-edit-button" aria-label={`Cancel new action item for ${petal}`} title="Cancel action item" onClick={cancelAdd}><X aria-hidden="true" /></button>}</span></div>
-          <ul>{items.map(item => <li key={item.id}>
+          <ul>{items.map(item => <li key={item.id} className={actionCompletionCount(preferences, item.id) > 0 ? 'is-completed' : undefined}>
             {itemDraft?.id === item.id ? <form className="petal-add-form petal-item-edit-form" onSubmit={event => {
               event.preventDefault();
               if (!itemDraft.text.trim() || editsLoading) return;
@@ -71,10 +71,10 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
               <div><button type="submit" aria-label="Save action item changes" title="Save changes" disabled={!itemDraft.text.trim() || editsLoading}><Check aria-hidden="true" /></button><button type="button" aria-label="Cancel action item changes" title="Cancel changes" onClick={() => setItemDraft(null)}><X aria-hidden="true" /></button><button type="button" disabled={editsLoading} onClick={() => { savePreferences(current => ({ ...current, dismissed: [...(current?.dismissed ?? []), item.id] })); setItemDraft(null); }}>Remove</button></div>
             </form> : <>
               <button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><Icon className="petal-item-icon" aria-hidden="true" /><span>{item.text}</span></button>
-              <button type="button" className="petal-expand-action" aria-label={`Open action item: ${item.text}`} title="Open action item" onClick={() => setSelected(item)}><ChevronRight aria-hidden="true" /></button>
-              <ActionCompletion item={item} count={actionCompletionCount(preferences, item.id)} disabled={editsLoading} onChange={delta => savePreferences(current => changeActionCompletion(current, item.id, delta))} />
               <PetalPinButton item={item} className="petal-item-pin" />
               <button type="button" className="petal-hide" aria-label={`Edit action item: ${item.text}`} title="Edit action item" disabled={editsLoading} onClick={() => { setDraft(null); setItemDraft({ id: item.id, text: item.text }); }}><SquarePen aria-hidden="true" /></button>
+              <ActionCompletion item={item} count={actionCompletionCount(preferences, item.id)} disabled={editsLoading} onChange={delta => savePreferences(current => changeActionCompletion(current, item.id, delta))} />
+              <button type="button" className="petal-expand-action" aria-label={`Open action item: ${item.text}`} title="Open action item" onClick={() => setSelected(item)}><ChevronRight aria-hidden="true" /></button>
             </>}
           </li>)}</ul>
           {adding ? <form className="petal-add-form" onSubmit={event => {
