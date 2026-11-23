@@ -2673,7 +2673,7 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .account-nourishing .account-card-preview { white-space: normal; text-overflow: clip; line-height: 1.45; }
 
 /* Message-led botanical invitation in the account menu. */
-.account-popover .account-petal-inspiration { border-color: hsl(var(--petal-card-hue) 35% 66%); background: radial-gradient(ellipse at right, hsl(var(--petal-card-hue) 46% 87% / .85), transparent 70%), hsl(var(--petal-card-hue) 46% 97%); box-shadow: 0 5px 15px #4b56351f; }
+.account-popover .account-petal-inspiration { border-color: hsl(var(--petal-card-hue) 35% 66%); background: linear-gradient(to right, hsl(var(--petal-card-hue) 46% 87%), hsl(var(--petal-card-hue) 46% 97%)); box-shadow: 0 5px 15px #4b56351f; }
 .account-petal-inspiration::before { display: none; }
 .petal-card-botanical { position: absolute; z-index: -1; pointer-events: none; right: 0; top: 0; width: 44%; height: 100%; }
 .account-petal-inspiration .account-card-heading { position: relative; isolation: isolate; flex-wrap: nowrap; align-items: center; min-height: 6rem; gap: .75rem; }
@@ -2749,7 +2749,7 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .my-petals-flower { grid-area: 1 / 1 / 2 / 2; }
 }
 
-.account-popover .account-petal-inspiration.is-pinned { border-color: hsl(var(--petal-card-hue) 42% 53%); background: radial-gradient(ellipse at right, hsl(var(--petal-card-hue) 62% 72% / .9), transparent 75%), linear-gradient(120deg, hsl(var(--petal-card-hue) 55% 92%), hsl(var(--petal-card-hue) 60% 83%)); box-shadow: 0 5px 18px hsl(var(--petal-card-hue) 35% 45% / .22); }
+.account-popover .account-petal-inspiration.is-pinned { border-color: hsl(var(--petal-card-hue) 42% 53%); background: linear-gradient(to right, hsl(var(--petal-card-hue) 62% 76%), hsl(var(--petal-card-hue) 55% 92%)); box-shadow: 0 5px 18px hsl(var(--petal-card-hue) 35% 45% / .22); }
 .account-petal-inspiration.is-pinned .petal-card-badge { background: hsl(var(--petal-card-hue) 45% 77% / .85); }
 
 .petal-recommendations li.is-completed { margin: .3rem 0; padding: .2rem .35rem; border: 1px solid #f2d6b4; border-radius: .85rem; background: linear-gradient(to right, #ffebd2, #fff4e5); box-shadow: 0 2px 5px #a5793610; }
