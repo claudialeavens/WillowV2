@@ -2786,3 +2786,12 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 
 /* Lower only the title, leaving the tagline and following content in place. */
 .intro-page .intro-hero > .willow-logo { transform: translateY(calc(clamp(1rem, 2.2vh, 1.35rem) / 2)); }
+
+.petal-drag-handle { display: grid; place-items: center; align-self: center; flex: 0 0 1.65rem; width: 1.65rem; min-height: 2.5rem; padding: .2rem; border: 0; border-radius: .4rem; background: transparent; color: #405c48; cursor: grab; touch-action: none; user-select: none; }
+.petal-drag-handle .petal-item-icon { width: 1.3rem; height: 1.3rem; }
+.petal-drag-handle:focus-visible { outline: 2px solid #536c4d; outline-offset: 1px; }
+.petal-drag-handle:hover:not(:disabled) { background: #ffffff88; }
+.petal-drag-handle:disabled { cursor: default; }
+.petal-sort-active { user-select: none; }
+.petal-recommendations li.is-dragging { position: relative; z-index: 1; outline: 2px solid #779652; outline-offset: -2px; background: #edf3df; box-shadow: 0 5px 15px #40512c30; }
+.petal-recommendations li.is-dragging .petal-drag-handle { cursor: grabbing; }

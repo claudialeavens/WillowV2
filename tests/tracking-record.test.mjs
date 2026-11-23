@@ -293,3 +293,17 @@ test('action completion counts restore on another device and support repeated co
   await second.finishSaves();
   assert.equal(user.metadata.willow_tracking_petalRecommendations.completions['archive:one'], 4);
 });
+
+test('petal action order restores on another device without losing completions or edits', async () => {
+  const user = account();
+  const first = device(user);
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  first.render('petalRecommendations', 'user-a', { dismissed: [] }).update({ dismissed: [], order: { 'Feeling connected': ['third', 'first', 'second'] }, completions: { first: 2 }, edits: { second: 'Call Mum' } });
+  await first.finishSaves();
+  const second = device(user);
+  second.render('petalRecommendations', 'user-a', { dismissed: [] }); await settle();
+  const saved = second.render('petalRecommendations', 'user-a', { dismissed: [] }).value;
+  assert.deepEqual(Array.from(saved.order['Feeling connected']), ['third', 'first', 'second']);
+  assert.equal(saved.completions.first, 2);
+  assert.equal(saved.edits.second, 'Call Mum');
+});

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { addCustomPetalAction, customPetalActions, editPetalAction, applyPetalEdits, actionCompletionCount, changeActionCompletion } from '../src/customPetalActions.js';
+import { addCustomPetalAction, customPetalActions, editPetalAction, applyPetalEdits, actionCompletionCount, changeActionCompletion, orderedPetalActions, setPetalActionOrder } from '../src/customPetalActions.js';
 test('adds a custom item to its chosen petal while preserving existing items and hidden IDs',()=>{
  const before={dismissed:['archive:one'],custom:[{id:'existing',petal:'Feeling connected',text:'Call Mum'}]};
  const after=addCustomPetalAction(before,'Meaning & purpose','  Reflect on my priorities  ','custom:two');
@@ -54,4 +54,22 @@ test('completion counts stay attached when the action text is edited',()=>{
  const value=editPetalAction(changeActionCompletion({dismissed:[]},'one',1),'one','Revised action');
  assert.equal(actionCompletionCount(value,'one'),1);
  assert.equal(actionCompletionCount(value,'two'),0);
+});
+
+test('saved order applies within one petal and appends newly discovered items',()=>{
+ const items=[{id:'a',petal:'Feeling connected'},{id:'b',petal:'Feeling connected'},{id:'c',petal:'Feeling connected'},{id:'other',petal:'Peace of mind'}];
+ const before={dismissed:['hidden'],completions:{a:2},edits:{a:'Call Mum'},custom:[]};
+ const after=setPetalActionOrder(before,'Feeling connected',['c','a','b','a']);
+ assert.deepEqual(orderedPetalActions(items,after,'Feeling connected').map(item=>item.id),['c','a','b']);
+ assert.deepEqual(orderedPetalActions([...items,{id:'new',petal:'Feeling connected'}],after,'Feeling connected').map(item=>item.id),['c','a','b','new']);
+ assert.deepEqual(orderedPetalActions(items,after,'Peace of mind').map(item=>item.id),['other']);
+ assert.deepEqual(after.completions,before.completions);
+ assert.deepEqual(after.edits,before.edits);
+ assert.deepEqual(after.dismissed,before.dismissed);
+ assert.equal(before.order,undefined);
+});
+test('invalid reorder data leaves existing preferences untouched',()=>{
+ const before={dismissed:[]};
+ assert.equal(setPetalActionOrder(before,'Unknown',['one']),before);
+ assert.equal(setPetalActionOrder(before,'Feeling connected',[null]),before);
 });

@@ -27,3 +27,11 @@ export function changeActionCompletion(preferences, id, delta) {
   const count = Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, actionCompletionCount(preferences, id) + delta));
   return { ...preferences, dismissed: preferences?.dismissed ?? [], completions: { ...(preferences?.completions ?? {}), [id]: count } };
 }
+export function orderedPetalActions(items, preferences, petal) {
+  const ranks = new Map((preferences?.order?.[petal] ?? []).map((id, index) => [id, index]));
+  return items.filter(item => item.petal === petal).sort((a, b) => (ranks.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (ranks.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+}
+export function setPetalActionOrder(preferences, petal, ids) {
+  if (!PETAL_NAMES.includes(petal) || !Array.isArray(ids) || !ids.every(id => typeof id === 'string')) return preferences;
+  return { ...preferences, dismissed: preferences?.dismissed ?? [], order: { ...(preferences?.order ?? {}), [petal]: [...new Set(ids)] } };
+}
