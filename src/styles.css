@@ -2771,3 +2771,6 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .my-petals-garden { grid-template-columns: minmax(0, 1fr); }
   .my-petals-flower { grid-area: 1 / 1 / 2 / 2; }
 }
+
+.account-popover .account-petal-inspiration.is-pinned { border-color: hsl(var(--petal-card-hue) 42% 53%); background: radial-gradient(ellipse at right, hsl(var(--petal-card-hue) 62% 72% / .9), transparent 75%), linear-gradient(120deg, hsl(var(--petal-card-hue) 55% 92%), hsl(var(--petal-card-hue) 60% 83%)); box-shadow: 0 5px 18px hsl(var(--petal-card-hue) 35% 45% / .22); }
+.account-petal-inspiration.is-pinned .petal-card-badge { background: hsl(var(--petal-card-hue) 45% 77% / .85); }
