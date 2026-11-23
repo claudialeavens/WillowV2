@@ -95,7 +95,7 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
           cache({ value: data.value, pending: false });
           setValue(data.value);
         }
-        setStatus('Saved to your account. Available on your other devices.');
+        setStatus('');
       } catch {
         if (alive.current) setStatus('Account sync unavailable. Your updates stay on this device and will retry when you return or reconnect.');
       } finally {
@@ -122,7 +122,7 @@ export const useTrackingRecord = (kind, userId, initialValue, legacyKey) => {
     if (!userId) return;
     setStatus('Saving to your account…');
     void saveCloud(record).then(() => {
-      if (alive.current && !cached.current.pending) setStatus('Saved to your account. Available on your other devices.');
+      if (alive.current && !cached.current.pending) setStatus('');
     }).catch(() => {
       if (alive.current) setStatus('Account sync unavailable. Your updates stay on this device and will retry when you return or reconnect.');
     });
