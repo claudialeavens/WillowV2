@@ -42,7 +42,7 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
   const dismissed = preferences?.dismissed ?? [];
   const visible = recommendations.filter(item => !dismissed.includes(item.id));
   return <>
-    <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : `${visible.length} action items${preferences?.custom?.length ? ' from your conversations and custom additions' : ' from your archived conversations'}.`}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>
+    {(archive.loading || review.state !== 'complete' || (userId && !archive.synced)) && <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : ''}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>}
     <div className="my-petals-garden">
       <div className="my-petals-flower">{flower}</div>
       {PETAL_NAMES.map((petal, index) => {
