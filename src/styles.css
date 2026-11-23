@@ -2626,7 +2626,7 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-recommendations h2 svg { flex-shrink: 0; width: 1.2rem; height: 1.2rem; }
 .petal-recommendations > p { margin: .5rem 0; font-size: .85rem; color: #657260; line-height: 1.5; }
 .petal-recommendations ul { list-style: none; padding: 0; margin: 0; max-height: 14rem; overflow-y: auto; }
-.petal-recommendations li { display: flex; border-top: 1px solid var(--petal-border); }
+.petal-recommendations li { display: flex; margin: .3rem 0; padding: .2rem .35rem; border: 1px solid var(--petal-border); border-radius: .85rem; }
 .petal-recommendation { display: flex; align-items: center; gap: .3rem; width: 100%; min-width: 0; min-height: 2.75rem; padding: .6rem .1rem; border: 0; background: transparent; color: #304b36; font: inherit; font-size: .9rem; line-height: 1.4; text-align: left; cursor: pointer; }
 .petal-recommendation span { flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .petal-recommendation svg, .petal-hide svg { width: 1rem; height: 1rem; flex-shrink: 0; }
