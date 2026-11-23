@@ -2768,3 +2768,10 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .intro-secondary-actions .intro-track-button { justify-content: center; }
   .intro-secondary-actions:has(.intro-resume-button) .intro-about { grid-column: 1 / -1; border-left: 0; padding-left: 0; }
 }
+
+/* The pinned action is the strongest visual focus, even when also completed. */
+.petal-recommendations li.is-pinned { position: relative; margin: .35rem 0; padding: .35rem .45rem; border: 1px solid #7f9b50; border-left: 4px solid #5c7e32; border-radius: .85rem; background: linear-gradient(110deg, #e5efcb, #cddfa3); box-shadow: 0 3px 10px #5d792b26; }
+.petal-recommendations li.is-pinned .petal-recommendation { color: #284526; font-weight: 600; }
+.petal-recommendations li.is-pinned .petal-item-icon { color: #496d2e; }
+.petal-recommendations li.is-pinned .petal-pin-button[aria-pressed="true"] { color: #fffdf4; background: #597d36; }
+.petal-recommendations li.is-pinned .petal-completion-pill { background: #b9ce8d; }

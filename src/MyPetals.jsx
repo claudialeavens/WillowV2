@@ -6,7 +6,7 @@ import { useTrackingRecord } from './useTrackingRecord';
 import { reviewArchivePetals } from './archivePetalReview';
 import { addCustomPetalAction, customPetalActions, editPetalAction, applyPetalEdits, actionCompletionCount, changeActionCompletion } from './customPetalActions';
 
-import { PetalPinButton } from './PetalPin';
+import { PetalPinButton, usePetalPin } from './PetalPin';
 import { ActionCompletion } from './ActionCompletion';
 
 const ICONS = [Users, Sprout, Sun, Leaf, Heart, ListChecks];
@@ -17,6 +17,7 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
   const [draft, setDraft] = useState(null);
   const [selected, setSelected] = useState(null);
   const dialog = useRef(null);
+  const { rotation } = usePetalPin();
   const { value: preferences, update: savePreferences, status: editStatus, loading: editsLoading } = useTrackingRecord('petalRecommendations', userId, { dismissed: [] }, `willow-petal-recommendations:${userId ?? 'guest'}`);
   useEffect(() => {
     let active = true;
@@ -60,7 +61,7 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
         };
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
           <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls">{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => { if (adding) saveAction(); else { setItemDraft(null); setDraft({ petal, text: '' }); } }}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{adding && <button type="button" className="petal-edit-button" aria-label={`Cancel new action item for ${petal}`} title="Cancel action item" onClick={cancelAdd}><X aria-hidden="true" /></button>}</span></div>
-          <ul>{items.map(item => <li key={item.id} className={actionCompletionCount(preferences, item.id) > 0 ? 'is-completed' : undefined}>
+          <ul>{items.map(item => <li key={item.id} className={[actionCompletionCount(preferences, item.id) > 0 ? 'is-completed' : '', rotation?.paused && rotation.itemId === item.id ? 'is-pinned' : ''].filter(Boolean).join(' ') || undefined}>
             {itemDraft?.id === item.id ? <form className="petal-add-form petal-item-edit-form" onSubmit={event => {
               event.preventDefault();
               if (!itemDraft.text.trim() || editsLoading) return;
