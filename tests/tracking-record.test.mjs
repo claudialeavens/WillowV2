@@ -92,7 +92,7 @@ test('offline edits remain pending and retry on reconnect', async () => {
   user.offline = false;
   await browser.online(); await settle();
   assert.equal(user.metadata.willow_tracking_focus.text, 'Breathe');
-  assert.match(browser.render().status, /Saved to your account/);
+  assert.equal(browser.render().status, '');
 });
 
 test('guest data stays local and cannot overwrite another account', async () => {
