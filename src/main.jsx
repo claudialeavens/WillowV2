@@ -529,12 +529,13 @@ const IntroPage = ({
       <AccountButton auth={auth} onSignIn={onSignIn} />
       <section className="intro-content">
         <div className="intro-content-scaled">
-        <WillowLogo showAboutLink secondaryAction={
+        <WillowLogo showAboutLink secondaryAction={<>
+          {resumeConversation && <button className="intro-track-button intro-resume-button" type="button" onClick={onResumeConversation}><MessageCircle aria-hidden="true" /><span><strong>Pick up where we left off</strong></span></button>}
           <button className="intro-track-button" type="button" onClick={onKeepOnTrack}>
             <CalendarCheck aria-hidden="true" />
             <span><strong>Keep me on track</strong><small>Stay consistent.</small></span>
           </button>
-        }>
+        </>}>
         <p className="tagline">Clear the way. Reconnect with yourself. Reveal your light.</p>
         <LandingWelcomeMessage
           key={!auth.loading && !auth.isGuest ? auth.user?.id ?? 'welcome' : 'welcome'}
@@ -593,11 +594,6 @@ const IntroPage = ({
               </a>
             </section>
           </nav>
-          {resumeConversation && (
-            <button className="resume-conversation-link" type="button" onClick={onResumeConversation}>
-              Pick up where we left off
-            </button>
-          )}
         </div>
         </div>
       </section>

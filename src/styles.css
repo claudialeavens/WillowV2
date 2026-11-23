@@ -998,34 +998,6 @@ button {
   .intro-about { padding-left: 1rem; }
 }
 
-.resume-conversation-link {
-  justify-self: center;
-  margin-top: 0.25rem;
-  border: 0;
-  padding: 0.25rem 0;
-  color: #667161;
-  background: transparent;
-  font-size: calc(0.84rem * 1.07);
-  font-weight: 400;
-  text-decoration: underline;
-  text-decoration-color: rgba(75, 91, 70, 0.55);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3rem;
-  cursor: pointer;
-  transition: color 180ms ease, text-decoration-color 180ms ease;
-}
-
-.resume-conversation-link:hover {
-  color: #354b35;
-  text-decoration-color: currentColor;
-}
-
-.resume-conversation-link:focus-visible {
-  border-radius: 0.2rem;
-  outline: 2px solid #53684d;
-  outline-offset: 5px;
-}
-
 .intro-thought > p {
   max-width: 34rem;
   justify-self: center;
@@ -2781,3 +2753,18 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-completed-mark { display: grid; place-items: center; width: 1.2rem; height: 1.2rem; border-radius: 50%; background: #759338; color: #fffdf4; }
 .petal-completed-mark svg { width: .9rem; height: .9rem; }
 .petal-recommendations li.is-completed .petal-completion-pill { background: #f4dfbf; }
+
+/* Halve the previous top gap, including free space from vertical centering. */
+.intro-content { justify-content: flex-start; padding-top: 2.5rem; padding-bottom: 6.5rem; }
+.intro-content::before, .intro-content::after { content: ''; width: 100%; }
+.intro-content::before { flex: 1 0 0; }
+.intro-content::after { flex: 3 0 0; }
+.intro-content-scaled { flex-shrink: 0; }
+.intro-secondary-actions { flex-wrap: wrap; align-items: flex-start; row-gap: 1rem; }
+@media (min-width: 761px) { .intro-content:has(.intro-resume-button) { padding-bottom: 9rem; } }
+@media (max-width: 760px) { .intro-content { padding-bottom: 5rem; } }
+@media (max-width: 600px) {
+  .intro-secondary-actions:has(.intro-resume-button) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; column-gap: 1rem; }
+  .intro-secondary-actions .intro-track-button { justify-content: center; }
+  .intro-secondary-actions:has(.intro-resume-button) .intro-about { grid-column: 1 / -1; border-left: 0; padding-left: 0; }
+}
