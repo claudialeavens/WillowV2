@@ -536,7 +536,7 @@ const IntroPage = ({
             <span><strong>Keep me on track</strong><small>Stay consistent.</small></span>
           </button>
         </>}>
-        <p className="tagline">Clear the way. Reconnect with yourself. Reveal your light.</p>
+        <p className="tagline"><span>Clear the way. Reconnect with yourself. Reveal your light.</span></p>
         <LandingWelcomeMessage
           key={!auth.loading && !auth.isGuest ? auth.user?.id ?? 'welcome' : 'welcome'}
           userId={!auth.loading && !auth.isGuest ? auth.user?.id : null}

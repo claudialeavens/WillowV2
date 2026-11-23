@@ -770,10 +770,15 @@ button {
 }
 
 .tagline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(.6rem, 1.5vw, 1rem);
+  width: min(62rem, 100%);
   margin: 0;
   color: #69665e;
   font-family: "Cormorant Garamond", Georgia, serif;
-  font-size: calc(clamp(1.2rem, 1.7vw, 1.55rem) * 1.07 + 2pt / 0.7225);
+  font-size: calc(clamp(1.15rem, 1.6vw, 1.5rem) * 1.07 + 1pt / 0.7225);
   font-style: italic;
   font-weight: 500;
   letter-spacing: 0.01em;
@@ -2775,3 +2780,6 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-recommendations li.is-pinned .petal-item-icon { color: #496d2e; }
 .petal-recommendations li.is-pinned .petal-pin-button[aria-pressed="true"] { color: #fffdf4; background: #597d36; }
 .petal-recommendations li.is-pinned .petal-completion-pill { background: #b9ce8d; }
+
+.tagline::before, .tagline::after { content: ''; flex: 1 0 1.25rem; max-width: 3.5rem; height: 1px; background: #999b82; opacity: .75; }
+.tagline > span { min-width: 0; }
