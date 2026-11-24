@@ -21,11 +21,12 @@ test('daily selection is deterministic, attributed, and changes on consecutive d
 test('day boundary uses local calendar fields', () => assert.equal(localDay(new Date(2026, 10, 11, 23, 59)), '2026-11-11'));
 
 test('every daily quote belongs to the calm, clarity, and wellbeing collection', () => {
-  const authors = new Set(['James Allen', 'Marcus Aurelius', 'Gautama Buddha', 'Ralph Waldo Emerson']);
+  const authors = new Set(['James Allen', 'Marcus Aurelius', 'Gautama Buddha', 'Ralph Waldo Emerson', 'Henry David Thoreau']);
   for (const quote of LANDING_QUOTES) {
     assert.ok(quote.id.startsWith('wellbeing-'));
     assert.ok(authors.has(quote.author));
-    assert.match(quote.text, /calm|tranquil|renew|health|rest|peace/i);
+    assert.ok(quote.themes.length > 0);
+    assert.ok(quote.source.startsWith('https://www.gutenberg.org/'));
   }
   for (const theme of ['direction', 'rest', 'connection', 'confidence', 'acceptance', 'growth']) {
     assert.ok(LANDING_QUOTES.filter((quote) => quote.themes.includes(theme)).length >= 2);
@@ -49,4 +50,25 @@ test('returning after several days still gives a different relevant quote', () =
     const next = selectDailyQuote(conversation, `2026-11-${day}`, 'account-a', previous);
     assert.notEqual(next.quoteId, previous.quoteId);
   }
+});
+
+test('collection contains at least twenty distinct quotes and cycles without repeats', () => {
+  assert.ok(LANDING_QUOTES.length >= 20);
+  assert.equal(new Set(LANDING_QUOTES.map(q => q.text)).size, LANDING_QUOTES.length);
+  const displayed = new Set();
+  let saved = null;
+  for (let i = 0; i < LANDING_QUOTES.length; i++) {
+    const day = new Date(Date.UTC(2026, 10, 1 + i)).toISOString().slice(0, 10);
+    saved = selectDailyQuote(conversation, day, 'account-a', saved);
+    assert.ok(!displayed.has(saved.quoteId));
+    displayed.add(saved.quoteId);
+    saved = JSON.parse(JSON.stringify(saved)); // restored account data retains progress
+  }
+  const next = selectDailyQuote(conversation, '2026-12-01', 'account-a', saved);
+  assert.notEqual(next.quoteId, saved.quoteId);
+  assert.equal(next.seenQuoteIds.length, 1);
+});
+test('same-day quote stays stable after conversation topic changes', () => {
+  const saved = selectDailyQuote(conversation, '2026-11-24', 'account-a');
+  assert.deepEqual(selectDailyQuote({ ...conversation, summary: { takeaway: 'rest sleep calm' } }, saved.day, 'account-a', saved), saved);
 });
