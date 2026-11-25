@@ -758,7 +758,7 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth,
         <button type="button" aria-pressed={petalView === 'explore'} onClick={() => setPetalView('explore')}><Leaf aria-hidden="true" />Explore petals</button>
         <button type="button" aria-pressed={petalView === 'mine'} onClick={() => setPetalView('mine')}><User aria-hidden="true" />My petals</button>
       </div>
-      {petalView === 'mine' ? <MyPetals key={auth.user?.id ?? 'guest'} userId={auth.user?.id} flower={flower} onContinue={onRecommendation} /> : flower}
+      {petalView === 'mine' ? <MyPetals key={auth.user?.id ?? 'guest'} userId={auth.user?.id} flower={flower} onContinue={onRecommendation} /> : <MyPetals key={`explore:${auth.user?.id ?? 'guest'}`} userId={auth.user?.id} flower={flower} onContinue={onRecommendation} pinnedOnly />}
       <div className="matters-divider" aria-hidden="true"><Leaf /></div>
     </section>
     <dialog ref={wholeSelfDialog} className="whole-self-dialog" aria-labelledby="whole-self-heading" onClick={(event) => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>

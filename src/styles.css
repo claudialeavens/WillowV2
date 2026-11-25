@@ -2795,3 +2795,12 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-sort-active { user-select: none; }
 .petal-recommendations li.is-dragging { position: relative; z-index: 1; outline: 2px solid #779652; outline-offset: -2px; background: #edf3df; box-shadow: 0 5px 15px #40512c30; }
 .petal-recommendations li.is-dragging .petal-drag-handle { cursor: grabbing; }
+
+/* Pinned actions extend their matching petal in Explore. */
+.matters-content:has(.explore-pinned-garden.has-pinned-extension) { width: min(70rem, calc(100% - 2rem)); }
+.explore-pinned-garden:not(.has-pinned-extension) { display: block; }
+.explore-pinned-garden:not(.has-pinned-extension) .my-petals-flower { width: 100%; }
+.explore-pinned-garden:not(.has-pinned-extension) .matters-wheel { margin-inline: auto; }
+.explore-pinned-garden .petal-edit-controls[hidden] { display: none; }
+.explore-pinned-garden .petal-recommendations li { display: grid; align-items: center; gap: .3rem; grid-template-columns: auto minmax(0, 1fr) auto auto; }
+.explore-pinned-garden .petal-recommendations li.is-pinned { border-color: var(--petal-border); border-left-color: var(--petal-border); background: linear-gradient(to right, var(--petal-background), #fffdf4); }

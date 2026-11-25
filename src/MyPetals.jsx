@@ -11,7 +11,7 @@ import { ActionCompletion } from './ActionCompletion';
 import { SortablePetalList } from './SortablePetalList';
 
 const ICONS = [Users, Sprout, Sun, Leaf, Heart, ListChecks];
-export const MyPetals = ({ userId, flower, onContinue }) => {
+export const MyPetals = ({ userId, flower, onContinue, pinnedOnly = false }) => {
   const [archive, setArchive] = useState(() => ({ records: getLocalArchive(userId), loading: true, synced: false }));
   const [review, setReview] = useState({ items: null, state: 'loading', progress: '' });
   const [itemDraft, setItemDraft] = useState(null);
@@ -42,12 +42,13 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
   const dismissed = preferences?.dismissed ?? [];
   const visible = recommendations.filter(item => !dismissed.includes(item.id));
   return <>
-    {(archive.loading || review.state !== 'complete' || (userId && !archive.synced)) && <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : ''}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>}
-    <div className="my-petals-garden">
+    {!pinnedOnly && (archive.loading || review.state !== 'complete' || (userId && !archive.synced)) && <p className="my-petals-status" role="status">{archive.loading ? 'Loading your archive…' : review.state === 'loading' ? `Reviewing your archive for action items… ${review.progress}` : ''}{review.state === 'partial' && ' Full review is temporarily unavailable; showing extracted items. Reopen My petals to retry.'}{!archive.loading && userId && !archive.synced && ' Account history is unavailable; showing what is saved on this device.'}</p>}
+    <div className={pinnedOnly ? `my-petals-garden explore-pinned-garden${visible.some(item => rotation?.paused && rotation.itemId === item.id) ? ' has-pinned-extension' : ''}` : 'my-petals-garden'}>
       <div className="my-petals-flower">{flower}</div>
       {PETAL_NAMES.map((petal, index) => {
         const Icon = ICONS[index];
-        const items = orderedPetalActions(visible, preferences, petal);
+        const items = orderedPetalActions(visible, preferences, petal).filter(item => !pinnedOnly || (rotation?.paused && rotation.itemId === item.id));
+        if (pinnedOnly && !items.length) return null;
         const hiddenIds = recommendations.filter(item => item.petal === petal && dismissed.includes(item.id)).map(item => item.id);
         const adding = draft?.petal === petal;
         const cancelAdd = () => {
@@ -61,8 +62,8 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
           setDraft(null);
         };
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}`} aria-labelledby={`petal-recommendations-${index}`}>
-          <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls">{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => { if (adding) saveAction(); else { setItemDraft(null); setDraft({ petal, text: '' }); } }}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{adding && <button type="button" className="petal-edit-button" aria-label={`Cancel new action item for ${petal}`} title="Cancel action item" onClick={cancelAdd}><X aria-hidden="true" /></button>}</span></div>
-          <SortablePetalList items={items} disabled={editsLoading || !!itemDraft || adding} onReorder={ids => savePreferences(current => setPetalActionOrder(current, petal, ids))} getClassName={item => [actionCompletionCount(preferences, item.id) > 0 ? 'is-completed' : '', rotation?.paused && rotation.itemId === item.id ? 'is-pinned' : ''].filter(Boolean).join(' ')}>
+          <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls" hidden={pinnedOnly}>{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => { if (adding) saveAction(); else { setItemDraft(null); setDraft({ petal, text: '' }); } }}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{adding && <button type="button" className="petal-edit-button" aria-label={`Cancel new action item for ${petal}`} title="Cancel action item" onClick={cancelAdd}><X aria-hidden="true" /></button>}</span></div>
+          <SortablePetalList items={items} disabled={pinnedOnly || editsLoading || !!itemDraft || adding} onReorder={ids => savePreferences(current => setPetalActionOrder(current, petal, ids))} getClassName={item => [actionCompletionCount(preferences, item.id) > 0 ? 'is-completed' : '', rotation?.paused && rotation.itemId === item.id ? 'is-pinned' : ''].filter(Boolean).join(' ')}>
           {(item, handleProps) => <>
             {itemDraft?.id === item.id ? <form className="petal-add-form petal-item-edit-form" onSubmit={event => {
               event.preventDefault();
@@ -73,11 +74,11 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
               <label><span className="sr-only">Edit action item</span><textarea aria-label={`Edit action item: ${item.text}`} value={itemDraft.text} onChange={event => setItemDraft({ id: item.id, text: event.target.value })} maxLength={500} required autoFocus /></label>
               <div><button type="submit" aria-label="Save action item changes" title="Save changes" disabled={!itemDraft.text.trim() || editsLoading}><Check aria-hidden="true" /></button><button type="button" aria-label="Cancel action item changes" title="Cancel changes" onClick={() => setItemDraft(null)}><X aria-hidden="true" /></button><button type="button" disabled={editsLoading} onClick={() => { savePreferences(current => ({ ...current, dismissed: [...(current?.dismissed ?? []), item.id] })); setItemDraft(null); }}>Remove</button></div>
             </form> : <>
-              <button {...handleProps}><Icon className="petal-item-icon" aria-hidden="true" /></button>
+              {pinnedOnly ? <Icon className="petal-item-icon" aria-hidden="true" /> : <button {...handleProps}><Icon className="petal-item-icon" aria-hidden="true" /></button>}
               <button type="button" className="petal-recommendation" onClick={() => setSelected(item)}><span>{item.text}</span></button>
               <PetalPinButton item={item} className="petal-item-pin" />
-              <button type="button" className="petal-hide" aria-label={`Edit action item: ${item.text}`} title="Edit action item" disabled={editsLoading} onClick={() => { setDraft(null); setItemDraft({ id: item.id, text: item.text }); }}><SquarePen aria-hidden="true" /></button>
-              <ActionCompletion item={item} count={actionCompletionCount(preferences, item.id)} disabled={editsLoading} onChange={delta => savePreferences(current => changeActionCompletion(current, item.id, delta))} />
+              {!pinnedOnly && <button type="button" className="petal-hide" aria-label={`Edit action item: ${item.text}`} title="Edit action item" disabled={editsLoading} onClick={() => { setDraft(null); setItemDraft({ id: item.id, text: item.text }); }}><SquarePen aria-hidden="true" /></button>}
+              {!pinnedOnly && <ActionCompletion item={item} count={actionCompletionCount(preferences, item.id)} disabled={editsLoading} onChange={delta => savePreferences(current => changeActionCompletion(current, item.id, delta))} />}
               <button type="button" className="petal-expand-action" aria-label={`Open action item: ${item.text}`} title="Open action item" onClick={() => setSelected(item)}><ChevronRight aria-hidden="true" /></button>
             </>}
           </>}
@@ -89,7 +90,7 @@ export const MyPetals = ({ userId, flower, onContinue }) => {
             <label>New action item<textarea aria-label={`New action item for ${petal}`} value={draft.text} onChange={event => setDraft({ petal, text: event.target.value })} maxLength={500} required autoFocus /></label>
             <div><button type="submit" disabled={!draft.text.trim() || editsLoading}>Add</button><button type="button" onClick={cancelAdd}>Cancel</button></div>
           </form> : items.length === 0 && <button type="button" className="petal-add-empty" disabled={editsLoading} onClick={() => { setItemDraft(null); setDraft({ petal, text: '' }); }}><Plus aria-hidden="true" />Add action item</button>}
-          {(hiddenIds.length > 0 || adding || items.some(item => item.id === itemDraft?.id)) && <div className="petal-box-edit-status">{hiddenIds.length > 0 && <button type="button" onClick={() => savePreferences(current => ({ ...current, dismissed: (current?.dismissed ?? []).filter(id => !hiddenIds.includes(id)) }))}>Restore hidden items</button>}<p role="status">{editStatus}</p></div>}
+          {!pinnedOnly && (hiddenIds.length > 0 || adding || items.some(item => item.id === itemDraft?.id)) && <div className="petal-box-edit-status">{hiddenIds.length > 0 && <button type="button" onClick={() => savePreferences(current => ({ ...current, dismissed: (current?.dismissed ?? []).filter(id => !hiddenIds.includes(id)) }))}>Restore hidden items</button>}<p role="status">{editStatus}</p></div>}
         </section>;
       })}
     </div>
