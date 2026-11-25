@@ -14,16 +14,16 @@ export const PinnedActionDiscovery = ({ item, onBack, onHome, onChat }) => {
   const chat = (message, context = {}) => onChat(message, { ...context, need: item.petal, pinnedAction: item.text });
   if (answer) return <CustomMeaningDiscovery choice={item.petal} initialAnswers={[
     { question: 'What pinned action would you like to explore?', answer: item.text },
-    { question: 'What would help you with this today?', answer },
+    { question: 'How would you like to explore this?', answer },
   ]} onBack={() => setAnswer(null)} onHome={onHome} onChat={chat} />;
   return <main className="page discovery-page">
     <nav className="tracking-navigation" aria-label="Page navigation"><button className="home-button back-button" type="button" aria-label="Go back" onClick={onBack}><ArrowLeft aria-hidden="true" /></button><button className="home-button" type="button" aria-label="Return to home page" onClick={onHome}><Home aria-hidden="true" /></button></nav>
     <section className="discovery-content" aria-labelledby="pinned-discovery-heading">
       <p className="discovery-eyebrow"><Leaf aria-hidden="true" /> Nourish &amp; Flourish · {item.petal}</p>
-      <h1 id="pinned-discovery-heading">Let’s explore what you pinned.</h1>
-      <p className="discovery-intro">{item.text}</p>
+      <h1 id="pinned-discovery-heading">{item.text.charAt(0).toUpperCase() + item.text.slice(1)}</h1>
+      <p className="discovery-intro">Let’s explore this possibility together.</p>
       <div className="discovery-starting-points" role="group" aria-labelledby="pinned-question-heading">
-        <h2 id="pinned-question-heading">What would help you with this today?</h2>
+        <h2 id="pinned-question-heading">How would you like to explore this?</h2>
         {OPTIONS.map(option => <button key={option.title} type="button" onClick={() => setAnswer(option.title)}><span className="discovery-choice-icon"><Heart aria-hidden="true" /></span><span><strong>{option.title}</strong><small>{option.caption}</small></span><ChevronRight aria-hidden="true" /></button>)}
         <DiscoveryOther initialValue={answer ?? ''} onSubmit={setAnswer} />
       </div>
