@@ -1405,10 +1405,10 @@ const App = () => {
   } else if (step === 7) {
     page = (
       <MattersPage
-        onRecommendation={(item) => {
+        onRecommendation={(item, { explorePinned = false } = {}) => {
           setActiveConversation(null);
-          setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, stage: 'orient' } });
-          setInitialThought(`I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
+          setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, ...(explorePinned ? { pinnedAction: item.text } : {}), stage: 'orient' } });
+          setInitialThought(explorePinned ? `I want to explore this action I pinned in ${item.petal}: ${item.text}. Help me unpack it, understand what matters to me about it, and work toward a manageable next step.` : `I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
           setConversationMode('core');
           setStep(4);
         }}

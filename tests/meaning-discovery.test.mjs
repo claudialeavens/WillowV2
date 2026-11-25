@@ -109,3 +109,12 @@ test('three distinct approaches retain every path’s tailored need and takeaway
   }
   assert.match(discoveryInstructions({ answers: ['a', 'b', 'c', 'd'] }), /offer three closely matched approaches/);
 });
+
+test('pinned action exploration stays focused on the chosen action instead of restarting intake', () => {
+  const instructions = discoveryInstructions({ need: 'Meaning & purpose', pinnedAction: 'Envision future paths', desiredTakeaway: 'Envision future paths' });
+  assert.match(instructions, /Envision future paths/);
+  assert.match(instructions, /one focused question/);
+  assert.match(instructions, /manageable next step/);
+  assert.match(instructions, /Do not restart the generic petal questionnaire/);
+  assert.doesNotMatch(instructions, /Ask at most 4/);
+});
