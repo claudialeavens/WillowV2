@@ -57,6 +57,7 @@ import './styles.css';
 const AuthModal = lazy(() =>
   import('./AuthModal').then((module) => ({ default: module.AuthModal })),
 );
+const PinnedActionDiscovery = lazy(() => import('./PinnedActionDiscovery.jsx').then(module => ({ default: module.PinnedActionDiscovery })));
 const MeaningDiscovery = lazy(() => import('./MeaningDiscovery.jsx').then((module) => ({ default: module.MeaningDiscovery })));
 
 const HOME_ACTIONS = [
@@ -1214,6 +1215,7 @@ const App = () => {
   const [archiveOpen, setArchiveOpen] = useState(false);
   const openArchive = useCallback(() => setArchiveOpen(true), []);
   const [entryContext, setEntryContext] = useState(null);
+  const [pinnedDiscoveryItem, setPinnedDiscoveryItem] = useState(null);
   const [discoveryChoice, setDiscoveryChoice] = useState('Not sure yet');
   const closeArchive = useCallback(() => setArchiveOpen(false), []);
   const [initialThought, setInitialThought] = useState('');
@@ -1270,11 +1272,16 @@ const App = () => {
   }, [authOpen, setStep]);
 
   const openPetalAction = (item, { explorePinned = false } = {}) => {
-          setActiveConversation(null);
-          setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, ...(explorePinned ? { pinnedAction: item.text } : {}), stage: 'orient' } });
-          setInitialThought(explorePinned ? `I want to explore this action I pinned in ${item.petal}: ${item.text}. Help me unpack it, understand what matters to me about it, and work toward a manageable next step.` : `I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
-          setConversationMode('core');
-          setStep(4);
+    if (explorePinned) {
+      setPinnedDiscoveryItem(item);
+      setStep(14);
+      return;
+    }
+    setActiveConversation(null);
+    setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, stage: 'orient' } });
+    setInitialThought(`I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
+    setConversationMode('core');
+    setStep(4);
   };
 
   let page;
@@ -1394,6 +1401,14 @@ const App = () => {
   } else if (step === 10 || step === 11) {
     const kind = 'wellbeing';
     page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
+  } else if (step === 14 && pinnedDiscoveryItem) {
+    page = <PinnedActionDiscovery key={`${pinnedDiscoveryItem.id}:${auth.user?.id ?? 'guest'}`} item={pinnedDiscoveryItem} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
+      setActiveConversation(null);
+      setEntryContext({ activity: 'My petals', selection: pinnedDiscoveryItem.petal, discovery });
+      setInitialThought(message);
+      setConversationMode('core');
+      setStep(4);
+    }} />;
   } else if (step === 12) {
     page = <MeaningDiscovery key={`${discoveryChoice}:${auth.user?.id ?? 'guest'}`} choice={discoveryChoice} userId={auth.user?.id} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
       setActiveConversation(null);
