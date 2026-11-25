@@ -1269,6 +1269,14 @@ const App = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [authOpen, setStep]);
 
+  const openPetalAction = (item, { explorePinned = false } = {}) => {
+          setActiveConversation(null);
+          setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, ...(explorePinned ? { pinnedAction: item.text } : {}), stage: 'orient' } });
+          setInitialThought(explorePinned ? `I want to explore this action I pinned in ${item.petal}: ${item.text}. Help me unpack it, understand what matters to me about it, and work toward a manageable next step.` : `I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
+          setConversationMode('core');
+          setStep(4);
+  };
+
   let page;
   if (step === 0) {
     page = (
@@ -1405,13 +1413,7 @@ const App = () => {
   } else if (step === 7) {
     page = (
       <MattersPage
-        onRecommendation={(item, { explorePinned = false } = {}) => {
-          setActiveConversation(null);
-          setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, ...(explorePinned ? { pinnedAction: item.text } : {}), stage: 'orient' } });
-          setInitialThought(explorePinned ? `I want to explore this action I pinned in ${item.petal}: ${item.text}. Help me unpack it, understand what matters to me about it, and work toward a manageable next step.` : `I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
-          setConversationMode('core');
-          setStep(4);
-        }}
+        onRecommendation={openPetalAction}
         onManagingLife={() => setStep(13)}
         onHome={goHome}
         onSelect={(choice) => {
@@ -1442,7 +1444,7 @@ const App = () => {
 
   return (
     <>
-      <PetalPinProvider key={auth.user?.id ?? 'guest'} userId={auth.user?.id}>
+      <PetalPinProvider key={auth.user?.id ?? 'guest'} userId={auth.user?.id} onExplore={item => openPetalAction(item, { explorePinned: true })}>
       <NavigationContext.Provider value={{ canGoBack: pageHistory.length > 1, goBack, openWeek: () => setStep(9) }}>
       <Suspense fallback={<main className="page"><section className="discovery-content"><p role="status">Finding a place to begin…</p></section></main>}>{page}</Suspense>
       <MainMenu onHome={goHome} onArchive={openArchive} auth={auth} onSignIn={openAuth} />

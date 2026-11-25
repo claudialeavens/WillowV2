@@ -4,10 +4,10 @@ import { useTrackingRecord } from './useTrackingRecord';
 import { togglePetalPin } from './petalInspiration';
 
 const PetalPinContext = createContext(null);
-export const PetalPinProvider = ({ userId, children }) => {
+export const PetalPinProvider = ({ userId, children, onExplore }) => {
   // Retain the saved pause record: an existing held action becomes a pinned action.
   const { value: rotation, update: saveRotation, loading: rotationLoading, status: rotationStatus } = useTrackingRecord('petalRotation', userId, { paused: false, itemId: null }, `willow-petal-rotation:${userId ?? 'guest'}`);
-  return <PetalPinContext.Provider value={{ rotation, saveRotation, rotationLoading, rotationStatus }}>{children}</PetalPinContext.Provider>;
+  return <PetalPinContext.Provider value={{ rotation, saveRotation, rotationLoading, rotationStatus, onExplore }}>{children}</PetalPinContext.Provider>;
 };
 export const usePetalPin = () => useContext(PetalPinContext);
 export const PetalPinButton = ({ item, className = '', showLabel = false }) => {

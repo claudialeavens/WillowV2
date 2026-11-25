@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Sprout, Users, Sun, Leaf, Heart, ListChecks, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Sprout, Users, Sun, Leaf, Heart, ListChecks, ChevronRight, ChevronLeft, Play } from 'lucide-react';
 import { getArchive } from './conversationStore';
 import { reviewArchivePetals } from './archivePetalReview';
 import { useTrackingRecord } from './useTrackingRecord';
@@ -20,7 +20,7 @@ export const AccountPetalInspiration = ({ userId }) => {
   const [artSeed, setArtSeed] = useState(null);
   const chosen = useRef(false);
   const { value: preferences, loading } = useTrackingRecord('petalRecommendations', userId, { dismissed: [] }, `willow-petal-recommendations:${userId}`);
-  const { rotation, saveRotation, rotationLoading, rotationStatus } = usePetalPin();
+  const { rotation, saveRotation, rotationLoading, rotationStatus, onExplore } = usePetalPin();
   const displayItem = useCallback(item => {
     if (item) {
       try { sessionStorage.setItem(`willow-menu-petal-rotation-v1:${userId}`, item.id); } catch { /* The selected card still works without storage. */ }
@@ -87,7 +87,7 @@ export const AccountPetalInspiration = ({ userId }) => {
   const design = botanicalDesign(selected?.petal, artSeed ?? 'loading');
   const Icon = ICONS[selected?.petal] ?? Sprout;
   return <details className={`account-card account-nourishing account-petal-inspiration${rotation?.paused && rotation.itemId === selected?.id ? ' is-pinned' : ''}`} style={{ '--petal-card-hue': design.hue }}>
-    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span><span className="petal-browse-actions"><button type="button" className="petal-next-action" aria-label="Previous My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Previous action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={event => browseAction(event, 'previous')}><ChevronLeft aria-hidden="true" /></button><button type="button" className="petal-next-action" aria-label="Next My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Next action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={event => browseAction(event, 'next')}><ChevronRight aria-hidden="true" /></button></span><PetalPinButton item={selected} className="petal-rotation-toggle" /></summary>
+    <summary className="account-card-heading">{artSeed && <PetalBotanical petal={selected?.petal} seed={artSeed} />}<span className="account-card-icon"><Icon aria-hidden="true" /></span><span className="account-card-copy"><span className="petal-card-badge">MY PETALS – {selected ? design.label : 'Nourishing what matters'}</span><strong>{title}</strong><span className="account-card-preview">{inspiration || 'Gathering a little inspiration from your saved action items…'}</span></span>{rotation?.paused && rotation.itemId === selected?.id ? <button type="button" className="petal-explore-play" aria-label={`Explore pinned action: ${selected.text}`} onClick={event => { event.preventDefault(); event.stopPropagation(); onExplore(selected); }}><span className="petal-play-circle"><Play aria-hidden="true" /></span><span>Explore a little</span></button> : <span className="petal-browse-actions"><button type="button" className="petal-next-action" aria-label="Previous My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Previous action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={event => browseAction(event, 'previous')}><ChevronLeft aria-hidden="true" /></button><button type="button" className="petal-next-action" aria-label="Next My petals action" title={rotation?.paused ? 'Unpin to browse other actions' : 'Next action item'} disabled={rotationLoading || loading || rotation?.paused || visibleItems.length < 2} onClick={event => browseAction(event, 'next')}><ChevronRight aria-hidden="true" /></button></span>}<PetalPinButton item={selected} className="petal-rotation-toggle" /></summary>
     <div className="account-card-body">{selected ? <><p>{selected.petal}</p><p>{selected.text}</p>{rotation?.paused && <><p>Pinned to your profile until you unpin it.</p><p role="status">{rotationStatus}</p></>}</> : <p>{items === null || loading ? 'Loading your petal action items…' : 'Action items from your archived conversations will appear here when you have some saved.'}</p>}</div>
   </details>;
 };

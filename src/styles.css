@@ -2810,3 +2810,13 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .explore-pinned-garden .petal-item-pin { grid-column: 3; grid-row: 1 / 3; }
 .explore-pinned-garden .petal-expand-action { grid-column: 4; grid-row: 1 / 3; }
 .explore-pinned-garden .pinned-action-explore:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; }
+
+.account-popover .account-petal-inspiration .petal-explore-play { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; flex: 0 0 auto; gap: .35rem; padding: .25rem; border: 0; background: transparent; color: #304b36; font: inherit; font-size: .75rem; font-weight: 600; cursor: pointer; }
+.petal-play-circle { display: grid; place-items: center; width: 3.7rem; height: 3.7rem; border: 3px solid #fffaf1; border-radius: 50%; background: linear-gradient(135deg, #dfa878, #bb734c); box-shadow: 0 3px 10px #754b3433; }
+.account-popover .account-petal-inspiration .petal-play-circle svg { width: 1.6rem; height: 1.6rem; fill: #fffaf1; color: #fffaf1; margin-left: .15rem; }
+.petal-explore-play:hover .petal-play-circle { filter: brightness(1.07); }
+.petal-explore-play:focus-visible { outline: 2px solid #536c4d; outline-offset: 3px; border-radius: .7rem; }
+@media (max-width: 480px) {
+  .account-popover .account-petal-inspiration.is-pinned .account-card-heading { flex-wrap: wrap; }
+  .account-popover .account-petal-inspiration.is-pinned .petal-explore-play { margin-left: auto; }
+}
