@@ -2820,3 +2820,12 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
   .account-popover .account-petal-inspiration.is-pinned .account-card-heading { flex-wrap: wrap; }
   .account-popover .account-petal-inspiration.is-pinned .petal-explore-play { margin-left: auto; }
 }
+
+/* Keep the menu card copy readable independently of its action controls. */
+.account-popover .account-petal-inspiration .account-card-heading { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; padding-top: 2rem; }
+.account-petal-inspiration .account-card-copy { grid-column: 2; padding-right: 0; }
+.account-petal-inspiration .petal-card-badge { max-width: 100%; box-sizing: border-box; white-space: normal; overflow-wrap: break-word; }
+.account-petal-inspiration .account-card-heading strong { overflow-wrap: break-word; }
+.account-popover .account-petal-inspiration .petal-explore-play,
+.account-petal-inspiration .petal-browse-actions { grid-column: 2; justify-self: end; }
+.account-popover .account-petal-inspiration .petal-explore-play { width: auto; margin-left: 0; }
