@@ -307,3 +307,32 @@ test('petal action order restores on another device without losing completions o
   assert.equal(saved.completions.first, 2);
   assert.equal(saved.edits.second, 'Call Mum');
 });
+
+test('petal action notes survive account sync, editing, removal and offline reload', async () => {
+  const user = account();
+  const first = device(user);
+  const render = target => target.render('petalRecommendations', 'user-a', { dismissed: [] });
+  render(first); await settle();
+  render(first).update(current => ({ ...current, notes: { 'archive:one': 'Imagine a quieter working week.\nTalk it over.' } }));
+  await settle();
+  const second = device(user);
+  render(second); await settle();
+  assert.equal(render(second).value.notes['archive:one'], 'Imagine a quieter working week.\nTalk it over.');
+  render(second).update(current => ({ ...current, notes: { ...current.notes, 'archive:one': 'Updated reflection' } }));
+  await settle();
+  assert.equal(user.metadata.willow_tracking_petalRecommendations.notes['archive:one'], 'Updated reflection');
+  user.offline = true;
+  render(second).update(current => ({ ...current, notes: { ...current.notes, 'archive:one': 'Offline reflection' } }));
+  await settle();
+  const reloaded = device(user, Object.fromEntries(second.storage));
+  render(reloaded); await settle();
+  assert.equal(render(reloaded).value.notes['archive:one'], 'Offline reflection');
+  user.offline = false;
+  reloaded.online(); await settle();
+  assert.equal(user.metadata.willow_tracking_petalRecommendations.notes['archive:one'], 'Offline reflection');
+  render(reloaded).update(current => ({ ...current, notes: { ...current.notes, 'archive:one': '' } }));
+  await settle();
+  const third = device(user);
+  render(third); await settle();
+  assert.equal(render(third).value.notes['archive:one'], '');
+});

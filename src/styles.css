@@ -2829,3 +2829,18 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .account-popover .account-petal-inspiration .petal-explore-play,
 .account-petal-inspiration .petal-browse-actions { grid-column: 2; justify-self: end; }
 .account-popover .account-petal-inspiration .petal-explore-play { width: auto; margin-left: 0; }
+
+.petal-recommendations li { display: grid; grid-template-columns: auto minmax(0, 1fr) repeat(4, auto); align-items: center; }
+.petal-action-note { min-width: 0; margin-top: .5rem; color: #405b3c; }
+.petal-recommendations li > .petal-action-note { grid-column: 1 / -1; grid-row: 2; }
+.petal-recommendations li > .petal-expand-action { grid-column: 6; grid-row: 1; }
+.explore-pinned-garden .petal-recommendations li > .petal-expand-action { grid-column: 4; }
+.petal-recommendations li > .petal-item-edit-form { grid-column: 1 / -1; }
+.explore-pinned-garden .petal-recommendations li > .petal-action-note { grid-column: 2 / -1; grid-row: 3; }
+.petal-action-note .petal-saved-note { margin: .4rem 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .9rem; line-height: 1.5; }
+.petal-action-note label, .petal-action-note small { display: block; margin: .4rem 0; }
+.petal-action-note textarea { display: block; box-sizing: border-box; width: 100%; min-height: 6rem; padding: .65rem; border: 1px solid #a8b69b; border-radius: .6rem; background: #fffdf7; color: #304b36; font: inherit; resize: vertical; }
+.petal-action-note .petal-note-controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
+.petal-action-note button, .account-popover .petal-action-note button { width: auto; padding: .4rem .65rem; border: 1px solid #a8b69b; border-radius: .5rem; background: #fffdf3; color: #304b36; font: inherit; font-size: .85rem; cursor: pointer; }
+.petal-action-note button:focus-visible, .petal-action-note textarea:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+.petal-action-note button:disabled { opacity: .5; cursor: default; }
