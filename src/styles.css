@@ -2868,3 +2868,50 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-window-size svg { width: 1.35rem; height: 1.35rem; }
 .petal-window-size:hover { background: #405b3c12; }
 .petal-window-size:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+
+/* A watercolor garden shared by Explore petals and My petals. */
+.matters-page { background: radial-gradient(ellipse at 15% 30%, #f5d9cc55, transparent 45%), radial-gradient(ellipse at 85% 65%, #e3e8ca55, transparent 45%), #fff8ee; }
+.matters-page .matters-content { width: min(76rem, calc(100% - 2.5rem)); }
+.matters-page .matters-content h1 { color: #365333; white-space: normal; text-align: center; }
+.matters-page .matters-question { color: #68745b; text-align: center; }
+.matters-watercolor-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.matters-wheel { width: min(100%, 38rem); filter: drop-shadow(0 5px 6px #765d3820); }
+.matters-petal-label { font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1rem, 2.7vw, 1.55rem); font-weight: 600; line-height: 1.03; color: #243f2b; text-shadow: 0 1px 3px #fff8e9; }
+.matters-petal-label svg { width: clamp(1.2rem, 4vw, 2rem); height: clamp(1.2rem, 4vw, 2rem); stroke-width: 1.6; }
+.matters-wheel-explore .matters-petal-label { top: 5%; height: 28%; }
+.matters-petal-label .matters-petal-explore { font-family: inherit; font-size: .75em; font-weight: 500; }
+.matters-wheel-center { inset: 35%; border: 0; border-radius: 45%; background: transparent; box-shadow: none; font-size: clamp(1rem, 3vw, 1.65rem); color: #315027; text-shadow: 0 1px 4px #fffdf2; }
+.matters-wheel-center svg { top: 1%; }
+button.matters-wheel-center:hover { background: #fff8d533; box-shadow: none; }
+.petal-view-toggle { background: #fffaf1; border-color: #d7d8ba; box-shadow: 0 3px 10px #77654614; }
+.petal-view-toggle button[aria-pressed="true"] { background: #5f7950; }
+.my-petals-garden { grid-template-columns: minmax(0, 1fr) minmax(22rem, 1.8fr) minmax(0, 1fr); gap: 1.25rem; }
+.my-petals-flower .matters-petal-label { font-size: clamp(.95rem, 1.7vw, 1.4rem); }
+.my-petals-flower .matters-wheel-center { font-size: clamp(1rem, 1.7vw, 1.5rem); }
+.petal-recommendations { border-radius: 2rem 2.5rem 2rem 2.75rem; border-color: var(--petal-border); background: radial-gradient(ellipse at 20% 10%, #fffdf8d9, transparent 75%), var(--petal-background); box-shadow: 0 4px 13px #856b3420, inset 0 0 20px #fffcf5aa; padding: 1rem; }
+.petal-recommendations-0 { --petal-background: #fbe0e5; --petal-border: #e4a5b4; }
+.petal-recommendations-1 { --petal-background: #e9efc9; --petal-border: #b4c47a; }
+.petal-recommendations-2 { --petal-background: #fff0c1; --petal-border: #e7c56b; }
+.petal-recommendations-3 { --petal-background: #ecdef4; --petal-border: #c3a3d4; }
+.petal-recommendations-4 { --petal-background: #fbe0cf; --petal-border: #e8ac92; }
+.petal-recommendations-5 { --petal-background: #dceef6; --petal-border: #98c3da; }
+.petal-box-controls h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 1.25rem; font-weight: 700; }
+.petal-recommendations:has(ul:empty) { background: #fffaf1a6; border-style: solid; }
+@media (min-width: 1051px) {
+  .petal-recommendations-0::after, .petal-recommendations-3::before { width: 2px; background: #88936088; transform: rotate(-12deg); }
+  .petal-recommendations-1::before, .petal-recommendations-2::before, .petal-recommendations-4::after, .petal-recommendations-5::after { height: 2px; width: 1.25rem; background: #88936088; transform: rotate(-12deg); }
+}
+@media (max-width: 1050px) {
+  .my-petals-garden { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .my-petals-flower { width: min(100%, 36rem); }
+  .my-petals-flower .matters-petal-label { font-size: clamp(1rem, 2.7vw, 1.5rem); }
+  .my-petals-flower .matters-wheel-center { font-size: clamp(1rem, 3vw, 1.6rem); }
+}
+@media (max-width: 560px) {
+  .matters-page .matters-content { width: calc(100% - 1.25rem); }
+  .my-petals-garden { grid-template-columns: minmax(0, 1fr); }
+  .my-petals-flower { grid-column: 1; }
+  .petal-recommendations { grid-column: 1; }
+  .matters-petal-label, .my-petals-flower .matters-petal-label { font-size: clamp(.9rem, 4vw, 1.25rem); gap: .15rem; }
+  .matters-wheel-center, .my-petals-flower .matters-wheel-center { font-size: clamp(.85rem, 3.9vw, 1.2rem); }
+}
