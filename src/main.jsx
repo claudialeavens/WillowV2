@@ -1272,15 +1272,14 @@ const App = () => {
   }, [authOpen, setStep]);
 
   const openPetalAction = (item, { explorePinned = false } = {}) => {
-    if (explorePinned) {
-      setPinnedDiscoveryItem(item);
-      setStep(14);
-      return;
-    }
-    setActiveConversation(null);
-    setEntryContext({ activity: 'My petals', selection: item.petal, discovery: { need: item.petal, desiredTakeaway: item.text, stage: 'orient' } });
-    setInitialThought(`I'd like help with this recommendation from ${item.sourceTitle}: ${item.text}`);
-    setConversationMode('core');
+    setPinnedDiscoveryItem(item);
+    setStep(14);
+  };
+  const resumePetalConversation = conversation => {
+    setInitialThought('');
+    setEntryContext(null);
+    setActiveConversation(conversation);
+    setConversationMode(conversation.mode ?? 'core');
     setStep(4);
   };
 
@@ -1410,7 +1409,7 @@ const App = () => {
       setStep(4);
     }} />;
   } else if (step === 12) {
-    page = <MeaningDiscovery key={`${discoveryChoice}:${auth.user?.id ?? 'guest'}`} choice={discoveryChoice} userId={auth.user?.id} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
+    page = <MeaningDiscovery onResume={resumePetalConversation} key={`${discoveryChoice}:${auth.user?.id ?? 'guest'}`} choice={discoveryChoice} userId={auth.user?.id} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
       setActiveConversation(null);
       setEntryContext({ activity: 'Move towards what matters', selection: discoveryChoice, discovery });
       setInitialThought(message);

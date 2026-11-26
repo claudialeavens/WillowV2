@@ -2,11 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Heart, Home, Leaf, Sparkles } from 'lucide-react';
 import { DISCOVERY_PATHS } from './meaningDiscovery';
 import { discoveryFollowUp, sessionOutcomeQuestion, sessionTakeawayQuestion, tailoredApproaches } from './discoveryQuestions';
+import { DiscoveryResumeLink } from './DiscoveryResumeLink';
 import { DiscoveryOther } from './DiscoveryOther';
 import { CustomMeaningDiscovery } from './CustomMeaningDiscovery';
 import { useTrackingRecord } from './useTrackingRecord';
 
-export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => {
+export const MeaningDiscovery = ({ choice, userId, onResume, onBack, onHome, onChat }) => {
   const path = DISCOVERY_PATHS[choice] ?? DISCOVERY_PATHS['Not sure yet'];
   const [customDraft, setCustomDraft] = useState(null);
   const [customAnswers, setCustomAnswers] = useState(null);
@@ -64,7 +65,7 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
     ].filter(item => item.answer);
     setCustomAnswers([...previous, { question: intent ? question.question : 'What feels closest today?', answer }]);
   };
-  if (customAnswers) return <CustomMeaningDiscovery choice={choice} initialAnswers={customAnswers} onBack={() => setCustomAnswers(null)} onHome={onHome} onChat={onChat} />;
+  if (customAnswers) return <CustomMeaningDiscovery userId={userId} onResume={onResume} choice={choice} initialAnswers={customAnswers} onBack={() => setCustomAnswers(null)} onHome={onHome} onChat={onChat} />;
 
   return <main className="page discovery-page">
     <nav className="tracking-navigation" aria-label="Page navigation">
@@ -119,7 +120,7 @@ export const MeaningDiscovery = ({ choice, userId, onBack, onHome, onChat }) => 
         <button className="discovery-text-button" type="button" onClick={() => chat(`I'd like you to guide me through “${active.title}”, one small step at a time.`)}>Guide me through it</button>
       </article>}
       <form className="discovery-chat" onSubmit={(event) => { event.preventDefault(); if (thought.trim()) chat(thought.trim()); }}>
-        <label htmlFor="discovery-thought">{active ? 'What did you notice? Or tell Willow what you need.' : 'Or start wherever you like'}</label>
+        <div className="pinned-chat-entry-links"><DiscoveryResumeLink userId={userId} choice={choice} onResume={onResume} /><label htmlFor="discovery-thought">{active ? 'What did you notice? Or tell Willow what you need.' : 'Or start wherever you like'}</label></div>
         <div><input id="discovery-thought" value={thought} onChange={(event) => setThought(event.target.value)} placeholder="What’s on your mind?" /><button type="submit" disabled={!thought.trim()} aria-label="Talk with Willow"><ArrowRight aria-hidden="true" /></button></div>
       </form>
     </section>

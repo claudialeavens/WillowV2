@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Home, Leaf } from 'lucide-react';
+import { DiscoveryResumeLink } from './DiscoveryResumeLink';
 import { DiscoveryOther } from './DiscoveryOther';
 import { DiscoveryFormatError } from './customDiscovery';
 import { requestCustomDiscovery } from './requestCustomDiscovery';
 import { streamWillowMessage } from './openAIService';
 
-export const CustomMeaningDiscovery = ({ choice, initialAnswers, onBack, onHome, onChat }) => {
+export const CustomMeaningDiscovery = ({ choice, userId, item, onResume, initialAnswers, onBack, onHome, onChat }) => {
   const [answers, setAnswers] = useState(initialAnswers);
   const [screens, setScreens] = useState({});
   const [customDrafts, setCustomDrafts] = useState({});
@@ -68,7 +69,7 @@ export const CustomMeaningDiscovery = ({ choice, initialAnswers, onBack, onHome,
       </div>}
       {screen?.approaches && !active && <>{screen.approaches.map(item => <article className="discovery-recommendation" key={item.approach}><p className="discovery-label">{item.type} · {item.minutes} minutes</p><h2>{item.title}</h2><p>{item.gain}</p><button className="discovery-primary" type="button" onClick={() => setActive(item)}>Try this <ArrowRight aria-hidden="true" /></button></article>)}<button className="discovery-text-button" type="button" onClick={onBack}>Change my earlier answers</button></>}
       {active && <article className="discovery-experience"><p className="discovery-label">{active.type} · About {active.minutes} minutes · Go at your pace</p><ol>{active.steps.map((step, index) => <li key={index}>{step}</li>)}</ol><button className="discovery-text-button" type="button" onClick={() => setActive(null)}>See the three approaches</button><p className="discovery-permission">Take what helps. You can pause, adapt this, or choose something else.</p><button className="discovery-primary" type="button" onClick={() => chat(`I tried “${active.title}”. Help me reflect on what I noticed, one question at a time.`)}><Check aria-hidden="true" /> I’ve tried this</button><button className="discovery-text-button" type="button" onClick={() => chat(`Guide me through “${active.title}”, one small step at a time.`)}>Guide me through it</button></article>}
-      <form className="discovery-chat" onSubmit={(event) => { event.preventDefault(); if (thought.trim()) chat(thought.trim()); }}><label htmlFor="custom-discovery-chat">Or open a conversation with Willow</label><div><input id="custom-discovery-chat" value={thought} onChange={event => setThought(event.target.value)} placeholder="What’s on your mind?" /><button type="submit" disabled={!thought.trim()} aria-label="Talk with Willow"><ArrowRight aria-hidden="true" /></button></div></form>
+      <form className="discovery-chat" onSubmit={(event) => { event.preventDefault(); if (thought.trim()) chat(thought.trim()); }}><div className="pinned-chat-entry-links"><DiscoveryResumeLink userId={userId} choice={choice} item={item} onResume={onResume} /><label htmlFor="custom-discovery-chat">Or start wherever you like</label></div><div><input id="custom-discovery-chat" value={thought} onChange={event => setThought(event.target.value)} placeholder="What’s on your mind?" /><button type="submit" disabled={!thought.trim()} aria-label="Talk with Willow"><ArrowRight aria-hidden="true" /></button></div></form>
     </section>
   </main>;
 };
