@@ -10,6 +10,7 @@ import { PetalPinButton, usePetalPin } from './PetalPin';
 import { PetalActionNote } from './PetalActionNote';
 import { ActionCompletion } from './ActionCompletion';
 import { SortablePetalList } from './SortablePetalList';
+import { PetalBranchArtwork } from './PetalBranchArtwork';
 
 const ICONS = [Users, Sprout, Sun, Leaf, Heart, ListChecks];
 export const MyPetals = ({ userId, flower, onContinue, pinnedOnly = false }) => {
@@ -64,6 +65,7 @@ export const MyPetals = ({ userId, flower, onContinue, pinnedOnly = false }) => 
           setDraft(null);
         };
         return <section key={petal} className={`petal-recommendations petal-recommendations-${index}${expandedPetals[petal] ? ' is-expanded' : ''}`} aria-labelledby={`petal-recommendations-${index}`}>
+          <div className="petal-branch-flower"><PetalBranchArtwork /><div className="petal-branch-center"><Icon aria-hidden="true" /><span>{petal}</span><small>{pinnedOnly ? 'Pinned action' : `${items.length} ${items.length === 1 ? 'action' : 'actions'}`}</small></div></div>
           <div className="petal-box-controls"><h2 id={`petal-recommendations-${index}`}>{petal}</h2><span className="petal-edit-controls" hidden={pinnedOnly}>{(items.length > 0 || adding) && <button type="button" className="petal-edit-button" aria-label={`${adding ? 'Save new action item for' : 'Add action item to'} ${petal}`} title={adding ? 'Save action item' : 'Add action item'} disabled={editsLoading || (adding && !draft.text.trim())} onClick={() => { if (adding) saveAction(); else { setItemDraft(null); setDraft({ petal, text: '' }); } }}>{adding ? <Check aria-hidden="true" /> : <Plus aria-hidden="true" />}</button>}{adding && <button type="button" className="petal-edit-button" aria-label={`Cancel new action item for ${petal}`} title="Cancel action item" onClick={cancelAdd}><X aria-hidden="true" /></button>}</span><button type="button" className="petal-window-size" aria-label={`${expandedPetals[petal] ? 'Collapse' : 'Expand'} ${petal} window`} title={expandedPetals[petal] ? 'Collapse window' : 'Expand window'} aria-expanded={!!expandedPetals[petal]} onClick={() => setExpandedPetals(current => ({ ...current, [petal]: !current[petal] }))}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M11 4H4v16h16v-7" />{expandedPetals[petal] ? <path d="m21 3-10 10m0-7v7h7" /> : <path d="M14 3h7v7m0-7L11 13" />}</svg></button></div>
           <SortablePetalList items={items} disabled={pinnedOnly || editsLoading || !!itemDraft || adding} onReorder={ids => savePreferences(current => setPetalActionOrder(current, petal, ids))} getClassName={item => [actionCompletionCount(preferences, item.id) > 0 ? 'is-completed' : '', rotation?.paused && rotation.itemId === item.id ? 'is-pinned' : ''].filter(Boolean).join(' ')}>
           {(item, handleProps) => <>

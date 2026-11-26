@@ -2868,3 +2868,38 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .petal-window-size svg { width: 1.35rem; height: 1.35rem; }
 .petal-window-size:hover { background: #405b3c12; }
 .petal-window-size:focus-visible { outline: 2px solid #536c4d; outline-offset: 2px; }
+
+/* Expanded collections branch into smaller flowers; the main flower stays put. */
+.petal-branch-flower { display: none; }
+.petal-recommendations.is-expanded { display: grid; grid-template-columns: minmax(12rem, 19rem) minmax(0, 1fr); gap: 1rem 1.5rem; padding: 1.25rem; border: 1px solid var(--petal-border); border-radius: 2rem; background: radial-gradient(ellipse at left, var(--petal-background), #fffdf3e8 75%); box-shadow: 0 6px 24px #5c64451a; }
+.petal-recommendations.is-expanded > .petal-box-controls { grid-column: 1 / -1; padding-bottom: .5rem; border-bottom: 1px solid var(--petal-border); }
+.petal-recommendations.is-expanded > .petal-branch-flower { display: grid; grid-column: 1; grid-row: 2; align-self: start; position: sticky; top: 1rem; aspect-ratio: 400 / 360; width: 100%; }
+.petal-branch-art { width: 100%; height: 100%; filter: drop-shadow(0 3px 3px #77654618); }
+.petal-branch-stems { stroke: #879260; stroke-width: 2.5; }
+.petal-branch-buds { fill: #f3c6bc; }
+.petal-branch-blossom { fill: var(--petal-background); stroke: var(--petal-border); stroke-width: 1.5; }
+.petal-branch-center { position: absolute; top: 32%; left: 28%; width: 44%; height: 32%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: .25rem; text-align: center; color: #345239; font-family: 'Cormorant Garamond', Georgia, serif; font-size: clamp(1.1rem, 2vw, 1.5rem); font-weight: 600; line-height: 1.05; }
+.petal-branch-center svg { width: 1.5rem; height: 1.5rem; flex-shrink: 0; }
+.petal-branch-center small { font-family: inherit; font-size: .8em; font-weight: 400; }
+.petal-recommendations.is-expanded > .sr-only { position: absolute; }
+.petal-recommendations.is-expanded > ul { position: relative; grid-column: 2; grid-row: 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr)); gap: 1rem; align-content: start; padding: .4rem; max-height: 70svh; }
+.petal-recommendations.is-expanded li { position: relative; margin: 0; padding: 1.25rem; border-radius: 2.75rem .8rem 2.75rem .8rem; background: linear-gradient(135deg, #fffdf5f5, var(--petal-background)); border: 1px solid var(--petal-border); box-shadow: 0 3px 9px #6e68471a; }
+.petal-recommendations.is-expanded li:nth-child(even) { border-radius: .8rem 2.75rem .8rem 2.75rem; }
+.petal-recommendations.is-expanded .petal-recommendation span { display: block; overflow: visible; -webkit-line-clamp: unset; }
+.petal-recommendations.is-expanded .petal-action-note textarea { min-height: 12rem; }
+.petal-recommendations.is-expanded > .petal-add-form,
+.petal-recommendations.is-expanded > .petal-add-empty,
+.petal-recommendations.is-expanded > .petal-box-edit-status { grid-column: 2; }
+.petal-recommendations.is-expanded::before, .petal-recommendations.is-expanded::after { display: none; }
+@media (min-width: 701px) {
+  .petal-recommendations.is-expanded > .petal-branch-flower::after { content: ''; position: absolute; top: 50%; left: 86%; width: calc(14% + 1.9rem); height: 2rem; border-top: 2px solid #87926099; border-radius: 50%; transform: rotate(-10deg); pointer-events: none; }
+}
+@media (max-width: 700px) {
+  .petal-recommendations.is-expanded { grid-template-columns: minmax(0, 1fr); gap: .75rem; padding: .85rem; }
+  .petal-recommendations.is-expanded > .petal-branch-flower { position: relative; top: auto; width: min(100%, 15rem); justify-self: center; }
+  .petal-branch-center { font-size: 1.2rem; }
+  .petal-recommendations.is-expanded > ul { grid-column: 1; grid-row: 3; max-height: none; overflow: visible; }
+  .petal-recommendations.is-expanded > .petal-add-form,
+  .petal-recommendations.is-expanded > .petal-add-empty,
+  .petal-recommendations.is-expanded > .petal-box-edit-status { grid-column: 1; }
+}
