@@ -2852,5 +2852,5 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .discovery-chat .pinned-resume-link { display: inline; width: auto; height: auto; padding: .2rem 0; border-radius: 0; background: transparent; color: #405b3c; font: inherit; font-size: .9rem; text-decoration: underline; text-underline-offset: .18em; }
 .pinned-chat-active .discovery-chat { max-width: 48rem; margin: 2rem auto; }
 .pinned-inline-chat { max-width: 54rem; margin: 1.5rem auto 0; }
-.pinned-inline-chat .break-support-content { width: 100%; margin: 0; }
+.pinned-inline-chat .break-support-content { width: 100%; min-height: 0; margin: 0; padding: 0 0 2rem; }
 .pinned-inline-chat .break-support-heading { display: none; }
