@@ -2860,3 +2860,6 @@ button.matters-wheel-center:focus-visible { outline: 3px solid #536c4d; outline-
 .pinned-inline-chat { max-width: 54rem; margin: 1.5rem auto 0; }
 .pinned-inline-chat .break-support-content { width: 100%; min-height: 0; margin: 0; padding: 0 0 2rem; }
 .pinned-inline-chat .break-support-heading { display: none; }
+.discovery-choices-zone[hidden] { display: none; }
+.pinned-chat-active .pinned-inline-chat { max-width: none; }
+.pinned-chat-active .pinned-inline-chat .break-chat-panel { min-height: 50svh; }

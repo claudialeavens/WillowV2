@@ -1,12 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, ChevronRight, Home, Leaf } from 'lucide-react';
-import { DiscoveryResumeLink } from './DiscoveryResumeLink';
+import { DiscoveryChatZone } from './DiscoveryChatZone';
 import { DiscoveryOther } from './DiscoveryOther';
 import { DiscoveryFormatError } from './customDiscovery';
 import { requestCustomDiscovery } from './requestCustomDiscovery';
 import { streamWillowMessage } from './openAIService';
 
-export const CustomMeaningDiscovery = ({ choice, userId, item, onResume, initialAnswers, onBack, onHome, onChat }) => {
+export const CustomMeaningDiscovery = ({ choice, userId, item, onConversationChanged, initialAnswers, onBack, onHome, onChat }) => {
   const [answers, setAnswers] = useState(initialAnswers);
   const [screens, setScreens] = useState({});
   const [customDrafts, setCustomDrafts] = useState({});
@@ -14,7 +14,7 @@ export const CustomMeaningDiscovery = ({ choice, userId, item, onResume, initial
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [active, setActive] = useState(null);
-  const [thought, setThought] = useState('');
+  const [chatActive, setChatActive] = useState(false);
   const heading = useRef(null);
   const screen = screens[answers.length];
   useEffect(() => {
@@ -53,13 +53,15 @@ export const CustomMeaningDiscovery = ({ choice, userId, item, onResume, initial
       setError(''); setLoading(false); setAnswers(current => current.slice(0, -1));
     } else onBack();
   };
-  const chat = (message) => onChat(message, { need: choice, intent: answers[0].answer, answers: answers.slice(1).map(item => item.answer), guidedAnswers: answers, hopedOutcome: answers[3]?.answer ?? null, desiredTakeaway: answers[4]?.answer ?? null, approaches: screen?.approaches ?? [], activityTitle: active?.title ?? null, activitySteps: active?.steps ?? null, activityFactor: active?.factor ?? null, approach: active?.approach ?? null, stage: active ? 'reflect' : screen?.approaches ? 'orient' : 'discover' });
-  return <main className="page discovery-page">
+  const getChatContext = () => ({ need: choice, intent: answers[0].answer, answers: answers.slice(1).map(item => item.answer), guidedAnswers: answers, hopedOutcome: answers[3]?.answer ?? null, desiredTakeaway: answers[4]?.answer ?? null, approaches: screen?.approaches ?? [], activityTitle: active?.title ?? null, activitySteps: active?.steps ?? null, activityFactor: active?.factor ?? null, approach: active?.approach ?? null, stage: active ? 'reflect' : screen?.approaches ? 'orient' : 'discover' });
+  const chat = message => onChat(message, getChatContext());
+  return <main className={`page discovery-page${chatActive ? ' pinned-chat-active' : ''}`}>
     <nav className="tracking-navigation" aria-label="Page navigation"><button className="home-button back-button" type="button" aria-label="Go back" onClick={back}><ArrowLeft aria-hidden="true" /></button><button className="home-button" type="button" aria-label="Return to home page" onClick={onHome}><Home aria-hidden="true" /></button></nav>
     <section className="discovery-content" aria-labelledby="custom-discovery-heading">
       <p className="discovery-eyebrow"><Leaf aria-hidden="true" /> Nourish &amp; Flourish</p>
       <h1 id="custom-discovery-heading" tabIndex={-1} ref={heading}>{active ? active.title : screen?.approaches ? 'Three ways to explore what fits.' : 'Let’s get a little closer.'}</h1>
       <p className="discovery-intro">{active ? active.gain : <>You shared: “{answers.at(-1).answer}”</>}</p>
+      <div hidden={chatActive} className="discovery-choices-zone">
       {loading && !screen && <p role="status">Shaping the next step around your answer…</p>}
       {error && <div role="alert"><p>{error}</p><button className="discovery-primary" type="button" onClick={() => { setLoading(false); setRetry(value => value + 1); }}>Try again</button></div>}
       {screen?.question && <div className="discovery-starting-points" role="group" aria-labelledby="custom-question-heading">
@@ -69,7 +71,8 @@ export const CustomMeaningDiscovery = ({ choice, userId, item, onResume, initial
       </div>}
       {screen?.approaches && !active && <>{screen.approaches.map(item => <article className="discovery-recommendation" key={item.approach}><p className="discovery-label">{item.type} · {item.minutes} minutes</p><h2>{item.title}</h2><p>{item.gain}</p><button className="discovery-primary" type="button" onClick={() => setActive(item)}>Try this <ArrowRight aria-hidden="true" /></button></article>)}<button className="discovery-text-button" type="button" onClick={onBack}>Change my earlier answers</button></>}
       {active && <article className="discovery-experience"><p className="discovery-label">{active.type} · About {active.minutes} minutes · Go at your pace</p><ol>{active.steps.map((step, index) => <li key={index}>{step}</li>)}</ol><button className="discovery-text-button" type="button" onClick={() => setActive(null)}>See the three approaches</button><p className="discovery-permission">Take what helps. You can pause, adapt this, or choose something else.</p><button className="discovery-primary" type="button" onClick={() => chat(`I tried “${active.title}”. Help me reflect on what I noticed, one question at a time.`)}><Check aria-hidden="true" /> I’ve tried this</button><button className="discovery-text-button" type="button" onClick={() => chat(`Guide me through “${active.title}”, one small step at a time.`)}>Guide me through it</button></article>}
-      <form className="discovery-chat" onSubmit={(event) => { event.preventDefault(); if (thought.trim()) chat(thought.trim()); }}><div className="pinned-chat-entry-links"><DiscoveryResumeLink userId={userId} choice={choice} item={item} onResume={onResume} /><label htmlFor="custom-discovery-chat">Or start wherever you like</label></div><div><input id="custom-discovery-chat" value={thought} onChange={event => setThought(event.target.value)} placeholder="What’s on your mind?" /><button type="submit" disabled={!thought.trim()} aria-label="Talk with Willow"><ArrowRight aria-hidden="true" /></button></div></form>
+      </div>
+      <DiscoveryChatZone choice={choice} item={item} userId={userId} getContext={getChatContext} onActiveChange={setChatActive} onHome={onHome} onConversationChanged={onConversationChanged} />
     </section>
   </main>;
 };

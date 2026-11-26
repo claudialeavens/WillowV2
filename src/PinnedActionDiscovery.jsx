@@ -24,7 +24,7 @@ export const PinnedActionDiscovery = ({ item, userId, onBack, onHome, onChat, on
   }, [userId, item]);
   const discovery = { need: item.petal, pinnedAction: item.text, pinnedActionId: item.id, stage: 'discover' };
   const chat = (message, context = {}) => onChat(message, { ...discovery, ...context, pinnedAction: item.text, pinnedActionId: item.id });
-  if (answer) return <CustomMeaningDiscovery userId={userId} item={item} onResume={saved => { setAnswer(null); setFocused(true); setSession({ saved }); }} choice={item.petal} initialAnswers={[
+  if (answer) return <CustomMeaningDiscovery userId={userId} item={item} onConversationChanged={onConversationChanged} choice={item.petal} initialAnswers={[
     { question: 'What pinned action would you like to explore?', answer: item.text },
     { question: 'How would you like to explore this?', answer },
   ]} onBack={() => setAnswer(null)} onHome={onHome} onChat={chat} />;
