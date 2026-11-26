@@ -730,7 +730,9 @@ const MattersPage = ({ onHome, onSelect, onManagingLife, onRecommendation, auth,
   const [petalView, setPetalView] = useState('explore');
   const flower = (
     <div className={`matters-wheel${petalView === 'explore' ? ' matters-wheel-explore' : ''}`} role="group" aria-label="Explore what matters to you">
-        <img className="matters-watercolor-art" src="/images/willow-watercolor-flower.png" alt="" aria-hidden="true" />
+        <svg className="matters-petals" viewBox="0 0 500 500" aria-hidden="true">
+          {[0, 60, 120, 180, 240, 300].map((angle, index) => <path key={angle} className={`matters-petal matters-petal-${index}`} transform={`rotate(${angle} 250 250)`} d="M250 250 L155 94 Q126 50 172 25 Q250 -8 328 25 Q374 50 345 94 Z" />)}
+        </svg>
         {[
           { choice: 'Feeling connected', Icon: Users },
           { choice: 'Energy & vitality', Icon: Sprout },
