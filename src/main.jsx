@@ -1402,7 +1402,7 @@ const App = () => {
     const kind = 'wellbeing';
     page = <PersonalReminderPage key={`${kind}:${auth.user?.id ?? 'guest'}`} kind={kind} userId={auth.user?.id} onBack={goBack} onHome={goHome} />;
   } else if (step === 14 && pinnedDiscoveryItem) {
-    page = <PinnedActionDiscovery key={`${pinnedDiscoveryItem.id}:${auth.user?.id ?? 'guest'}`} item={pinnedDiscoveryItem} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
+    page = <PinnedActionDiscovery key={`${pinnedDiscoveryItem.id}:${auth.user?.id ?? 'guest'}`} item={pinnedDiscoveryItem} userId={auth.user?.id ?? null} onConversationChanged={conversationChanged} onBack={goBack} onHome={goHome} onChat={(message, discovery) => {
       setActiveConversation(null);
       setEntryContext({ activity: 'My petals', selection: pinnedDiscoveryItem.petal, discovery });
       setInitialThought(message);
